@@ -1,0 +1,22 @@
+# 密钥与环境配置 —— 永远不进仓库
+.env
+.env.local
+
+# 依赖
+node_modules/
+
+# 运行产物
+*.log
+.edge-tmp/
+edge-profile/
+
+# 调试截图与一次性探针脚本 —— 不进仓库
+/*.png
+/probe_*.js
+/tmp_*.js
+/cdp_*.js
+/demo_assets/
+!public/demo/*.png
+
+# 单文件发行版是 build/bundle.js 的生成物，随时可重建，不进仓库
+/dist/

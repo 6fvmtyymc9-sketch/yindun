@@ -1,0 +1,1336 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>银盾 · 交互 Demo</title>
+<style>
+  :root{
+    --red:#C7000B;
+    --s1:#2E9E5B; --s2:#E0A80D; --s3:#E57200; --s4:#D32020;
+    --ink:#1c1c1e; --sub:#86868b; --line:#e8e6e4; --paper:#fff;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0; min-height:100vh; background:#15161a;
+    background-image:radial-gradient(circle at 20% 0%, #26272e 0%, #15161a 55%);
+    font-family:"Microsoft YaHei","PingFang SC",-apple-system,sans-serif;
+    color:#e8e6e3; display:flex; flex-direction:column; align-items:center;
+    padding:30px 20px 40px;
+  }
+  header{text-align:center; margin-bottom:26px;}
+  header .logo{display:flex; align-items:center; justify-content:center; gap:10px;}
+  header .dot{width:26px;height:26px;border-radius:8px;background:var(--red);position:relative;}
+  header .dot::after{content:"";position:absolute;inset:7px 7px auto 7px;height:4px;border-radius:2px;background:#fff;box-shadow:0 7px 0 #fff;}
+  h1{font-size:23px; margin:0; letter-spacing:.01em; font-weight:700;}
+  header .sub{font-size:12.5px; color:#8d8d93; margin-top:7px; letter-spacing:.03em;}
+
+  /* 双机布局 */
+  .stage{display:flex; align-items:flex-start; gap:0; position:relative;}
+  .phone{
+    width:330px; height:648px; border:9px solid #17171a; border-radius:42px;
+    background:var(--paper); position:relative; overflow:hidden;
+    box-shadow:0 22px 60px rgba(0,0,0,.6), 0 0 0 1px #2e2f35 inset;
+    display:flex; flex-direction:column; color:var(--ink);
+  }
+  .phone .notch{
+    position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:110px; height:22px; background:#17171a; border-radius:0 0 14px 14px; z-index:20;
+  }
+  .statusbar{
+    height:26px; flex:0 0 auto; display:flex; align-items:center; justify-content:space-between;
+    padding:0 18px; font-size:11px; color:#5a5a5f; font-weight:600;
+  }
+  .alert-tag{
+    display:inline-block; font-size:11px; padding:2px 8px; border-radius:20px;
+    background:#eef7f1; color:#1c7a4a; border:1px solid #cde9d9;
+  }
+  .alert-tag.hot{background:#fdecec; color:var(--red); border-color:#f5c9c9;}
+
+  /* 连接线 */
+  .link{
+    width:96px; align-self:center; margin-top:190px; position:relative; text-align:center;
+  }
+  .link .arrow{
+    height:2px; background:repeating-linear-gradient(90deg,#3a3b42 0 6px,transparent 6px 12px);
+    position:relative;
+  }
+  .link .arrow::after{
+    content:""; position:absolute; right:-2px; top:-3px;
+    border-left:8px solid #3a3b42;
+    border-top:4px solid transparent; border-bottom:4px solid transparent;
+  }
+  .link .cap{font-size:11px; color:#6f7078; margin-top:10px; line-height:1.6; letter-spacing:.02em;}
+  .link.live .arrow{background:repeating-linear-gradient(90deg,#e57200 0 6px,transparent 6px 12px); animation:flow .55s linear infinite;}
+  .link.live .arrow::after{border-left-color:#e57200;}
+  .link.live .cap{color:#e57200;}
+  @keyframes flow{from{background-position:0 0}to{background-position:12px 0}}
+
+  /* ============ 老人端 ============ */
+  .elder-head{padding:8px 20px 12px; flex:0 0 auto; border-bottom:1px solid var(--line);}
+  .elder-head .app{display:flex; align-items:center; justify-content:space-between;}
+  .elder-head .app b{font-size:20px; letter-spacing:.02em;}
+  .elder-head .hint{font-size:14px; color:#6b6b70; margin-top:6px; line-height:1.5;}
+  .msgs{flex:1 1 auto; overflow-y:auto; padding:14px 16px 20px; position:relative;
+    -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 14px);
+    mask-image:linear-gradient(to bottom, transparent 0, #000 14px);}
+  .msgs::-webkit-scrollbar{width:4px;} .msgs::-webkit-scrollbar-thumb{background:#ddd;border-radius:4px;}
+  .msg{
+    border:1.5px solid var(--line); border-radius:14px; padding:13px 14px; margin-bottom:12px;
+    background:#fcfcfc; transition:.25s; position:relative;
+  }
+  .msg .txt{font-size:15px; line-height:1.68; color:#2b2b2f; word-break:break-word;}
+  .msg .meta{display:flex; align-items:center; justify-content:space-between; margin-top:11px;}
+  .msg .from{font-size:11.5px; color:#9a9a9f;}
+  .msg .fwd{
+    border:none; background:var(--red); color:#fff; font-size:13.5px; font-weight:600;
+    padding:7px 16px; border-radius:20px; cursor:pointer; font-family:inherit;
+  }
+  .msg .fwd:active{transform:scale(.96);}
+  .msg.done{opacity:.62; background:#f7f6f5; border-style:dashed;}
+  .msg.done .fwd{display:none;}
+  .msg.done::after{
+    content:"已转发"; position:absolute; right:14px; bottom:13px;
+    font-size:12px; color:#2E9E5B; font-weight:600;
+  }
+  /* 更早的消息折叠成一行 —— 老人不需要反复盯着旧消息，屏幕要留给结论 */
+  .msg.collapsed{padding:7px 12px; background:#faf9f8; border-style:dashed; opacity:.55;
+    display:flex; align-items:center; gap:8px; margin-bottom:8px;}
+  .msg.collapsed .txt{
+    font-size:12.5px; color:#8a8a8f; overflow:hidden; text-overflow:ellipsis;
+    white-space:nowrap; flex:1 1 auto;
+  }
+  .msg.collapsed .meta{display:none;}
+  .msg.collapsed::before{
+    content:"✓"; color:#2E9E5B; font-size:12px; font-weight:700; flex:0 0 auto;
+  }
+  .msg.locked{opacity:.42;}
+  .msg.locked .fwd{display:none;}
+
+  /* 结论卡 */
+  .verdict-zone{flex:0 0 auto; padding:0 16px;}
+  .verdict{
+    margin:0 0 14px; border-radius:16px; padding:15px 16px 13px;
+    background:#f6f6f6; border:2px solid #e2e2e2; display:none;
+  }
+  .verdict.show{display:block; animation:pop .3s cubic-bezier(.2,1.2,.4,1);}
+  @keyframes pop{from{transform:translateY(10px) scale(.985)}to{transform:translateY(0) scale(1)}}
+  .verdict .lv{font-size:12px; font-weight:700; letter-spacing:.08em; margin-bottom:7px;}
+  .verdict .big{font-size:20px; font-weight:700; line-height:1.48; color:#1a1a1a;}
+  .verdict .ev{margin-top:9px; font-size:12px; color:#77777d; line-height:1.55;}
+  .verdict .speak{
+    margin-top:11px; width:100%; border:1.5px solid #d8d5d2; background:#fff; color:#3a3a3f;
+    font-size:14px; font-weight:600; padding:10px; border-radius:11px; cursor:pointer; font-family:inherit;
+  }
+  .verdict .speak:active{transform:scale(.985);}
+
+  /* 四色进度条 */
+  .pipe{margin-top:14px;}
+  .pipe .bars{display:flex; gap:5px;}
+  .pipe .bar{flex:1; height:9px; border-radius:5px; background:#e9e7e5; transition:background .12s linear;}
+  .pipe .label{display:flex; justify-content:space-between; margin-top:7px; font-size:10.5px; color:#a0a0a6;}
+  .pipe .label span.on{font-weight:700;}
+  .p1 .bar:nth-child(1){background:var(--s1);} 
+  .p2 .bar:nth-child(-n+2){background:var(--s2);} 
+  .p3 .bar:nth-child(-n+3){background:var(--s3);} 
+  .p4 .bar:nth-child(-n+4){background:var(--s4);} 
+
+  /* ============ 子女端 ============ */
+  .kid-head{padding:10px 18px 12px; border-bottom:1px solid var(--line); flex:0 0 auto;
+    display:flex; align-items:center; justify-content:space-between;}
+  .kid-head .t{font-size:17px; font-weight:700;}
+  .kid-body{flex:1 1 auto; overflow-y:auto; padding:16px 16px 20px; background:#fafaf9;}
+  .empty{
+    margin-top:150px; text-align:center; color:#b9b9be;
+  }
+  .empty .ic{font-size:40px; margin-bottom:12px; opacity:.5;}
+  .empty p{font-size:13.5px; margin:0; line-height:1.7;}
+
+  .alert-card{
+    border-radius:18px; padding:17px 17px 15px; color:#fff; margin-bottom:14px;
+    box-shadow:0 10px 26px rgba(0,0,0,.16); animation:shake .5s;
+  }
+  @keyframes shake{
+    0%,100%{transform:translateX(0)} 15%{transform:translateX(-7px)}
+    30%{transform:translateX(6px)} 45%{transform:translateX(-4px)}
+    60%{transform:translateX(3px)} 80%{transform:translateX(-2px)}
+  }
+  .alert-card.s3{background:linear-gradient(150deg,#F08A1E,#E57200);}
+  .alert-card.s4{background:linear-gradient(150deg,#e23b3b,#C7000B);}
+  /* 关注级：只报不拦。视觉上必须比橙色"轻"，否则分级就白做了 */
+  .alert-card.watch{
+    background:#F5F7FA; color:#3A3F47; border:1px solid #E2E6EC;
+    box-shadow:0 4px 14px rgba(0,0,0,.05); animation:none;
+  }
+  .alert-card.watch .src{color:#8A9099;}
+  .alert-card.watch .title{font-size:16px; margin:6px 0 7px;}
+  .alert-card.watch .sum{color:#5B6169;}
+  .alert-card.watch .acts button.ghost{background:#fff; color:#3A3F47; border:1px solid #D6DCE4;}
+  .alert-card .src{font-size:11.5px; opacity:.88; letter-spacing:.06em;}
+  .alert-card .title{font-size:18px; font-weight:700; margin:7px 0 8px; line-height:1.45;}
+  .alert-card .sum{font-size:13px; line-height:1.65; opacity:.95;}
+  .alert-card .acts{display:flex; gap:9px; margin-top:14px;}
+  .alert-card .acts button{
+    flex:1; border:none; border-radius:11px; padding:11px 0; font-size:13.5px; font-weight:600;
+    font-family:inherit; cursor:pointer; background:rgba(255,255,255,.95); color:#222;
+  }
+  .alert-card .acts button.ghost{background:rgba(255,255,255,.18); color:#fff; border:1px solid rgba(255,255,255,.5);}
+  .alert-card .acts button:active{transform:scale(.97);}
+
+  .log-title{font-size:12px; color:#a0a0a6; margin:6px 0 10px; letter-spacing:.04em;}
+  .log-item{
+    background:#fff; border:1px solid var(--line); border-radius:12px; padding:12px 14px;
+    margin-bottom:9px; display:flex; gap:10px; align-items:flex-start;
+  }
+  .log-item .dot2{width:7px; height:7px; border-radius:50%; margin-top:7px; flex:0 0 auto;}
+  .log-item .d3{background:var(--s3);} .log-item .d4{background:var(--s4);}
+  .log-item .txt2{font-size:12.5px; line-height:1.6; color:#4a4a4f;}
+  .log-item .tm{font-size:11px; color:#b0b0b6; margin-top:3px;}
+
+  /* 控制台 */
+  .console{
+    margin-top:26px; display:flex; gap:11px; flex-wrap:wrap; justify-content:center;
+    padding:15px 18px; background:#1e1f25; border:1px solid #2e2f37; border-radius:14px;
+  }
+  .console button{
+    background:#2a2b33; color:#d8d6d2; border:1px solid #3a3b44; border-radius:9px;
+    padding:9px 17px; font-size:13px; font-family:inherit; cursor:pointer; transition:.2s;
+  }
+  .console button:hover{background:#34353e; color:#fff;}
+  .console button.primary{background:var(--red); border-color:var(--red); color:#fff; font-weight:600;}
+  .console button.primary:hover{background:#e00d19;}
+  .console .sep{width:1px; background:#33343c; margin:0 3px;}
+
+  /* ------------------------------------------------------------
+     演示面板：默认收起。
+     「📮 上报可疑信息」是真实功能，常驻可见；
+     其余按钮只给演示/调试用，长按那个按钮 0.7 秒才展开。
+     老人只会点，不会长按 —— 交付形态上就是干净的。
+     ------------------------------------------------------------ */
+  .devpad{display:none; gap:11px; flex-wrap:wrap; justify-content:center; width:100%;}
+  body.dev .devpad{display:flex;}
+  .console, .console button{user-select:none; -webkit-user-select:none; -webkit-touch-callout:none;}
+  .console button:focus, .console button:active{outline:none;}
+  body.solo .devpad{gap:7px;}
+  footer{margin-top:20px; font-size:11.5px; color:#5c5d65; letter-spacing:.02em; text-align:center; line-height:1.8;}
+
+  /* ============================================================
+     场景二 · 远程操控（判据看板）
+     配色沿用深色控制台风格：看板是"系统后台视角"，不是手机界面
+     ============================================================ */
+  .stage{display:flex; align-items:flex-start;}
+  .stage.off{display:none;}
+  .stage2{display:none; align-items:flex-start; gap:16px;}
+  .stage2.on{display:flex;}
+
+  /* 判据看板 */
+  .board{
+    width:398px; flex:0 0 auto; background:#1b1c22; border:1px solid #2e2f37;
+    border-radius:16px; padding:16px 16px 14px; color:#d8d6d2;
+    display:flex; flex-direction:column;
+  }
+  .board .bd-head{display:flex; align-items:center; justify-content:space-between;}
+  .board .bd-title{font-size:13px; font-weight:700; letter-spacing:.04em;}
+  .board .bd-mode{font-size:10px; color:#7b7c85; background:#24252c; padding:2px 8px; border-radius:20px;}
+  .board .bd-sub{font-size:11px; color:#6e6f78; margin:6px 0 12px; line-height:1.6;}
+
+  .unread{
+    display:flex; align-items:flex-start; gap:8px; padding:9px 11px; border-radius:9px;
+    background:#1f2026; border:1px dashed #34353e; margin-bottom:11px;
+  }
+  .unread .ic{font-size:13px; opacity:.55; line-height:1.4;}
+  .unread .tx{font-size:11.5px; color:#75767f; line-height:1.55;}
+  .unread b{color:#9a9ba4; font-weight:600;}
+
+  .score{
+    display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px;
+    background:#23242b; border:1px solid #33343d; margin-bottom:11px; transition:.25s;
+  }
+  .score .num{font-size:18px; font-weight:800; font-variant-numeric:tabular-nums; color:#8a8b94;}
+  .score .num i{font-size:11px; font-style:normal; opacity:.55; font-weight:600;}
+  .score .mid{flex:1;}
+  .score .lb{font-size:11px; color:#7b7c85; margin-bottom:5px;}
+  .score .bar{height:5px; border-radius:3px; background:#33343d; overflow:hidden;}
+  .score .bar s{display:block; height:100%; width:0; background:#4a4b55; transition:.35s;}
+  .score.s2{border-color:#6b5410; background:#241f10;}
+  .score.s2 .num{color:#E0A80D;} .score.s2 .bar s{background:#E0A80D;}
+  .score.s3{border-color:#7a3d0e; background:#241a10;}
+  .score.s3 .num{color:#E57200;} .score.s3 .bar s{background:#E57200;}
+  .score.s4{border-color:#7d1a1a; background:#260f0f;}
+  .score.s4 .num{color:#FF5A5A;} .score.s4 .bar s{background:#FF5A5A;}
+  .score.s5{border-color:#D64B2C; background:#2c0e07; box-shadow:0 0 0 1px rgba(214,75,44,.35) inset;}
+  .score.s5 .num{color:#FF8A63;} .score.s5 .bar s{background:#FF8A63;}
+  .score.sok{border-color:#1F7A4D; background:#0f2419; transition:none;}
+  .score.sok .num{color:#3FCF87;} .score.sok .bar s{background:#3FCF87;}
+
+  /* 子女端卡片：已被接通的标记 */
+  .alert-card .answered{
+    margin:-1px 0 9px; padding:7px 10px; border-radius:8px;
+    background:#1F7A4D; color:#fff; font-size:11.5px; font-weight:700; text-align:center;
+    letter-spacing:.02em;
+  }
+  .alert-card.done{opacity:.72;}
+
+  .ev-list{display:flex; flex-direction:column; gap:5px; justify-content:flex-start;}
+  .ev.ghost{
+    opacity:1; transform:none; min-height:43px; border-style:dashed;
+    background:#1e1f25; border-color:#292a31; align-items:center;
+  }
+  .ev.ghost .tm{color:#3a3b44; font-weight:700;}
+  .ev{
+    display:flex; align-items:flex-start; gap:9px; padding:6px 10px; border-radius:9px;
+    background:#22232a; border:1px solid #2e2f37; opacity:0; transform:translateY(7px);
+  }
+  .ev.in{animation:evin .28s ease forwards;}
+  @keyframes evin{to{opacity:1; transform:translateY(0);}}
+  .ev .tm{font-size:10.5px; color:#71727b; font-variant-numeric:tabular-nums; padding-top:1px; flex:0 0 33px;}
+  .ev .body{flex:1; min-width:0;}
+  .ev .dsc{font-size:11.5px; line-height:1.45; color:#cfcdc9;}
+  .ev .code{font-size:9.5px; color:#6a6b74; font-family:ui-monospace,Consolas,monospace; margin-top:1px;}
+  .ev .st{flex:0 0 auto; font-size:11px; font-weight:700; color:#4ec27c; padding-top:1px;}
+  .ev.warn{border-color:#6b3a10; background:#241a10;}
+  .ev.warn .dsc{color:#f0c89a;}
+  .ev.warn .st{color:#E57200;}
+  .ev.crit{border-color:#7d1a1a; background:#25100f;}
+  .ev.crit .dsc{color:#ffb3b3;}
+  .ev.crit .st{color:#FF5A5A;}
+
+  .board .bd-foot{
+    margin-top:11px; padding-top:10px; border-top:1px solid #2a2b33;
+    font-size:10.5px; color:#63646d; line-height:1.6;
+  }
+  .board .bd-foot b{color:#9a9ba4;}
+
+  /* 老人手机里的通话界面 */
+  .call-scr{flex:1; display:flex; flex-direction:column; align-items:center; padding:40px 20px 18px;}
+  .call-scr .avatar{
+    width:80px; height:80px; border-radius:50%; background:#2b2c34; color:#9a9ba4;
+    display:flex; align-items:center; justify-content:center; font-size:28px; margin-bottom:16px;
+  }
+  .call-scr .num{font-size:19px; font-weight:600; letter-spacing:.02em; color:#1c1c1e;}
+  .call-scr .loc{font-size:12px; color:#9a9ba4; margin-top:5px;}
+  .call-scr .timer{font-size:13px; color:#6a6a70; margin-top:18px; font-variant-numeric:tabular-nums;}
+  .call-scr .timer.hot{color:var(--s3); font-weight:700;}
+  .call-scr .quiet{
+    margin-top:auto; width:100%; text-align:center; font-size:11.5px; color:#a3a3a9;
+    line-height:1.75; padding-top:14px; border-top:1px solid #eeeceb;
+  }
+  .call-scr .quiet b{color:#2E9E5B;}
+
+  /* 通话界面的功能键（灰态：表明已结束、且我们没动过它） */
+  .call-scr .call-ops{display:flex; gap:28px; margin-top:32px;}
+  .call-scr .op{display:flex; flex-direction:column; align-items:center; gap:7px;}
+  .call-scr .op i{
+    width:50px; height:50px; border-radius:50%; background:#f1f0ee; color:#9a9ba4;
+    display:flex; align-items:center; justify-content:center; font-size:18px; font-style:normal;
+  }
+  .call-scr .op span{font-size:10.5px; color:#adadb3;}
+  .call-scr .hangup{
+    margin-top:26px; width:54px; height:54px; border-radius:50%; background:#eceae7;
+    color:#b4b4ba; display:flex; align-items:center; justify-content:center; font-size:21px;
+  }
+
+  /* ===== 阻断级覆盖层：唯一出口是"打给女儿"，没有关闭按钮 ===== */
+  .shield{
+    position:absolute; top:0; left:0; width:100%; height:100%; z-index:60; display:none;
+    flex-direction:column; align-items:center; justify-content:center;
+    padding:34px 24px; text-align:center; color:#fff;
+    background:linear-gradient(168deg,#C4341F 0%,#8F1A0C 100%);
+  }
+  .shield.on{display:flex; animation:shin .3s cubic-bezier(.2,1.1,.4,1);}
+  @keyframes shin{from{transform:translateY(14px)}to{transform:translateY(0)}}
+  .shield.out{opacity:0; transition:opacity .28s; pointer-events:none;}
+  /* 盖屏之后仍要看得到"电话还通着" —— 这是全片最重要的信息 */
+  .shield .sh-call{
+    position:absolute; top:16px; left:0; right:0; text-align:center;
+    font-size:11.5px; color:rgba(255,255,255,.66); letter-spacing:.02em;
+    font-variant-numeric:tabular-nums;
+  }
+  .shield .sh-call b{color:rgba(255,255,255,.9); font-weight:700;}
+  .shield .sh-ic{font-size:44px; margin-bottom:15px;}
+  .shield .sh-t{font-size:28px; font-weight:800; line-height:1.32; letter-spacing:.01em;}
+  .shield .sh-s{font-size:14px; line-height:1.75; margin-top:13px; color:rgba(255,255,255,.9);}
+  .shield .sh-s b{color:#FFE07A;}
+  .shield .sh-lock{
+    font-size:11.5px; margin-top:15px; padding:5px 13px; border-radius:20px;
+    background:rgba(0,0,0,.2); color:rgba(255,255,255,.72);
+  }
+  .shield .sh-btn{
+    margin-top:26px; width:100%; padding:17px 12px; border-radius:15px; border:none;
+    background:#fff; color:#B32711; font-size:17px; font-weight:800; font-family:inherit;
+    cursor:pointer; box-shadow:0 9px 24px rgba(0,0,0,.25);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .shield .sh-btn:active{transform:scale(.98);}
+  /* 自动拨出后呼吸一下，让观众看见"它自己在动"，不是等人点 */
+  @keyframes breathe{0%,100%{opacity:1} 50%{opacity:.62}}
+  .shield .sh-btn.pulse{animation:breathe 1.4s ease-in-out infinite; background:#fff; color:var(--red); font-size:15.5px;}
+  .shield .sh-note{margin-top:14px; font-size:11px; color:rgba(255,255,255,.6); line-height:1.6;}
+
+  /* ===== 已接通女儿：盖屏撤掉，换成绿屏 ===== */
+  .daughter{
+    position:absolute; top:0; left:0; width:100%; height:100%; z-index:70; display:none;
+    flex-direction:column; align-items:center; justify-content:center;
+    padding:34px 24px; text-align:center; color:#fff;
+    background:linear-gradient(168deg,#1F7A4D 0%,#125C38 100%);
+  }
+  .daughter.on{display:flex; animation:shin .3s cubic-bezier(.2,1.1,.4,1);}
+  .daughter .d-ic{font-size:40px; margin-bottom:14px;}
+  .daughter .d-t{font-size:24px; font-weight:800;}
+  .daughter .d-n{font-size:13px; margin-top:7px; color:rgba(255,255,255,.8);}
+  .daughter .d-say{
+    margin-top:24px; padding:16px 18px; border-radius:14px; background:rgba(255,255,255,.14);
+    border:1px solid rgba(255,255,255,.22); font-size:15px; line-height:1.7; text-align:left;
+  }
+  .daughter .d-say i{display:block; font-size:10.5px; font-style:normal; color:rgba(255,255,255,.62); margin-bottom:7px; letter-spacing:.06em;}
+  .daughter .d-ok{
+    margin-top:22px; padding:9px 16px; border-radius:20px; font-size:12px;
+    background:rgba(0,0,0,.2); color:rgba(255,255,255,.8);
+  }
+
+  /* 子女端卡片紧凑版：三张卡要能同时放下一部手机 */
+  .kid-body.compact .alert-card{padding:13px 14px 12px; border-radius:15px; margin-bottom:10px;}
+  .kid-body.compact .alert-card .src{font-size:10.5px;}
+  .kid-body.compact .alert-card .title{font-size:16px; margin:5px 0 6px; line-height:1.35;}
+  .kid-body.compact .alert-card .sum{font-size:12px; line-height:1.55;}
+  .kid-body.compact .alert-card .acts{margin-top:10px; gap:7px;}
+  .kid-body.compact .alert-card .acts button{padding:9px 0; font-size:12.5px; border-radius:9px;}
+
+  /* 控制台按场景切换 */
+  .c-mode2{display:none;}
+  .console.m2 .c-mode1{display:none;}
+  .console.m2 .c-mode2{display:block;}
+
+  /* ============================================================
+     单角色模式 —— 装进手机 App 时使用
+     通过 ?role=elder / ?role=child 激活：隐藏另一半、去掉外壳、
+     铺满整个屏幕，看起来就是一个原生 App，而不是"演示台"。
+     ============================================================ */
+  body.solo{
+    width:100vw; max-width:100vw; height:100vh; padding:0; margin:0;
+    overflow:hidden; background:#0f1013;
+    display:flex; flex-direction:column; align-items:stretch;
+  }
+  body.solo header, body.solo footer{display:none;}
+
+  body.solo .stage,
+  body.solo .stage2{
+    width:100vw; max-width:100vw; flex:1 1 auto; min-height:0;
+    gap:0; align-items:stretch;
+  }
+  body.solo .phone{
+    width:100%; max-width:100%; min-width:0; height:100%;
+    border:none; border-radius:0; box-shadow:none;
+  }
+  body.solo .phone .notch{display:none;}
+  body.solo .link{display:none;}
+  body.solo .board{display:none;}
+
+  /* 只留自己那一半 */
+  body.solo .phone.role-child{display:none;}
+  body.solo.role-child .phone.role-elder{display:none;}
+  body.solo.role-child .phone.role-child{display:flex;}
+
+  /* 控制台回到文档流：不再压在结论卡上，进度条永远看得见 */
+  body.solo .console{
+    position:static; flex:0 0 auto;
+    margin:0; padding:8px; border-radius:0; border:none;
+    background:#14151a; justify-content:center; gap:7px;
+  }
+  body.solo .console button{padding:7px 11px; font-size:12px;}
+  body.solo .console .sep{display:none;}
+
+  body.solo .kid-body{flex:1 1 auto; min-height:0;}
+  body.solo .msgs{min-height:0; overflow-x:hidden;}
+  body.solo .msg{max-width:100%; overflow-wrap:break-word;}
+  body.solo .msg.collapsed{white-space:normal;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span class="dot"></span><h1>银盾</h1></div>
+  <div class="sub">家庭协同的 AI 反诈守护系统 &nbsp;·&nbsp; 交互 Demo &nbsp;·&nbsp; 华为 ICT 大赛 2026–2027</div>
+</header>
+
+<div class="stage">
+  <!-- 老人端 -->
+  <div class="phone role-elder" data-role="elder">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span class="alert-tag" id="bindTag">已绑定家人</span></div>
+    <div class="elder-head">
+      <div class="app"><b>可疑消息</b><span class="alert-tag">点一下就转发</span></div>
+      <div class="hint">看不懂的消息，转发给我，我用大字告诉你。</div>
+    </div>
+    <div class="msgs" id="msgs"></div>
+    <div class="verdict-zone" id="vzone"></div>
+  </div>
+
+  <!-- 连接 -->
+  <div class="link" id="link">
+    <div class="arrow"></div>
+    <div class="cap">风险达橙色<br>自动通知子女</div>
+  </div>
+
+  <!-- 子女端 -->
+  <div class="phone role-child" data-role="child">
+    <div class="notch"></div>
+    <div class="statusbar"><span>9:41</span><span class="alert-tag hot" id="kidTag">银盾 · 守护中</span></div>
+    <div class="kid-head">
+      <div class="t">妈妈的守护</div>
+      <span class="alert-tag">已绑定</span>
+    </div>
+    <div class="kid-body" id="kidBody">
+      <div class="empty" id="kidEmpty">
+        <div class="ic">🛡</div>
+        <p>暂无风险提醒<br>妈妈的消息会实时同步到这里</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     场景二 · 远程操控
+     重点是"老人手机什么都没发生"，全靠事件判据反推
+     ============================================================ -->
+<div class="stage2" id="stage2">
+
+  <!-- 老人手机：正在通话，屏幕上没有任何提示 -->
+  <div class="phone role-elder" data-role="elder">
+    <div class="notch"></div>
+    <div class="statusbar"><span id="e2clock">18:47</span><span class="alert-tag" id="e2tag">守护中</span></div>
+    <div class="call-scr">
+      <div class="avatar">👤</div>
+      <div class="num" id="e2num">+1 (202) 555-0137</div>
+      <div class="loc">境外来电 · 未标记</div>
+      <div class="timer" id="callTimer">通话中 00:00</div>
+      <div class="call-ops">
+        <div class="op"><i>🔇</i><span>静音</span></div>
+        <div class="op"><i>⌨</i><span>键盘</span></div>
+        <div class="op"><i>🔊</i><span>免提</span></div>
+      </div>
+      <div class="hangup">✕</div>
+      <div class="quiet">
+        <b>银盾在后台守护</b><br>
+        平时不弹窗，不惊动对方<br>
+        只在她开始动钱时介入
+        <div style="font-size:10px; color:#c2c2c8; margin-top:9px;">不录音 · 不抓屏 · 不读聊天记录</div>
+      </div>
+    </div>
+
+    <!-- 阻断级：盖住屏幕。
+         关键修正：老人不能被动等女儿来电 —— 万一她在开会/睡觉没打过来，老人就被困在红屏上。
+         所以这里给的是「打给女儿」：主动拨，不依赖子女有没有看到消息。 -->
+    <div class="shield" id="shield">
+      <div class="sh-call" id="shCall"></div>
+      <div class="sh-ic">🛡</div>
+      <div class="sh-t">先别操作</div>
+      <div class="sh-s">
+        已经<b>同时打电话给女儿</b><br>
+        你也可以马上打给她，不差这一分钟
+      </div>
+      <div class="sh-lock">🔒 此提示无法关闭</div>
+      <button class="sh-btn" id="btnAnswer">📞 打给女儿</button>
+      <div class="sh-note">验证码已被遮住，对方看不到</div>
+    </div>
+
+    <!-- 已接通 -->
+    <div class="daughter" id="daughter">
+      <div class="d-ic">📞</div>
+      <div class="d-t">女儿已接通</div>
+      <div class="d-n">通话中 00:12</div>
+      <div class="d-say">
+        <i>她说的第一句话</i>
+        “妈，你先别挂，什么都别操作，我马上到。”
+      </div>
+      <div class="d-ok">✔ 转账未发生</div>
+    </div>
+  </div>
+
+  <!-- 判据看板 -->
+  <div class="board">
+    <div class="bd-head">
+      <div class="bd-title">银盾 · 判据看板</div>
+      <span class="bd-mode">事件回放</span>
+    </div>
+    <div class="bd-sub">全程通话中 · 只观测事件，不读通话内容</div>
+
+    <div class="unread">
+      <span class="ic">🚫</span>
+      <span class="tx"><b>通话内容：不可读</b> · 系统限制，Android 10 起禁止第三方录音</span>
+    </div>
+
+    <div class="score" id="score">
+      <span class="num"><span id="scoreNum">0</span><i> / 7</i></span>
+      <div class="mid">
+        <div class="lb" id="scoreLb">待命中 · 无异常事件</div>
+        <div class="bar"><s id="scoreBar"></s></div>
+      </div>
+    </div>
+
+    <div class="ev-list" id="evList"></div>
+
+    <div class="bd-foot">分级：≥3 条 <b>橙</b> · 装应用+开无障碍 <b>红</b> · 通话中动银行 <b>阻断</b></div>
+  </div>
+
+  <!-- 子女端 -->
+  <div class="phone role-child" data-role="child">
+    <div class="notch"></div>
+    <div class="statusbar"><span id="k2clock">18:47</span><span class="alert-tag hot">银盾 · 守护中</span></div>
+    <div class="kid-head">
+      <div class="t">妈妈的守护</div>
+      <span class="alert-tag">已绑定</span>
+    </div>
+    <div class="kid-body compact" id="kidBody2">
+      <div class="empty" id="kidEmpty2">
+        <div class="ic">🛡</div>
+        <p>暂无风险提醒<br>妈妈的消息会实时同步到这里</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="console" id="console">
+  <button id="btnReport">📮 上报可疑信息</button>
+
+  <div class="devpad" id="devPad">
+    <button class="primary c-mode1" id="btnAuto">▶ 自动演示完整流程</button>
+    <button class="c-mode1" id="btnReset">↺ 重置</button>
+    <div class="sep c-mode1"></div>
+    <button class="c-mode1" id="btnScam">剧本：冒充公检法</button>
+    <button class="c-mode1" id="btnNormal">反例：真儿子借钱</button>
+
+    <button class="primary c-mode2" id="btnReplay">▶ 回放事件流</button>
+    <button class="c-mode2" id="btnReset2">↺ 重置</button>
+    <div class="sep c-mode2"></div>
+
+    <div class="sep"></div>
+    <button id="btnSwitch">📵 切换到：远程操控场景</button>
+    <button id="btnAcquaint">👤 模拟陌生来电询问</button>
+  </div>
+</div>
+
+<footer>
+  演示用前端规则引擎 · 接后端时将 <code style="color:#8d8d93">analyze()</code> 换成 <code style="color:#8d8d93">POST /api/analyze</code> 即可<br>
+  老奴 · 2026-10-26
+</footer>
+
+<script>
+/* ============================================================
+   银盾 Demo · 前端规则引擎
+   说明：这里实现的是《四阶段判定规则 v1》的规则兜底版本，
+        同时也是对比实验里"关键词基线"的同一套逻辑。
+        接真后端时，只替换 analyze() 内部即可，接口不变。
+   ============================================================ */
+
+const STAGE_NAME = {0:'正常',1:'建立信任',2:'制造恐慌 / 诱惑',3:'隔离 · 要求保密',4:'索要钱款'};
+const STAGE_COLOR = {1:'#2E9E5B',2:'#E0A80D',3:'#E57200',4:'#D32020'};
+
+/* 规则表：从高到低匹配，命中即停（对应规则文档"判定顺序"章节） */
+const RULES = [
+  {stage:4, kw:['安全账户','监管账户','验资','验证码','共享屏幕','共享屏幕','转账','汇款','打款','atm','取现','转到']},
+  {stage:3, kw:['不要告诉','别告诉','不能告诉','不能跟','保密','别跟家里','别跟你儿子','别跟你女儿','妨碍公务','涉密','就咱俩知道']},
+  {stage:2, kw:['涉嫌','洗钱','逮捕','拘留','通缉','传票','冻结','征信','出车祸','在医院','年化','稳赚','内部名额','免费领','中奖','退税','补贴','必须处理','下午5点','今天必须','名额还剩','明天截止']},
+  {stage:1, kw:['我是','公安局','检察院','法院','客服','银行','社保','医保','通讯管理局','工号','换号了','我手机丢了','免费体检']}
+];
+
+const TYPE_RULES = [
+  {type:'冒充公检法', kw:['公安局','检察院','法院','刑侦','洗钱','逮捕','传票','妨碍公务']},
+  {type:'冒充子女',   kw:['妈，','爸，','我手机丢了','换号了','我出事了','我在医院']},
+  {type:'冒充客服',   kw:['客服','快递','包裹','退款','理赔','社保','医保']},
+  {type:'养老投资',   kw:['养老','年化','投资','理财','内部名额','稳赚']},
+  {type:'保健品',     kw:['保健品','免费体检','疗程','理疗','神药']}
+];
+
+const ELDER_TEXT = {
+  0:'这条消息没看出问题。',
+  1:'这段话有点可疑，对方在核对你的身份。先别急着相信，等一下再回。',
+  2:'对方在吓唬你。真正的警察和银行，不会打电话让你自己处理案子。',
+  3:'对方让你别告诉家人 —— 这是诈骗最明显的一步。下一步，他就会让你把钱转走。',
+  4:'千万不要转！这是诈骗。把手机放下，等家里人给你打电话。'
+};
+
+/* 核心识别函数 */
+function analyze(msgs){
+  const all = msgs.join('\n');
+  const lower = all.toLowerCase();
+
+  // 1. 定阶段：从高到低，命中即停
+  let stage = 0, evidence = [];
+  for (const r of RULES){
+    const hit = r.kw.filter(k => lower.includes(k.toLowerCase()));
+    if (hit.length){ stage = r.stage; evidence = hit.slice(0,3); break; }
+  }
+
+  // 2. 定类型
+  let type = 'normal';
+  for (const t of TYPE_RULES){
+    if (t.kw.some(k => lower.includes(k.toLowerCase()))){ type = t.type; break; }
+  }
+
+  // 3. 反例保护：家人借钱（无伪造身份 / 无保密 / 无紧迫感）→ 判 S0
+  const hasFakeId = /公安局|检察院|法院|客服|工号|社保|医保/.test(all);
+  const hasSecret = RULES[1].kw.some(k => lower.includes(k));
+  const hasUrgent = /今天必须|下午5点|马上|立刻|明天截止|名额还剩/.test(all);
+  if (type === '冒充子女' && !hasFakeId && !hasSecret && !hasUrgent){
+    stage = 0; type = 'normal'; evidence = ['无伪造身份、无保密要求、无异常紧迫感'];
+  }
+
+  // 4. 置信度：规则命中越多越自信
+  const conf = stage === 0 ? 0.78 : Math.min(0.96, 0.62 + evidence.length * 0.11);
+
+  return {
+    stage,
+    stage_name: STAGE_NAME[stage],
+    scam_type: type,
+    risk_level: ['green','green','yellow','orange','red'][stage],
+    evidence,
+    confidence: +conf.toFixed(2),
+    elder_text: ELDER_TEXT[stage],
+    family_summary: stage >= 3
+      ? `妈妈正在与自称「${type === 'normal' ? '陌生人' : type}」的人对话，对方已要求她对家人保密，疑似诈骗。`
+      : '低于预警阈值，仅记录。'
+  };
+}
+
+/* ============================================================
+   渲染层
+   ============================================================ */
+
+const SCRIPTS = {
+  scam: {
+    msgs: [
+      {from:'陌生号码 138****6621', text:'我是北京市公安局刑侦大队的，工号0371，现在依法向你核实一个情况。'},
+      {from:'陌生号码 138****6621', text:'你的身份证被人冒用开了银行卡，涉及一起200万的洗钱案，今天下午5点前必须处理完。'},
+      {from:'陌生号码 138****6621', text:'这个案子还在侦查阶段，你绝对不能告诉任何人，包括你儿子，否则以妨碍公务论处。'},
+      {from:'陌生号码 138****6621', text:'为了证明你的资金清白，请把这38万转到我们检察院的安全账户，查清后3个工作日退还。'}
+    ]
+  },
+  normal: {
+    msgs: [
+      {from:'陌生号码 150****3312', text:'妈，我手机丢了，这是同事的号，你存一下。'},
+      {from:'陌生号码 150****3312', text:'这个月房贷差两万，能不能先借我，下个月发了工资就还你。'}
+    ]
+  }
+};
+
+let cur = { key:'scam', sent:0, logs:[] };
+
+const elMsgs = document.getElementById('msgs');
+const elVzone = document.getElementById('vzone');
+const elBody = document.getElementById('kidBody');
+const elEmpty = document.getElementById('kidEmpty');
+const elLink = document.getElementById('link');
+const elBind = document.getElementById('bindTag');
+
+function renderMsgs(){
+  const list = SCRIPTS[cur.key].msgs;
+  elMsgs.innerHTML = '';
+  list.forEach((m, i) => {
+    const d = document.createElement('div');
+    let cls = 'msg';
+    if (i < cur.sent - 1)      cls = 'msg collapsed';   // 更早的：折叠成一行
+    else if (i === cur.sent-1) cls = 'msg done';        // 刚转发的：保留全文
+    else if (i > cur.sent)     cls = 'msg locked';      // 还没轮到的：变灰
+    d.className = cls;
+    d.innerHTML = `<div class="txt">${m.text}</div>
+      <div class="meta"><span class="from">${m.from}</span>
+      <button class="fwd" data-i="${i}">转发</button></div>`;
+    elMsgs.appendChild(d);
+  });
+  elMsgs.querySelectorAll('.fwd').forEach(b => {
+    b.onclick = () => send(+b.dataset.i);
+  });
+}
+
+/* 把"下一条待转发"顶到列表顶部 —— 每次只让观众看到当前这一条，
+   不要残留半张旧卡片。 */
+function alignTo(i){
+  const run = () => {
+    // 内容没超过可视高度 → 不滚，全部可见
+    if (elMsgs.scrollHeight <= elMsgs.clientHeight + 4){ elMsgs.scrollTop = 0; return; }
+    // 超过了 → 只滚到"刚转发的这条 + 下一条"刚好完整露出为止，不多滚一格
+    const target = elMsgs.children[i + 1] || elMsgs.children[i];
+    if (!target) return;
+    const need = target.offsetTop + target.offsetHeight - elMsgs.clientHeight;
+    elMsgs.scrollTop = Math.max(0, need + 10);
+  };
+  requestAnimationFrame(() => { run(); setTimeout(run, 60); setTimeout(run, 180); });
+}
+
+/* 正在等云端回话的那一条（null = 没在等）。防连点，也用来显示"识别中…" */
+let pending = null;
+
+/* 点「转发」—— 真上传，等云端判完再出结论。
+   【为什么不再本地算完就画】
+   以前这里是 analyze() 本地打分 + 往本页插一张"子女端预览"卡片，
+   全程没联网。手机上看着像发出去了，云端一条记录都没有，子女端自然收不到。
+   现在级数、类型、话术全部用服务端返回的，手机和子女端看到的是同一个结论。 */
+function send(i){
+  if (i !== cur.sent || pending !== null) return;
+  const msg = SCRIPTS[cur.key].msgs[i];
+  const btn = elMsgs.querySelector('.fwd[data-i="' + i + '"]');
+  if (btn) btn.textContent = '识别中…';
+  pending = i;
+
+  const bridge = window.SilverBridge;
+  if (bridge && bridge.reportSms){
+    bridge.reportSms(i, msg.from, msg.text);
+  } else {
+    // 没有原生桥（用电脑浏览器直接打开这个 html 预览时）
+    showReportError(i, '这个页面要在「银盾」App 里打开才能真的发出去');
+  }
+}
+
+/* 原生把云端响应带回来：jsonText 为 null 表示没连上 */
+window.onReportResult = function(i, jsonText){
+  if (pending !== i) return;          // 已经处理过，防重复回调
+  pending = null;
+  const btn = elMsgs.querySelector('.fwd[data-i="' + i + '"]');
+  if (btn) btn.textContent = '转发';
+
+  let srv = null;
+  try { srv = jsonText ? JSON.parse(jsonText) : null; } catch(e){ srv = null; }
+  if (!srv || !srv.ok){
+    showReportError(i, (srv && srv.msg) || '云端没回话，这条还没发出去，稍后再点一次');
+    return;
+  }
+
+  cur.sent = i + 1;
+  const res = viewFromServer(srv);
+  renderMsgs();
+  alignTo(i);
+  renderVerdict(res);
+  if (res.stage >= 3) pushKid(res);
+};
+
+/* 服务端判定 → 界面要的字段。
+   级数、类型一定用服务端的：本地规则和模型不一致时，
+   会出现"手机说要转账了、子女端一条都没收到"这种当场翻车。 */
+function viewFromServer(srv){
+  const stage = Math.max(0, Math.min(4, srv.stage | 0));
+  const type = (srv.type && srv.type !== '无风险' && srv.type !== 'normal') ? srv.type : '诈骗短信';
+  return {
+    stage: stage,
+    stage_name: srv.stageName || STAGE_NAME[stage],
+    scam_type: type,
+    risk_level: ['green','green','yellow','orange','red'][stage],
+    evidence: (srv.signals || []).slice(0, 3),
+    confidence: 0.9,
+    elder_text: srv.advice || ELDER_TEXT[stage],
+    family_summary: srv.reason || (stage >= 3 ? '妈妈转过来这条短信看着可疑。' : '低于预警阈值，仅记录。'),
+    server_real: true
+  };
+}
+
+/* 没发出去：不推进进度，把她能再点一次这件事说清楚 */
+function showReportError(i, msg){
+  pending = null;
+  const btn = elMsgs.querySelector('.fwd[data-i="' + i + '"]');
+  if (btn) btn.textContent = '转发';
+  let box = document.getElementById('verdict');
+  if (!box){
+    box = document.createElement('div');
+    box.className = 'verdict'; box.id = 'verdict';
+    elVzone.appendChild(box);
+  }
+  box.className = 'verdict show';
+  box.style.borderColor = '#d9a300';
+  box.style.background = '#fff8e6';
+  box.innerHTML = '<div class="lv" style="color:#8a6d00">没连上云端</div>'
+    + '<div class="big">' + msg + '</div>';
+}
+
+function renderVerdict(res){
+  let box = document.getElementById('verdict');
+  if (!box){
+    box = document.createElement('div');
+    box.className = 'verdict';
+    box.id = 'verdict';
+    elVzone.appendChild(box);
+  }
+  box.className = 'verdict show';
+  const c = STAGE_COLOR[res.stage] || '#8e8e93';
+  box.style.borderColor = res.stage ? c : '#e2e2e2';
+  box.style.background = res.stage ? c + '0d' : '#f6f6f6';
+  box.innerHTML = `
+    <div class="lv" style="color:${c}">
+      ${res.stage === 0 ? '未发现异常' : '第 ' + res.stage + ' 步 · ' + res.stage_name}
+      ${res.scam_type !== 'normal' ? ' · ' + res.scam_type : ''}
+    </div>
+    <div class="big">${res.elder_text}</div>
+    ${res.evidence.length ? `<div class="ev">判断依据：${res.evidence.join(' / ')}</div>` : ''}
+    <button class="speak" id="btnSpeak">🔊 读给我听</button>
+    <div class="pipe p${res.stage}">
+      <div class="bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+      <div class="label">
+        <span class="${res.stage===1?'on':''}">建立信任</span>
+        <span class="${res.stage===2?'on':''}">恐慌/诱惑</span>
+        <span class="${res.stage===3?'on':''}">隔离保密</span>
+        <span class="${res.stage===4?'on':''}">索要钱款</span>
+      </div>
+    </div>`;
+  document.getElementById('btnSpeak').onclick = () => speak(res.elder_text);
+}
+
+function speak(text){
+  try{
+    if (!window.speechSynthesis) return;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; u.rate = 0.88; u.pitch = 1;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+function pushKid(res){
+  elEmpty.style.display = 'none';
+  elLink.classList.add('live');
+  setTimeout(() => elLink.classList.remove('live'), 4000);
+
+  const card = document.createElement('div');
+  card.className = 'alert-card ' + (res.stage >= 4 ? 's4' : 's3');
+  const now = new Date();
+  const tm = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  card.innerHTML = `
+    <div class="src">银盾预警 · ${tm} · 风险等级 ${res.stage >= 4 ? '红色' : '橙色'}</div>
+    <div class="title">${res.stage >= 4 ? '妈妈可能正要转账' : '妈妈可能正在被诈骗'}</div>
+    <div class="sum">${res.family_summary}</div>
+    <div class="acts">
+      <button class="ghost" onclick="callBack()">📞 一键回拨</button>
+      <button onclick="pushVoice()">💬 推语音</button>
+    </div>`;
+  elBody.insertBefore(card, elBody.firstChild);
+
+  const item = document.createElement('div');
+  item.className = 'log-item';
+  item.innerHTML = `<div class="dot2 ${res.stage>=4?'d4':'d3'}"></div>
+    <div><div class="txt2">${res.scam_type} · 第 ${res.stage} 步 ${res.stage_name}</div>
+    <div class="tm">${tm} 已推送</div></div>`;
+  let lt = elBody.querySelector('.log-title');
+  if (!lt){
+    lt = document.createElement('div');
+    lt.className = 'log-title';
+    lt.textContent = '预警记录';
+    elBody.appendChild(lt);
+  }
+  elBody.appendChild(item);
+}
+
+function callBack(){ alert('模拟：正在呼叫妈妈…\n（接后端时此处调 POST /api/callback）'); }
+function pushVoice(){ speak('妈，别转钱，等我电话。'); alert('模拟：语音已推送到妈妈手机\n「妈，别转钱，等我电话。」'); }
+
+function reset(){
+  cur = { key: cur.key, sent:0, logs:[] };
+  elLink.classList.remove('live');
+  elVzone.innerHTML = '';
+  elBody.innerHTML = `<div class="empty" id="kidEmpty">
+      <div class="ic">🛡</div>
+      <p>暂无风险提醒<br>妈妈的消息会实时同步到这里</p></div>`;
+  renderMsgs();
+}
+
+function auto(){
+  reset();
+  let i = 0;
+  const step = () => {
+    if (i >= SCRIPTS[cur.key].msgs.length) return;
+    send(i); i++;
+    setTimeout(step, 1600);
+  };
+  setTimeout(step, 400);
+}
+
+document.getElementById('btnReset').onclick = reset;
+document.getElementById('btnAuto').onclick = auto;
+document.getElementById('btnScam').onclick = () => { cur.key='scam'; reset(); };
+document.getElementById('btnNormal').onclick = () => { cur.key='normal'; reset(); };
+
+/* 支持 URL 直接定位到某个状态，方便截图放进 PPT：
+   ?key=scam&step=3  → 直接停在"已转发前3条、风险橙色、子女端已弹窗" */
+(function initFromUrl(){
+  const q = new URLSearchParams(location.search);
+  const k = q.get('key');
+  if (k && SCRIPTS[k]) cur.key = k;
+  renderMsgs();
+  const step = parseInt(q.get('step') || '0', 10);
+  if (step > 0){
+    for (let i = 0; i < Math.min(step, SCRIPTS[cur.key].msgs.length); i++) send(i);
+  }
+})();
+/* ============================================================
+   场景二 · 远程操控 · 事件回放
+   ------------------------------------------------------------
+   设计要点（答辩就讲这三条）：
+   1. 老人手机上全程只有通话界面 —— 证明我们没抓屏、没录音、没读聊天
+   2. 所有判据都来自"事件"，不来自"内容"
+   3. 三级升级：3 条 → 橙；5 条 → 红；出现银行验证码 → 最高优先级
+   ============================================================ */
+
+/* 真实剧本：**全程不挂电话**。骗子绝不会让老人挂断 —— 一挂她就有机会思考、问人、上网查。
+   所以下面 9 条事件全部发生在通话进行中，19:07 那通电话才结束。
+   这是我们上一版最大的错误：把"转账"放在了通话结束之后。 */
+const REMOTE_EVENTS = [
+  {t:'18:02', dur:'00:04', dsc:'境外号段来电 +1 (202) 555-0137',     code:'call_foreign'},
+  /* ↓ 老板要求：5 分钟就要有反应。这一条是"关注级"——只报不拦，不打扰子女做事。 */
+  {t:'18:07', dur:'05:10', dsc:'陌生号码通话满 5 分钟（首次提醒）',   code:'call_5min', watch:true, neutral:true},
+  {t:'18:31', dur:'29:12', dsc:'通话期间拒接家属来电（女儿）',         code:'reject_family'},
+  {t:'18:38', dur:'36:40', dsc:'非应用商店安装「反诈安全中心.apk」',   code:'unknown_install'},
+  {t:'18:41', dur:'39:15', dsc:'该应用开启「无障碍服务」权限',         code:'a11y_grant', cls:'warn'},
+  {t:'18:45', dur:'43:02', dsc:'收到陌生人好友申请「专案组」',         code:'new_contact'},
+  {t:'18:47', dur:'45:28', dsc:'手机银行 App 进入前台',               code:'bank_app', cls:'crit'},
+  {t:'18:48', dur:'46:11', dsc:'收到银行短信（正文未读取）',           code:'bank_code', cls:'crit'},
+  {t:'19:07', dur:'65:12', dsc:'通话结束，全程 65 分钟',              code:'call_end', neutral:true, end:true}
+];
+
+let rTimer = null, rIdx = 0, rLevel = -1, rScore = 0;
+let rSt = { install:false, a11y:false, bank:false, code:false };
+const EV_TOTAL = REMOTE_EVENTS.filter(e => !e.neutral).length;   // 通话结束那条不算命中
+
+/* 四级判定。注意第 4 级是"组合确诊"，不看条数：
+   非商店安装 + 无障碍授权，这两件事凑在一起几乎没有正当解释 ——
+   正常老人不会从浏览器装 APK 还手动去给它开无障碍。
+   第 5 级是"阻断级"：通话中打开银行 App，此时她已经在动钱了。 */
+function rLevelOf(){
+  if (rSt.bank || rSt.code) return 5;
+  if (rSt.install && rSt.a11y) return 4;
+  if (rScore >= 5) return 4;
+  if (rScore >= 3) return 3;
+  return 0;
+}
+
+/* 「子女没注意消息」的兜底：盖屏之后如果 6 秒没人点（老人懵了、或者根本没看屏幕），
+   不等她 —— 自动替她拨出去。人可以被吓懵，机器不会。 */
+let shAutoTimer = null;
+function autoDial(){
+  if (shAutoTimer) clearTimeout(shAutoTimer);
+  shAutoTimer = setTimeout(() => {
+    const b = document.getElementById('btnAnswer');
+    const d = document.getElementById('daughter');
+    if (!b || d.classList.contains('on')) return;
+    b.textContent = '📞 已为你拨出…';
+    b.classList.add('pulse');
+    document.querySelector('#shield .sh-note').textContent = '你没点，我们已经替你拨了';
+  }, 6000);
+}
+
+function rReset(){
+  if (rTimer){ clearInterval(rTimer); rTimer = null; }
+  rIdx = 0; rLevel = -1; rScore = 0;
+  rSt = { install:false, a11y:false, bank:false, code:false };
+  document.getElementById('evList').innerHTML =
+    REMOTE_EVENTS.map((e, i) => '<div class="ev ghost"><div class="tm">' +
+      String(i + 1).padStart(2, '0') + '</div></div>').join('');
+  document.getElementById('kidBody2').innerHTML =
+    '<div class="empty"><div class="ic">🛡</div><p>暂无风险提醒<br>妈妈的消息会实时同步到这里</p></div>';
+  document.getElementById('score').className = 'score';
+  document.getElementById('scoreNum').textContent = '0';
+  document.getElementById('scoreBar').style.width = '0%';
+  document.getElementById('scoreLb').textContent = '待命中 · 无异常事件';
+  document.getElementById('e2clock').textContent = '18:02';
+  document.getElementById('k2clock').textContent = '18:02';
+  const tm = document.getElementById('callTimer');
+  tm.className = 'timer';
+  tm.textContent = '来电 18:02';
+
+  const sh = document.getElementById('shield');
+  sh.className = 'shield';
+  document.getElementById('daughter').className = 'daughter';
+  if (shAutoTimer){ clearTimeout(shAutoTimer); shAutoTimer = null; }
+  const ab = document.getElementById('btnAnswer');
+  ab.disabled = false;
+  ab.textContent = '📞 打给女儿';
+  ab.classList.remove('pulse');
+  document.querySelector('#shield .sh-note').textContent = '验证码已被遮住，对方看不到';
+}
+
+function rTick(){
+  if (rIdx >= REMOTE_EVENTS.length){ if (rTimer){ clearInterval(rTimer); rTimer = null; } return; }
+
+  const ev = REMOTE_EVENTS[rIdx];
+  const slot = document.getElementById('evList').children[rIdx];
+  rIdx++;
+  if (!ev.neutral) rScore++;
+
+  /* 1) 先把状态记下来，再判级 —— 组合判据靠的是"哪些事发生过"，不是"发生了几件" */
+  if (ev.code === 'call_5min')       pushWatchCard(ev);
+  if (ev.code === 'unknown_install') rSt.install = true;
+  if (ev.code === 'a11y_grant')      rSt.a11y    = true;
+  if (ev.code === 'bank_app')        rSt.bank    = true;
+  if (ev.code === 'bank_code')       rSt.code    = true;
+
+  const lv = rLevelOf();
+
+  /* 2) 点亮一个空槽位（空槽是布局锚点，也暗示"后面还有判据待观测"） */
+  if (slot){
+    const mark = ev.watch ? '👁' : ev.cls === 'crit' ? '!' : ev.cls === 'warn' ? '⚠' : (ev.neutral ? '·' : '✓');
+    slot.className = 'ev in ' + (ev.cls || '') + (ev.watch ? ' watch' : '');
+    slot.innerHTML = '<div class="tm">' + ev.t + '</div>' +
+      '<div class="body"><div class="dsc">' + ev.dsc + '</div>' +
+      '<div class="code">' + ev.code + '</div></div>' +
+      '<div class="st">' + mark + '</div>';
+  }
+
+  /* 3) 命中计数与进度 */
+  document.getElementById('scoreNum').textContent = rScore;
+  document.getElementById('scoreBar').style.width = Math.round(rScore / EV_TOTAL * 100) + '%';
+  document.getElementById('score').className =
+    'score ' + (lv === 5 ? 's5' : lv === 4 ? 's4' : lv === 3 ? 's3' : '');
+  document.getElementById('scoreLb').textContent =
+    lv === 5 ? '阻断级 · 已盖屏，等子女接通'
+  : lv === 4 ? '红色 · 已推送 + 短信 + 语音呼叫'
+  : lv === 3 ? '橙色 · 已推送子女'
+             : '观测中 · 未达预警阈值';
+
+  /* 4) 老人手机：通话一直没挂，计时器一路涨 */
+  document.getElementById('e2clock').textContent = ev.t;
+  document.getElementById('k2clock').textContent = ev.t;
+  const tm = document.getElementById('callTimer');
+  const mins = parseInt(ev.dur.split(':')[0], 10);
+  tm.textContent = (ev.end ? '通话结束 ' : '通话中 ') + ev.dur;
+  tm.className = 'timer' + (!ev.end && mins >= 20 ? ' hot' : '');
+
+  /* 盖屏里也要显示通话状态，否则观众会以为电话挂了 */
+  document.getElementById('shCall').innerHTML =
+    '📞 +1 (202) 555-0137 · <b>通话中 ' + ev.dur + '</b>';
+
+  /* 5) 阻断级：盖住屏幕。这是整个演示的落点 —— 前面全是"看见"，这一下才是"拦住" */
+  if (lv === 5 && !document.getElementById('shield').classList.contains('on')){
+    document.getElementById('shield').classList.add('on');
+    const tag = document.getElementById('e2tag');
+    tag.textContent = '已介入';
+    tag.className = 'alert-tag hot';
+    autoDial();
+  }
+  if (ev.code === 'bank_code'){
+    document.querySelector('#shield .sh-note').textContent =
+      '银行短信刚到达 — 已被遮住，她念不出来';
+    refreshBlockCard();
+  }
+
+  /* 6) 子女端：级别变化才推卡，避免刷屏 */
+  if (lv >= 3 && lv !== rLevel){
+    rLevel = lv;
+    pushRemoteCard(lv, ev);
+  }
+}
+
+/* 关注级（5 分钟首报）：只报、不拦、不要求子女做任何事。
+   为什么不一上来就橙/红：正常电话也常超 5 分钟（老朋友、医院、快递）。
+   天天报，子女第三天就不看了 —— 预警系统死于"狼来了"，不死于漏报。 */
+function pushWatchCard(ev){
+  const body = document.getElementById('kidBody2');
+  const empty = body.querySelector('.empty');
+  if (empty) empty.remove();
+
+  const card = document.createElement('div');
+  card.className = 'alert-card watch';
+  card.style.marginBottom = '12px';
+  card.dataset.lv = 1;
+  card.innerHTML =
+    '<div class="src">银盾关注 · ' + ev.t + ' · 仅提醒</div>' +
+    '<div class="title">妈妈和一个陌生号码通话 5 分钟了</div>' +
+    '<div class="sum">号码不在她的通讯录里。现在还看不出问题，不用急 —— 超过 10 分钟、或者她开始操作手机，我会再通知你。</div>' +
+    '<div class="acts"><button class="ghost" onclick="callBack()">📞 现在问一句</button></div>';
+  body.insertBefore(card, body.firstChild);
+}
+
+function pushRemoteCard(lv, ev){
+  const body = document.getElementById('kidBody2');
+  const empty = body.querySelector('.empty');
+  if (empty) empty.remove();
+
+  let cls, lvt, ttl, sum;
+  if (lv === 5){
+    cls = 's4'; lvt = '阻断级';
+    ttl = rSt.code ? '已遮住她的验证码' : '她正在转账页面上';
+    sum = rSt.code
+      ? '银行验证码刚到，已经被遮住 —— 她念不出来，对方也拿不到。我们已经替她拨给你。'
+      : '她在通话中打开了手机银行，屏幕已盖住。我们已经替她拨给你 —— 她也能随时打给你。';
+  } else if (lv === 4){
+    cls = 's4'; lvt = '红色';
+    ttl = '妈妈可能正要转账';
+    sum  = '手机刚装了非官方应用，并开启了「无障碍服务」权限，可被远程操控。距转账只剩几分钟。';
+  } else {
+    cls = 's3'; lvt = '橙色';
+    ttl = '妈妈可能正在被诈骗';
+    sum  = '与境外号码已通话 36 分钟，期间拒接了你的来电。建议立刻回拨。';
+  }
+
+  const card = document.createElement('div');
+  card.className = 'alert-card ' + cls;
+  card.style.marginBottom = '12px';
+  card.dataset.lv = lv;
+  card.innerHTML =
+    '<div class="src">银盾预警 · ' + ev.t + ' · 风险等级 ' + lvt + '</div>' +
+    '<div class="title">' + ttl + '</div>' +
+    '<div class="sum">' + sum + '</div>' +
+    '<div class="acts">' +
+      '<button class="ghost" onclick="callBack()">📞 一键回拨</button>' +
+      '<button onclick="pushVoice()">💬 推语音</button>' +
+    '</div>';
+  body.appendChild(card);
+  body.scrollTop = body.scrollHeight;
+}
+
+/* 点「打给女儿」：盖屏撤掉 → 换成绿屏。
+   注意这里没有第二个按钮 —— 想关掉红屏，唯一的方式就是接电话。 */
+document.getElementById('btnAnswer').onclick = function(){
+  const sh = document.getElementById('shield');
+  const b  = this;
+  if (shAutoTimer){ clearTimeout(shAutoTimer); shAutoTimer = null; }
+  b.disabled = true;
+  b.classList.remove('pulse');
+  b.textContent = '正在接通…';
+  sh.classList.add('out');
+  setTimeout(function(){
+    sh.className = 'shield';
+    b.disabled = false;
+    b.textContent = '📞 打给女儿';
+    document.getElementById('daughter').classList.add('on');
+    document.getElementById('e2tag').textContent = '已接通';
+    markAnswered();
+  }, 320);
+};
+
+function markAnswered(){
+  /* 标记要落在最新的那张卡（阻断级）上，不是第一张橙色卡 */
+  const cards = document.querySelectorAll('#kidBody2 .alert-card');
+  const card = cards[cards.length - 1];
+  if (!card || card.querySelector('.answered')) return;
+  const d = document.createElement('div');
+  d.className = 'answered';
+  d.textContent = '✅ 已接通 · 转账未发生';
+  card.insertBefore(d, card.firstChild);
+  card.classList.add('done');
+
+  const sc = document.getElementById('score');
+  sc.className = 'score sok';
+  document.getElementById('scoreLb').textContent = '已接通 · 转账未发生 · 用时 2 分 12 秒';
+}
+
+/* 验证码到达时级别没变（本来就已经是阻断级），不会推新卡，
+   但文案必须更新 —— 否则子女端一直停在"她正在转账页面上"，
+   而最危险的那一秒其实已经过去了。 */
+function refreshBlockCard(){
+  const card = document.querySelector('#kidBody2 .alert-card[data-lv="5"]');
+  if (!card) return;
+  card.querySelector('.title').textContent = '已遮住她的验证码';
+  card.querySelector('.sum').textContent =
+    '银行验证码刚到，已经被遮住 —— 她念不出来，对方也拿不到。现在打，她一定能接到。';
+}
+
+/* 场景切换 */
+let curScene = 1;
+function switchScene(){
+  curScene = curScene === 1 ? 2 : 1;
+  document.querySelector('.stage').classList.toggle('off', curScene === 2);
+  document.getElementById('stage2').classList.toggle('on', curScene === 2);
+  document.getElementById('console').classList.toggle('m2', curScene === 2);
+  document.getElementById('btnSwitch').textContent =
+    curScene === 2 ? '💬 切换到：消息剧本场景' : '📵 切换到：远程操控场景';
+  if (curScene === 2) rReset();
+}
+
+document.getElementById('btnSwitch').onclick = switchScene;
+
+/* 上报可疑信息：点一下进原生页，不在网页里塞表单。
+   原因很实在——诈骗短信在系统短信库里、截图在相册里，网页没有权限读，
+   只有原生层能拿到。网页这边只当一个入口。
+   ↓ 具体交互挪到文件末尾的 bindDevPad 里统一接管（区分轻点/长按）。 */
+
+document.getElementById('btnReplay').onclick = () => {
+  rReset();
+  rTimer = setInterval(rTick, 1100);
+  rTick();
+};
+
+document.getElementById('btnReset2').onclick = rReset;
+
+/* 模拟陌生来电的"熟人询问"。
+   真实场景里这一步由 CallWatcher 在响铃时触发，不需要人管；
+   这个按钮只是让验收和录屏不必真的找第二台手机打进来。 */
+document.getElementById('btnAcquaint').onclick = () => {
+  if (window.SilverBridge && typeof SilverBridge.acquaintAsk === 'function') {
+    SilverBridge.acquaintAsk('+1 202 555 0137');
+  } else {
+    alert('这个按钮要在手机 App 里点。网页版没有原生悬浮窗。');
+  }
+};
+
+/* 「📮 上报可疑信息」这一个按钮承担两件事：
+     轻点   → 进原生上报页（老人用）
+     长按0.7秒 → 开合演示面板（开发/演示用）
+   必须自己接管 touch 事件：WebView 在按钮上长按会去"选中文字"，
+   弹出一堆 Copy / Share / Select all，面板根本出不来。
+   拦掉默认行为后，轻点和长按就完全在我们手里了。
+   交付形态的意义：老人手机里只有"上报"一个按钮，不会看到
+   「自动演示 / 重置 / 剧本」这些开发期开关。 */
+(function bindDevPad(){
+  const btn = document.getElementById('btnReport');
+  let timer = null;
+
+  function goReport(){
+    if (window.SilverBridge && typeof SilverBridge.openReport === 'function') {
+      SilverBridge.openReport();
+    } else {
+      alert('上报功能请在手机 App 里用。网页版读不到你的短信和相册。');
+    }
+  }
+  function openPad(){
+    timer = null;
+    document.body.classList.toggle('dev');
+    if (navigator.vibrate) { try { navigator.vibrate(25); } catch (e) {} }
+  }
+  function down(e){
+    if (e && e.cancelable) e.preventDefault();
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(openPad, 700);
+  }
+  function up(e){
+    if (e && e.cancelable) e.preventDefault();
+    if (timer) { clearTimeout(timer); timer = null; goReport(); }   // 没等到 700ms = 轻点
+  }
+  function abort(){ if (timer) { clearTimeout(timer); timer = null; } }
+
+  if ('ontouchstart' in window) {
+    btn.addEventListener('touchstart', down, { passive: false });
+    btn.addEventListener('touchend', up, { passive: false });
+    btn.addEventListener('touchcancel', abort, { passive: false });
+  } else {
+    btn.addEventListener('mousedown', down);
+    btn.addEventListener('mouseup', up);
+    btn.addEventListener('mouseleave', abort);
+  }
+  btn.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+})();
+
+/* 单角色模式：?role=elder / ?role=child
+   App 内由原生层把这个参数拼进 URL；网页单独打开时手动加即可。
+   加了之后 body 获得 solo + role-xxx 两个 class，CSS 负责隐藏另一半并铺满全屏。 */
+(function initRole(){
+  const q = new URLSearchParams(location.search);
+  const role = q.get('role');
+  if (role !== 'elder' && role !== 'child') return;
+  document.body.classList.add('solo', 'role-' + role);
+})();
+
+/* URL 直达：?scene=remote&n=8 → 直接停在"全部命中、红色预警已推"的状态，方便截图
+   再加 &answer=1 → 自动点一次「打给女儿」，停在"已接通"的收尾画面 */
+(function initRemote(){
+  const q = new URLSearchParams(location.search);
+  if (q.get('scene') !== 'remote') return;
+  switchScene();
+  const n = parseInt(q.get('n') || '0', 10);
+  for (let i = 0; i < Math.min(n, REMOTE_EVENTS.length); i++) rTick();
+  if (q.get('answer') === '1'){
+    setTimeout(function(){
+      const b = document.getElementById('btnAnswer');
+      if (b) b.click();
+    }, 80);
+  }
+})();
+</script>
+</body>
+</html>

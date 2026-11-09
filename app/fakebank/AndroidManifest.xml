@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  演示用「银行壳」App
+  ============================================================
+  这不是真的银行 App，只用于在模拟器上演示这条链路：
+
+      老人通话中打开了手机银行  ->  银盾判定阻断  ->  盖屏
+
+  银盾识别"这是不是银行"的依据是 Judge.isBank()：
+  包名或应用名里含 icbc / bank / 银行 / 支付 / 钱包 等关键词。
+  所以这里把包名取成 com.icbc.mobile，应用名取成"中国工商银行"，
+  银盾就会把它当成手机银行。
+
+  真实手机上装不了工商银行 App（模拟器无 Google 服务、
+  且银行 App 有 root/模拟器检测），所以演示时用它替代。
+  ============================================================
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.icbc.mobile"
+    android:versionCode="1"
+    android:versionName="1.0">
+
+    <!-- 唯一需要的能力：被系统当成普通 App 正常启动 -->
+    <application
+        android:label="中国工商银行"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar"
+        android:allowBackup="false">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="中国工商银行">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

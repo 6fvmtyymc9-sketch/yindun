@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  银盾 · 安卓端清单文件
+  ============================================================
+  这个文件是安卓的"户口本"：告诉系统
+    1) 我们是谁（包名 com.yindun.guard）
+    2) 我们要什么权限
+    3) 我们有几个页面、几个后台监听器
+
+  评分要点：这份清单本身就是"我们只拿必要权限"的证据。
+  每一条权限后面都写了为什么需要，答辩时可以逐条念。
+  ============================================================
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.yindun.guard"
+    android:versionCode="1"
+    android:versionName="0.1">
+
+    <!-- ==================== 权限区 ==================== -->
+
+    <!-- 收短信。这是整个 App 的命门：没有它，诈骗短信我们根本不知道来过 -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+
+    <!-- 通话状态：判断"现在正在通话中"，以及通话时长。
+         注意：这个权限只能知道"在通话"，听不到任何内容。 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <!-- 通话记录 + 通讯录：只为了回答一个问题——这个号是不是陌生人 -->
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+    <!-- 用法统计：查"当前前台是哪个 App"，用来发现"老人打开了手机银行"。
+         这是特殊权限，要去系统设置里手动开，不能弹窗要。 -->
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- 悬浮窗：阻断级要盖住整个屏幕，靠这个 -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- 振动：老人接起电话就把手机贴耳朵上，屏幕是黑的，盖屏她看不见。
+         那一刻唯一能传到她身上的通道就是手里的振动。这是普通权限，装上即生效。 -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- 前台服务：让守护进程活着（否则几分钟就被国产系统杀掉） -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!-- 安卓 14 起前台服务必须声明类型，dataSync 是最贴近"后台持续工作"的一类 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- 拨号：阻断级要自动拨给子女。
+         注意：这不是"替老人打电话给骗子"，是打给她女儿。
+         骗子那通电话我们挂不掉（第三方没权限），这一点答辩要说清。 -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
+    <!-- 引导用户把我们从电池优化名单里去掉（真正保命的一步） -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <!-- 查询已安装应用：判断"这个 App 是不是从应用商店装的" -->
+    <uses-permission
+        android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <!-- 联网：调用华为云 ModelArts Studio（盘古大模型）。
+         创新赛道要求用华为技术栈，这个权限就是那条链路。
+         注意：只有"灰区复审"和"生成子女摘要"会走网络，
+         实时拦截（盖屏）永远是本地判断，断网照样能用。 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- ==================== 应用本体 ==================== -->
+    <application
+        android:label="@string/app_name"
+        android:icon="@drawable/ic_launcher"
+        android:allowBackup="false"
+        android:usesCleartextTraffic="true"
+        android:supportsRtl="true"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar">
+
+        <!-- 唯一的主界面。
+             exported=true 必须写：Android 12+ 不写就装不上。
+             它里面只有一个 WebView，界面是我们已经做好的 index.html。 -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 短信接收器。
+             priority=999：在系统短信 App 之前收到，才来得及盖屏。
+             permission=BROADCAST_SMS：只允许系统发这个广播，防止别的 App 伪造诈骗短信骗我们的引擎。
+             exported=true：Android 12+ 不写就收不到广播。 -->
+        <receiver
+            android:name=".SmsReceiver"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter android:priority="999">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 装包广播：老人自己装了个软件时叫醒我们。
+             data scheme="package" 必须写，否则收不到。 -->
+        <receiver
+            android:name=".InstallReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REPLACED" />
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 守护服务：前台服务，状态栏常驻"银盾守护中"。
+             有这个，界面关了、屏幕黑了两小时，监听还在跑。 -->
+        <service
+            android:name=".GuardService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <!-- 通知守护：盖屏期间清掉通知栏（否则验证码会从短信通知里漏出来）。
+             需要用户在「设置 → 通知使用权」里手动勾选，不能静默获取。 -->
+        <service
+            android:name=".NotiGuard"
+            android:exported="true"
+            android:label="银盾（盖屏时清通知）"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <!-- 反诈演练：原生页面，不套 WebView（老人要看清字，字号得能直接控）。
+             独立 Activity，从主界面按钮、桌面图标、演练通知三个地方都能进来。 -->
+        <activity
+            android:name=".DrillActivity"
+            android:exported="false"
+            android:label="反诈演练"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:theme="@android:style/Theme.Material.NoActionBar" />
+
+        <!-- 上报可疑信息：同样是原生页。
+             老人收到诈骗短信，两步就能甩进来让 AI 看，不用截图再去微信里转。
+             windowSoftInputMode=adjustResize：键盘弹起来时输入框不能被盖住。 -->
+        <activity
+            android:name=".ReportActivity"
+            android:exported="false"
+            android:label="上报可疑信息"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@android:style/Theme.Material.NoActionBar" />
+
+        <!-- 定期演练提醒：每周一 10:00 由 AlarmManager 拉起，App 被杀也能响 -->
+        <receiver
+            android:name=".DrillReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.yindun.guard.DRILL_REMIND" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+</manifest>

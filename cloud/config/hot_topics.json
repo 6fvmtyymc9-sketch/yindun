@@ -1,0 +1,338 @@
+{
+  "_note": "反诈热点库。人工整理，按季度更新。hot 为热度权重(0-100)，用于演练抽题的权重；skeleton 是「骨架」，不是原文——衍生时只保留骨架，换掉外壳。",
+  "_updated": "2026-11",
+  "topics": [
+    {
+      "id": "ai-face",
+      "name": "AI 换脸视频冒充亲友",
+      "icon": "🎭",
+      "hot": 96,
+      "since": "2026-06",
+      "note": "骗子拿到子女朋友圈的照片和短视频，合成一张会说话的脸，微信视频里晃两秒就说信号不好挂掉。",
+      "skeleton": {
+        "carrier": "video",
+        "identity": "子女（视频出镜）",
+        "bait": "视频里说自己出了事、急需用钱",
+        "pressure": [
+          "限时",
+          "情绪催促"
+        ],
+        "demand": "transfer"
+      }
+    },
+    {
+      "id": "voice-clone",
+      "name": "AI 语音克隆冒充孙辈",
+      "icon": "🎙️",
+      "hot": 93,
+      "since": "2026-05",
+      "note": "只要 3 秒录音就能克隆声音。电话里哭两声「奶奶救我」，老人基本没有抵抗力。",
+      "skeleton": {
+        "carrier": "call",
+        "identity": "孙辈",
+        "bait": "哭着说自己惹了祸、被人扣住了",
+        "pressure": [
+          "恐吓",
+          "限时",
+          "情绪"
+        ],
+        "demand": "transfer"
+      }
+    },
+    {
+      "id": "gongan",
+      "name": "冒充公检法查案",
+      "icon": "👮",
+      "hot": 92,
+      "since": "长期高发",
+      "note": "二十年老套路，但每年仍有老人中招。核心是「你涉案了」+「不能告诉任何人」。",
+      "skeleton": {
+        "carrier": "call",
+        "identity": "公检法",
+        "bait": "你的银行卡涉嫌洗钱，已立案",
+        "pressure": [
+          "恐吓",
+          "限时",
+          "保密"
+        ],
+        "demand": "transfer"
+      }
+    },
+    {
+      "id": "yanglao-invest",
+      "name": "养老投资 / 以房养老",
+      "icon": "🏠",
+      "hot": 90,
+      "since": "长期高发",
+      "note": "打着「国家扶持养老产业」的旗号，承诺月息两分，前三个月真给利息。",
+      "skeleton": {
+        "carrier": "offline+wechat",
+        "identity": "养老项目顾问",
+        "bait": "国家扶持的养老公寓项目，年化 24%",
+        "pressure": [
+          "稀缺",
+          "从众",
+          "限时"
+        ],
+        "demand": "invest"
+      }
+    },
+    {
+      "id": "kefu-refund",
+      "name": "冒充客服退款理赔",
+      "icon": "📦",
+      "hot": 88,
+      "since": "长期高发",
+      "note": "说你买的东西有质量问题要三倍赔付，最后一步永远是验证码或屏幕共享。",
+      "skeleton": {
+        "carrier": "call",
+        "identity": "电商客服",
+        "bait": "你买的商品有质量问题，要三倍赔付",
+        "pressure": [
+          "限时",
+          "流程诱导"
+        ],
+        "demand": "code"
+      }
+    },
+    {
+      "id": "stock-group",
+      "name": "荐股群 / 内幕消息",
+      "icon": "📈",
+      "hot": 86,
+      "since": "2026-03",
+      "note": "「老师」在群里天天晒盈利截图，托儿配合喊单，最后引到一个假交易软件里。",
+      "skeleton": {
+        "carrier": "wechat",
+        "identity": "投资导师",
+        "bait": "内部消息，跟着买稳赚",
+        "pressure": [
+          "从众",
+          "稀缺",
+          "限时"
+        ],
+        "demand": "invest"
+      }
+    },
+    {
+      "id": "shuadan",
+      "name": "刷单返利",
+      "icon": "💰",
+      "hot": 85,
+      "since": "长期高发",
+      "note": "先让你赚 8 块，再让你垫 2 万。老人被拉进群，看到别人都在赚，就信了。",
+      "skeleton": {
+        "carrier": "wechat",
+        "identity": "兼职招募",
+        "bait": "点个好评就能拿佣金",
+        "pressure": [
+          "从众",
+          "小额甜头"
+        ],
+        "demand": "invest"
+      }
+    },
+    {
+      "id": "shebao-stop",
+      "name": "社保卡停用 / 医保异常",
+      "icon": "🏥",
+      "hot": 84,
+      "since": "2026-04",
+      "note": "短信说你的医保账户异常将被冻结，点链接填写银行卡和密码「解冻」。",
+      "skeleton": {
+        "carrier": "sms",
+        "identity": "社保局",
+        "bait": "你的医保账户异常，即将停用",
+        "pressure": [
+          "恐吓",
+          "限时"
+        ],
+        "demand": "transfer"
+      }
+    },
+    {
+      "id": "express-lost",
+      "name": "快递丢失理赔",
+      "icon": "🚚",
+      "hot": 82,
+      "since": "2026-02",
+      "note": "说你的快递丢了要赔你钱，加微信后发来一个「理赔链接」，其实是贷款申请页。",
+      "skeleton": {
+        "carrier": "sms+wechat",
+        "identity": "快递公司",
+        "bait": "你的快递丢失，可申请三倍理赔",
+        "pressure": [
+          "限时",
+          "流程诱导"
+        ],
+        "demand": "install"
+      }
+    },
+    {
+      "id": "bank-oversea",
+      "name": "银行卡境外消费提醒",
+      "icon": "💳",
+      "hot": 80,
+      "since": "2026-01",
+      "note": "伪基站发出的银行短信，说你卡在境外刷了 8000 元，附「冻结专线」电话。",
+      "skeleton": {
+        "carrier": "sms",
+        "identity": "银行风控",
+        "bait": "您的卡在境外消费 8000 元，如非本人请拨打冻结专线",
+        "pressure": [
+          "恐吓",
+          "限时"
+        ],
+        "demand": "code"
+      }
+    },
+    {
+      "id": "tuition",
+      "name": "冒充孙辈要补习费",
+      "icon": "📚",
+      "hot": 75,
+      "since": "长期高发",
+      "note": "专挑开学季。「奶奶，学校要交资料费，别跟我爸妈说，他们不给我钱」。",
+      "skeleton": {
+        "carrier": "wechat+sms",
+        "identity": "孙辈",
+        "bait": "学校要交补习费，不敢跟爸妈说",
+        "pressure": [
+          "保密",
+          "情绪",
+          "限时"
+        ],
+        "demand": "transfer"
+      }
+    },
+    {
+      "id": "remote-control",
+      "name": "远程控制 / 屏幕共享",
+      "icon": "📱",
+      "hot": 87,
+      "since": "2026-05",
+      "note": "最新变种：不直接要钱，先骗你装一个「安全检测」App，然后远程把你手机里的钱转空。",
+      "skeleton": {
+        "carrier": "call",
+        "identity": "平台安全中心",
+        "bait": "你的账号被盗，需要装个安全软件检测",
+        "pressure": [
+          "恐吓",
+          "流程诱导"
+        ],
+        "demand": "screen"
+      }
+    },
+    {
+      "id": "flight-refund",
+      "name": "机票退改签诈骗",
+      "icon": "✈️",
+      "hot": 79,
+      "since": "2026-07",
+      "note": "短信说你的航班取消，可全额退款还补300元，加'专员'微信后让你下载会议软件共享屏幕操作退款。",
+      "skeleton": {
+        "carrier": "sms",
+        "identity": "航空公司客服",
+        "bait": "航班取消，全额退款外加延误补偿",
+        "pressure": [
+          "限时",
+          "流程诱导"
+        ],
+        "demand": "screen"
+      }
+    },
+    {
+      "id": "auto-renewal",
+      "name": "会员自动扣费取消",
+      "icon": "📺",
+      "hot": 73,
+      "since": "2026-08",
+      "note": "'您开通的连续包月今晚将自动扣费800元，如需取消请加客服'。取消是假，跟着客服操作把钱转走是真。",
+      "skeleton": {
+        "carrier": "call",
+        "identity": "平台客服",
+        "bait": "误开通会员服务，今晚自动扣费",
+        "pressure": [
+          "恐吓",
+          "限时",
+          "流程诱导"
+        ],
+        "demand": "code"
+      }
+    },
+    {
+      "id": "credit-repair",
+      "name": "征信修复洗白",
+      "icon": "📊",
+      "hot": 70,
+      "since": "2026-03",
+      "note": "'您的征信有逾期记录，影响子女考公参军，花钱能洗白'。交了服务费，征信没变，人被拉黑。",
+      "skeleton": {
+        "carrier": "wechat",
+        "identity": "征信修复顾问",
+        "bait": "花钱删除逾期记录，不影响子女政审",
+        "pressure": [
+          "为子女着想",
+          "限时"
+        ],
+        "demand": "transfer"
+      }
+    },
+    {
+      "id": "account-frozen",
+      "name": "社交账号冻结验证",
+      "icon": "🔒",
+      "hot": 77,
+      "since": "2026-09",
+      "note": "'您的微信涉嫌违规将被冻结，需配合安全中心验证解封'。所谓验证，最后一步是要验证码或转账。",
+      "skeleton": {
+        "carrier": "wechat",
+        "identity": "平台安全中心",
+        "bait": "账号涉嫌违规将被冻结，需验证解封",
+        "pressure": [
+          "恐吓",
+          "限时",
+          "流程诱导"
+        ],
+        "demand": "code"
+      }
+    },
+    {
+      "id": "gov-subsidy",
+      "name": "养老补贴/退税申领",
+      "icon": "🧾",
+      "hot": 74,
+      "since": "2026-10",
+      "note": "'您有一笔4800元养老补贴待领取'，点链接填银行卡和验证码申领——补贴没见着，卡里的钱先没了。",
+      "skeleton": {
+        "carrier": "sms",
+        "identity": "人社/税务部门",
+        "bait": "符合条件可领养老补贴或退税",
+        "pressure": [
+          "限时",
+          "官方名义"
+        ],
+        "demand": "code"
+      }
+    },
+    {
+      "id": "health-expert",
+      "name": "线上专家问诊卖药",
+      "icon": "💊",
+      "hot": 68,
+      "since": "长期高发",
+      "note": "免费问诊送鸡蛋引进直播间，'专家'一看数据就说有脑梗风险，一个疗程几千块的'特效药'安排上。",
+      "skeleton": {
+        "carrier": "wechat",
+        "identity": "养生专家",
+        "bait": "免费体检问诊，查出隐患要提前干预",
+        "pressure": [
+          "恐吓",
+          "稀缺",
+          "限时"
+        ],
+        "demand": "transfer"
+      }
+    }
+  ]
+}

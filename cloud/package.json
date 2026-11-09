@@ -1,0 +1,20 @@
+{
+  "name": "yindun-cloud",
+  "version": "1.0.0",
+  "description": "银盾 · 反诈守护 云端演示系统",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js",
+    "test": "node test/run.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "mysql2": "^3.11.5",
+    "ioredis": "^5.4.2"
+  }
+}

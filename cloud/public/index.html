@@ -1,0 +1,2284 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="3ooDXwwRC7TnBDKVt8ftxn">
+<head data-page-node-id="mDrzq2AOL4dJ8jl8e8hkVa">
+<meta charset="UTF-8" data-page-node-id="THW3lxggtlv5TKjGkYnlsu">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" data-page-node-id="LGovOq8jrTbWOpb7cMpE9z">
+<title>银盾 · 反诈守护</title>
+<style>
+:root{
+  --bg:#070b16; --panel:#0f1524; --panel2:#141c30; --line:#1e293b;
+  --txt:#e5e7eb; --txt2:#94a3b8; --txt3:#64748b;
+  --l1:#60a5fa; --l1bg:rgba(96,165,250,.10);
+  --l2:#3b82f6; --l2bg:rgba(59,130,246,.12);
+  --l3:#f59e0b; --l3bg:rgba(245,158,11,.12);
+  --l4:#ef4444; --l4bg:rgba(239,68,68,.14);
+  --l5:#991b1b; --l5bg:rgba(153,27,27,.18);
+  --accent:#22d3ee;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  font-family:"PingFang SC","Microsoft YaHei","微软雅黑","Helvetica Neue",sans-serif;
+  background:
+    radial-gradient(1200px 600px at 20% -10%, rgba(34,211,238,.07), transparent 60%),
+    radial-gradient(1000px 500px at 100% 110%, rgba(59,130,246,.07), transparent 60%),
+    var(--bg);
+  color:var(--txt); overflow:hidden;
+  display:flex; flex-direction:column;
+}
+
+/* ===== 顶部控制条 ===== */
+.topbar{
+  height:56px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:0 20px;
+  background:linear-gradient(180deg, rgba(15,21,36,.92), rgba(15,21,36,.6));
+  border-bottom:1px solid var(--line); backdrop-filter:blur(6px);
+}
+.brand{display:flex; align-items:center; gap:10px; white-space:nowrap; flex-shrink:0}
+.brand .logo{
+  width:30px; height:30px; border-radius:8px;
+  background:linear-gradient(135deg,#22d3ee,#3b82f6);
+  display:flex; align-items:center; justify-content:center; font-size:17px;
+  box-shadow:0 0 18px rgba(34,211,238,.5);
+}
+.brand .name{font-size:18px; font-weight:700; letter-spacing:1px}
+.brand .name b{color:var(--accent)}
+.brand .sub{font-size:11px; color:var(--txt3); margin-left:10px; letter-spacing:.5px; white-space:nowrap}
+.steps{display:flex; gap:8px; white-space:nowrap; flex-shrink:1; overflow-x:auto; scrollbar-width:none}
+.steps::-webkit-scrollbar{display:none}
+.btn{
+  height:34px; padding:0 13px; border-radius:8px; white-space:nowrap;
+  border:1px solid var(--line); background:var(--panel2); color:var(--txt);
+  font-size:13px; cursor:pointer; font-family:inherit;
+  display:flex; align-items:center; gap:6px; transition:all .18s;
+}
+.btn .n{
+  width:18px; height:18px; border-radius:50%;
+  background:var(--line); color:var(--txt2);
+  font-size:11px; display:flex; align-items:center; justify-content:center; font-weight:700;
+}
+.btn:hover{border-color:var(--accent); background:rgba(34,211,238,.1)}
+.btn.active{border-color:var(--accent); background:rgba(34,211,238,.16); box-shadow:0 0 14px rgba(34,211,238,.35)}
+.btn.active .n{background:var(--accent); color:#001018}
+.btn.reset{border-color:#475569}
+.btn.reset:hover{border-color:#f87171; background:rgba(248,113,113,.12)}
+
+/* ===== 中间舞台 ===== */
+.stage{
+  flex:1; min-height:0;
+  display:flex; align-items:center; justify-content:center; gap:56px;
+  padding:8px 20px;
+}
+.side{display:flex; flex-direction:column; align-items:center; gap:8px}
+.side .tag{font-size:12px; color:var(--txt3); letter-spacing:2px}
+.side .tag b{color:var(--txt)}
+
+/* ===== 手机框 ===== */
+.phone{
+  width:300px; height:544px; background:#000; border-radius:42px;
+  border:9px solid #0b1120;
+  box-shadow:0 0 0 2px #1e293b, 0 0 0 3px #0b1120, 0 26px 60px rgba(0,0,0,.7), inset 0 0 2px rgba(255,255,255,.05);
+  position:relative; overflow:hidden;
+}
+.phone .notch{
+  position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:112px; height:24px; background:#000; border-radius:0 0 16px 16px; z-index:30;
+}
+.phone .notch::after{
+  content:''; position:absolute; right:18px; top:8px;
+  width:8px; height:8px; border-radius:50%;
+  background:#0b1120; box-shadow:inset 0 0 2px rgba(255,255,255,.12);
+}
+.screen{
+  position:absolute; inset:0; border-radius:33px; overflow:hidden;
+  background:linear-gradient(180deg,#0a0f1e,#070b16);
+  display:flex; flex-direction:column;
+}
+.statusbar{
+  height:30px; flex-shrink:0;
+  display:flex; justify-content:space-between; align-items:center;
+  padding:0 22px; font-size:11px; color:#fff; font-weight:600; position:relative; z-index:5;
+}
+.statusbar .sig{display:flex; gap:3px; align-items:flex-end}
+.statusbar .sig i{display:inline-block; width:3px; background:#fff; border-radius:1px}
+.statusbar .bat{display:flex; align-items:center; gap:4px}
+.statusbar .bat .b{width:18px; height:9px; border:1px solid #fff; border-radius:2px; position:relative}
+.statusbar .bat .b::after{content:''; position:absolute; top:1px; left:1px; bottom:1px; width:70%; background:#fff; border-radius:1px}
+
+/* ===== 老人端 ===== */
+.elder-top{
+  padding:8px 14px 10px; flex-shrink:0;
+  background:linear-gradient(180deg,rgba(34,211,238,.09),transparent);
+  border-bottom:1px solid var(--line);
+}
+.guard-line{display:flex; align-items:center; gap:8px; margin-bottom:6px}
+.shield{
+  width:22px; height:22px; border-radius:6px;
+  background:linear-gradient(135deg,#22d3ee,#3b82f6);
+  display:flex; align-items:center; justify-content:center; font-size:13px;
+}
+.guard-line .t{font-size:13px; font-weight:700}
+.guard-line .t b{color:var(--accent)}
+.guard-line .dot{margin-left:auto; width:7px; height:7px; border-radius:50%; background:#22c55e; box-shadow:0 0 8px #22c55e; animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.call-state{font-size:11px; color:var(--txt2); display:flex; justify-content:space-between; gap:8px}
+.call-state .num{color:#f87171; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.call-state .tm{color:var(--accent); font-variant-numeric:tabular-nums; flex-shrink:0}
+
+.events{flex:1; overflow-y:auto; padding:10px 12px; display:flex; flex-direction:column; gap:8px}
+.events::-webkit-scrollbar{width:4px}
+.events::-webkit-scrollbar-thumb{background:var(--line); border-radius:2px}
+
+.ev{
+  border-radius:10px; padding:9px 10px; border:1px solid var(--line); background:var(--panel);
+  display:flex; gap:8px; align-items:flex-start;
+  opacity:0; transform:translateY(8px); animation:evIn .4s forwards;
+}
+@keyframes evIn{to{opacity:1; transform:none}}
+.ev .bar{width:3px; align-self:stretch; border-radius:2px}
+.ev .ic{font-size:15px; line-height:1.2}
+.ev .body{flex:1; min-width:0}
+.ev .ttl{font-size:12px; font-weight:700; margin-bottom:2px}
+.ev .desc{font-size:10.5px; color:var(--txt2); line-height:1.5}
+.ev .ts{font-size:9px; color:var(--txt3); margin-top:3px}
+.ev.l1{border-color:rgba(96,165,250,.35); background:var(--l1bg)} .ev.l1 .bar{background:var(--l1)} .ev.l1 .ttl{color:#93c5fd}
+.ev.l2{border-color:rgba(59,130,246,.4); background:var(--l2bg)} .ev.l2 .bar{background:var(--l2)} .ev.l2 .ttl{color:#93c5fd}
+.ev.l3{border-color:rgba(245,158,11,.4); background:var(--l3bg)} .ev.l3 .bar{background:var(--l3)} .ev.l3 .ttl{color:#fbbf24}
+.ev.l4{border-color:rgba(239,68,68,.5); background:var(--l4bg)} .ev.l4 .bar{background:var(--l4)} .ev.l4 .ttl{color:#fca5a5}
+.ev.l5{border-color:rgba(153,27,27,.6); background:var(--l5bg)} .ev.l5 .bar{background:var(--l5)} .ev.l5 .ttl{color:#fca5a5}
+
+.hint{
+  margin:0 12px 8px; padding:8px 10px; border-radius:8px; flex-shrink:0;
+  background:rgba(245,158,11,.1); border:1px solid rgba(245,158,11,.3);
+  font-size:10.5px; color:#fbbf24; display:none; align-items:center; gap:6px;
+}
+.hint.show{display:flex; animation:evIn .4s}
+
+/* 阻断覆盖层 */
+.block{
+  position:absolute; inset:0; z-index:40;
+  background:linear-gradient(180deg,#7f1d1d,#450a0a);
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:30px; opacity:0; transition:opacity .4s;
+}
+.block.show{display:flex; opacity:1}
+.block .big{font-size:30px; font-weight:800; color:#fff; letter-spacing:3px; text-shadow:0 2px 12px rgba(0,0,0,.5); margin-bottom:10px}
+.block .sub{font-size:16.8px; color:#fecaca; margin-bottom:28px; line-height:1.7}
+.block .callbtn{
+  width:180px; height:54px; border-radius:27px; border:none; cursor:pointer;
+  background:#fff; color:#991b1b; font-size:16px; font-weight:800; font-family:inherit;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  box-shadow:0 8px 24px rgba(0,0,0,.4); animation:btnpulse 1.8s infinite;
+}
+@keyframes btnpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+.block .lock{margin-top:20px; font-size:11px; color:#fca5a5}
+.code-mask{
+  position:absolute; left:24px; right:24px; bottom:18px;
+  background:repeating-linear-gradient(45deg,#000,#000 8px,#1a0505 8px,#1a0505 16px);
+  border:1px solid #7f1d1d; border-radius:10px; padding:10px; text-align:center;
+  display:none; z-index:5;
+}
+.code-mask.show{display:block; animation:evIn .3s}
+.code-mask .lbl{font-size:11px; color:#fca5a5; margin-bottom:4px}
+.code-mask .v{font-size:14px; color:#fff; font-weight:700; letter-spacing:2px}
+
+/* ===== 振动提醒（阻断级） =====
+   规则（2026-11-04 定稿）：不管息屏还是亮屏，触发就振；
+   振动和弹窗同时开始；节奏 400ms 振 / 1200ms 停（不能太密，太密老人会直接关振动权限）；
+   弹窗上给「关闭振动」，但只停振动、不撤屏幕；120 秒保底自动停。 */
+.phone.vib{animation:vibShake .4s infinite}
+@keyframes vibShake{
+  0%,100%{transform:translate(0,0) rotate(0)}
+  20%{transform:translate(-3px,1px) rotate(-.5deg)}
+  40%{transform:translate(3px,-1px) rotate(.5deg)}
+  60%{transform:translate(-2px,-2px) rotate(-.3deg)}
+  80%{transform:translate(2px,2px) rotate(.3deg)}
+}
+.phone.vib .notch{box-shadow:0 0 0 2px rgba(248,113,113,.55), 0 0 26px 6px rgba(220,38,38,.45)}
+.vib-strip{
+  display:none; align-items:center; gap:9px; justify-content:center;
+  margin-top:18px; padding:9px 16px; border-radius:11px;
+  background:rgba(255,255,255,.11); border:1px solid rgba(255,255,255,.28);
+  font-size:12.5px; color:#fff; letter-spacing:.5px;
+}
+.vib-strip.on{display:flex}
+.vib-strip .dot{width:9px; height:9px; border-radius:50%; background:#fca5a5; box-shadow:0 0 8px #f87171; animation:vibDot 1.6s infinite}
+@keyframes vibDot{0%,20%{opacity:1; transform:scale(1)}30%{opacity:.3; transform:scale(.65)}100%{opacity:1; transform:scale(1)}}
+.block .vibstop{
+  margin-top:12px; height:38px; padding:0 20px; border-radius:19px; cursor:pointer;
+  background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.42);
+  color:#fff; font-size:13.5px; font-family:inherit; font-weight:600;
+  transition:background .2s;
+}
+.block .vibstop:hover{background:rgba(255,255,255,.2)}
+.block .vibstop:active{transform:scale(.97)}
+/* 息屏遮罩：证明"锁着屏也照振"。点一下等于把手机拿起来 */
+.lock-screen{
+  position:absolute; inset:0; z-index:60; display:none;
+  background:radial-gradient(circle at 50% 42%, #1e293b, #020617 72%);
+  flex-direction:column; align-items:center; justify-content:center; gap:8px;
+  color:#e2e8f0; text-align:center; cursor:pointer;
+}
+.lock-screen.on{display:flex}
+.lock-screen .t1{font-size:44px; font-weight:200; letter-spacing:2px}
+.lock-screen .t2{font-size:11.5px; color:#94a3b8}
+.lock-screen .t3{margin-top:26px; font-size:12px; color:#fca5a5; padding:0 34px; line-height:1.7}
+.lock-screen .t4{
+  display:none; margin-top:14px; font-size:11.5px; color:#fca5a5;
+  padding:7px 14px; border-radius:9px;
+  background:rgba(248,113,113,.12); border:1px solid rgba(248,113,113,.35);
+  animation:vibDot 1.6s infinite;
+}
+.lock-screen.vibing .t4{display:block}
+
+/* ===== 子女端 ===== */
+.child-top{
+  padding:11px 12px 10px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  background:linear-gradient(180deg,rgba(59,130,246,.09),transparent);
+  border-bottom:1px solid var(--line);
+}
+.child-top .ct-l{min-width:0; flex:1}
+.child-top .ttl{font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px; white-space:nowrap}
+.child-top .ttl b{color:#93c5fd}
+.child-top .sub{font-size:10px; color:var(--txt3); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ct-call{
+  width:34px; height:34px; flex-shrink:0; border-radius:50%; cursor:pointer;
+  border:1px solid rgba(59,130,246,.45); background:rgba(59,130,246,.16);
+  color:#93c5fd; font-size:15px; font-family:inherit;
+  display:flex; align-items:center; justify-content:center; transition:all .15s;
+}
+.ct-call:hover{background:rgba(59,130,246,.3); transform:scale(1.06)}
+.ct-call.done{opacity:.55}
+/* 用 block 流而非 flex column：flex 里子项会被压缩，卡片多了文字会挤成竖排 */
+.notis{flex:1; overflow-y:auto; padding:12px; display:block}
+.notis::-webkit-scrollbar{width:4px}
+.notis::-webkit-scrollbar-thumb{background:var(--line); border-radius:2px}
+.empty{color:var(--txt3); font-size:11px; text-align:center; margin-top:56px; line-height:2}
+.noti{
+  display:flex; gap:8px; background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:9px 10px;
+  opacity:0; transform:translateY(8px); animation:evIn .4s forwards;
+  flex-shrink:0;            /* 关键：列表里多条时不许压缩，否则文字会挤成竖排 */
+  margin-bottom:8px;
+}
+.noti .stripe{width:3px; align-self:stretch; border-radius:2px}
+.noti .ct{flex:1; min-width:0}
+.noti .h{display:flex; justify-content:space-between; align-items:flex-start; gap:6px; margin-bottom:3px}
+.noti .h .t{font-size:11.5px; font-weight:700; line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.noti .h .time{font-size:9px; color:var(--txt3); flex-shrink:0; padding-top:1px}
+.noti .msg{font-size:10px; color:var(--txt2); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.noti .extra{margin-top:6px; padding-top:5px; border-top:1px dashed rgba(153,27,27,.45); font-size:9.5px; color:#fca5a5; display:flex; align-items:center; gap:5px}
+.noti.l1 .stripe{background:var(--l1)} .noti.l1 .t{color:#93c5fd}
+.noti.l2 .stripe{background:var(--l2)} .noti.l2 .t{color:#93c5fd}
+.noti.l3 .stripe{background:var(--l3)} .noti.l3 .t{color:#fbbf24}
+.noti.l4 .stripe{background:var(--l4)} .noti.l4 .t{color:#fca5a5}
+.noti.l5 .stripe{background:var(--l5)} .noti.l5 .t{color:#fca5a5}
+
+/* ===== 底部判据看板 ===== */
+.judge{
+  height:120px; flex-shrink:0;
+  background:linear-gradient(0deg, rgba(15,21,36,.96), rgba(15,21,36,.72));
+  border-top:1px solid var(--line); padding:10px 16px;
+  display:flex; flex-direction:column;
+}
+.judge .hd{display:flex; align-items:center; justify-content:space-between; margin-bottom:8px}
+.judge .hd .t{font-size:13px; font-weight:700; display:flex; align-items:center; gap:8px}
+.judge .hd .t b{color:var(--accent)}
+.judge .hd .hint{font-size:10px; color:var(--txt3)}
+.judge .hd .hint b{color:var(--l3)}
+.judge-grid{flex:1; display:grid; grid-template-columns:repeat(9,1fr); gap:8px}
+.jcard{
+  border:1px solid var(--line); border-radius:8px; background:var(--panel); padding:7px 8px;
+  display:flex; flex-direction:column; justify-content:space-between; transition:all .3s; overflow:hidden;
+}
+.jcard .jt{font-size:11px; font-weight:700; color:var(--txt2); display:flex; align-items:center; gap:5px}
+.jcard .jt .jn{width:16px; height:16px; border-radius:50%; background:var(--line); color:var(--txt3); font-size:9px; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0}
+.jcard .jw{font-size:9px; color:var(--txt3); line-height:1.45; margin-top:4px}
+.jcard.hit{border-color:var(--l4); background:rgba(239,68,68,.13); box-shadow:0 0 14px rgba(239,68,68,.28)}
+.jcard.hit .jt{color:#fca5a5}
+.jcard.hit .jt .jn{background:var(--l4); color:#fff}
+.jcard.hit .jw{color:#fecaca}
+.jcard .jmiss{font-size:8px; color:#475569; margin-top:3px; display:block}
+.jcard.hit .jmiss{display:none}
+
+/* hint 副行 */
+.hint .hint-sub{font-size:9px; opacity:.7; margin-top:3px}
+
+/* 熟人询问弹层 */
+.acquaint{
+  position:absolute; left:0; right:0; bottom:0; height:55%; z-index:45;
+  background:linear-gradient(180deg,#0f1524,#070b16);
+  border-top:2px solid var(--accent); border-radius:33px 33px 0 0;
+  display:none; flex-direction:column; align-items:center; justify-content:center; gap:18px; padding:20px;
+  box-shadow:0 -8px 30px rgba(0,0,0,.6);
+}
+.acquaint.show{display:flex; animation:evIn .35s}
+.acquaint .aq-main{font-size:18px; font-weight:700; color:var(--txt)}
+.acquaint .aq-ask{font-size:16px; color:var(--accent)}
+.acquaint .aq-btns{display:flex; gap:16px}
+.acquaint .aq-btn{
+  width:96px; height:42px; border-radius:10px;
+  border:1px solid var(--line); background:var(--panel2); color:var(--txt);
+  font-size:15px; cursor:pointer; font-family:inherit; transition:all .18s;
+}
+.acquaint .aq-btn:hover{border-color:var(--accent); background:rgba(34,211,238,.1)}
+.known-record{
+  position:absolute; top:34px; left:0; right:0; z-index:6;
+  font-size:10px; color:var(--txt3); text-align:center; display:none;
+}
+.known-record.show{display:block; animation:evIn .3s}
+
+/* 底部灰色提示条 */
+.ghost-hint{
+  flex-shrink:0; text-align:center; padding:6px 16px; font-size:11px; color:var(--txt3);
+  background:rgba(15,21,36,.6); border-top:1px solid var(--line); display:none;
+}
+.ghost-hint.show{display:block; animation:evIn .3s}
+
+/* 红屏按住放行 */
+.block .release-wrap{margin-top:18px; display:flex; flex-direction:column; align-items:center; gap:6px}
+.block .release-tip{font-size:10px; color:#fca5a5; opacity:.7}
+.block .release-btn{
+  position:relative; width:200px; height:36px; border-radius:18px;
+  border:1px solid #fca5a5; background:transparent; color:#fca5a5; font-size:11px;
+  font-family:inherit; cursor:pointer; overflow:hidden; user-select:none;
+  display:flex; align-items:center; justify-content:center;
+}
+.block .release-btn .release-label{position:relative; z-index:2}
+.block .release-btn .release-bar{position:absolute; left:0; top:0; bottom:0; width:0%; background:rgba(252,165,165,.25); z-index:1}
+.block .release-btn:hover{background:rgba(252,165,165,.06)}
+
+/* ===== 子女端：等级标签 + 卡片动作 ===== */
+.noti .lv-tag{display:inline-block;vertical-align:1px;margin-right:6px;font-size:9px;font-weight:800;padding:1px 7px;border-radius:9px;flex-shrink:0;letter-spacing:1px}
+.noti.l1 .lv-tag,.noti.l2 .lv-tag{background:rgba(96,165,250,.15);color:#93c5fd}
+.noti.l3 .lv-tag{background:rgba(245,158,11,.16);color:#fbbf24}
+.noti.l4 .lv-tag{background:rgba(239,68,68,.18);color:#fca5a5}
+.noti.l5 .lv-tag{background:rgba(153,27,27,.3);color:#fca5a5}
+.noti .acts{display:flex;gap:6px;margin-top:7px;justify-content:flex-end}
+.noti .act{
+  flex:0 0 auto;height:26px;padding:0 11px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);
+  color:var(--txt2);font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;gap:4px;
+}
+.noti .act.pri{background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;color:#fff}
+.noti .act:hover{filter:brightness(1.18)}
+.noti .act.done{opacity:.55;cursor:default}
+.child-call{
+  margin-top:9px;height:36px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;
+  font-weight:800;font-size:12.5px;width:100%;
+  background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;
+  display:flex;align-items:center;justify-content:center;gap:6px;transition:filter .15s;
+}
+.child-call:hover{filter:brightness(1.12)}
+
+/* ===== 单端模式 ?role=elder / ?role=child ===== */
+body.role .steps{display:none}
+body.role-elder .side:not(.side-elder),body.role-child .side:not(.side-child){display:none}
+body.role .judge{display:none}
+body.role .stage{gap:0}
+body.role .side .tag{font-size:14px;margin-bottom:4px}
+body.role .phone{width:330px;height:598px}
+body.role .ghost-hint{display:none!important}
+
+/* ===== 子女端投影大屏版（?role=child）=====
+   投影仪上 330×598 的手机框只占屏幕一小块，后排完全看不清。
+   改成：左边手机按视口等比放大（保持手机原比例），右边一条当天时间线大卡。 */
+body.role-child .stage{align-items:center;padding:6px 18px}
+body.role-child .side.side-child{
+  flex-direction:row; align-items:center; justify-content:center;
+  gap:clamp(16px,2.4vw,48px); width:100%; height:100%; min-height:0;
+}
+body.role-child .side-child>.tag{display:none}
+/* 默认 display:contents —— 不产生盒子，双端并排模式一点不受影响；
+   只有单端模式才落成真实定位容器，供 transform 缩放 */
+.phone-fit{display:contents}
+body.role-child .phone-fit{display:block;position:relative;flex:0 0 auto}
+body.role-child .phone-fit>.phone{position:absolute;top:0;left:0;transform-origin:0 0}
+
+.child-big{display:none}
+body.role-child .child-big{
+  display:flex; flex-direction:column; height:100%; min-height:0;
+  flex:1 1 auto; max-width:min(1000px,54vw);
+}
+.big-hd{
+  flex-shrink:0; display:flex; align-items:center; gap:14px;
+  padding:0 4px 12px; border-bottom:1px solid var(--line);
+}
+.big-hd .bi{font-size:28px;line-height:1}
+.big-hd .bt{font-size:21px;font-weight:800;letter-spacing:.5px}
+.big-hd .bt b{color:var(--accent)}
+.big-hd .bs{font-size:12.5px;color:var(--txt3);margin-top:4px}
+.big-hd .bstat{margin-left:auto;display:flex;gap:24px;text-align:right}
+.big-hd .bstat .k{font-size:27px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+.big-hd .bstat .k.hot{color:#fca5a5}
+.big-hd .bstat .u{font-size:10.5px;color:var(--txt3);margin-top:4px;letter-spacing:1px}
+/* ===== 双视图：通话 / 短信 =====
+   同一个网页，两个视图。收到哪一路就自动切到哪一路 —— 演示时观众看到的
+   是"短信来了，子女这块屏自己翻到短信页"，不用人去点。 */
+.big-tabs{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:12px 4px 4px}
+.big-tab{
+  position:relative;display:flex;align-items:center;gap:8px;
+  padding:9px 18px;border-radius:11px;cursor:pointer;font-family:inherit;
+  background:rgba(148,163,184,.09);border:1px solid transparent;
+  color:var(--txt2);font-size:15.5px;font-weight:700;letter-spacing:.5px;
+  transition:background .18s,color .18s,border-color .18s;
+}
+.big-tab:hover{background:rgba(148,163,184,.16);color:var(--txt)}
+.big-tab.on{background:rgba(34,211,238,.14);border-color:rgba(34,211,238,.5);color:#a5f3fc}
+.big-tab .bnum{
+  min-width:22px;height:20px;padding:0 7px;border-radius:10px;
+  background:rgba(148,163,184,.2);color:var(--txt2);
+  font-size:12px;font-weight:800;line-height:20px;text-align:center;
+  font-variant-numeric:tabular-nums;
+}
+.big-tab.on .bnum{background:rgba(34,211,238,.28);color:#cffafe}
+.big-tab .udot{
+  display:none;position:absolute;top:-7px;right:-7px;min-width:20px;height:20px;
+  padding:0 5px;border-radius:10px;background:#ef4444;color:#fff;
+  font-size:11.5px;font-weight:800;line-height:20px;text-align:center;
+  box-shadow:0 0 0 2px #070b16;
+}
+.big-tab .udot.show{display:block;animation:udotPop .3s}
+@keyframes udotPop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.bt-live{margin-left:auto;font-size:11.5px;color:var(--txt3);display:flex;align-items:center;gap:6px}
+.bt-live i{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e}
+.bt-live.off i{background:#ef4444;box-shadow:0 0 6px #ef4444}
+.bt-live.off{color:#fca5a5}
+
+/* 视图过滤只靠 CSS 隐藏，不销毁 DOM —— 切回来历史还在，不会出现"切一次少一批" */
+.child-big[data-view="call"] .bcard[data-src="sms"]{display:none}
+.child-big[data-view="sms"]  .bcard[data-src="call"]{display:none}
+.big-line.switching{animation:viewIn .26s ease-out}
+@keyframes viewIn{from{opacity:.3;transform:translateY(7px)}to{opacity:1;transform:none}}
+
+/* 实时通道断开：投影时这条会横在屏幕顶上，谁都能看见"现在不是实时" */
+.live-bar{
+  position:fixed;left:50%;top:0;transform:translate(-50%,-130%);z-index:95;
+  padding:9px 24px;border-radius:0 0 12px 12px;
+  background:rgba(239,68,68,.94);color:#fff;font-size:14px;font-weight:700;
+  transition:transform .25s;box-shadow:0 8px 24px rgba(0,0,0,.4);pointer-events:none;
+}
+.live-bar.show{transform:translate(-50%,0)}
+
+.big-line{
+  flex:1; min-height:0; overflow-y:auto; padding:14px 8px 6px 4px;
+  display:flex; flex-direction:column; gap:12px;
+}
+.big-line::-webkit-scrollbar{width:6px}
+.big-line::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+.big-empty{margin:auto;text-align:center;color:var(--txt3);font-size:16px;line-height:2.1}
+.big-empty .e{font-size:38px;display:block;margin-bottom:12px;opacity:.55}
+.bcard{
+  position:relative; border-radius:14px; padding:15px 18px 15px 22px;
+  background:var(--panel); border:1px solid var(--line);
+  opacity:0; transform:translateY(10px); animation:evIn .42s forwards;
+}
+.bcard::before{
+  content:''; position:absolute; left:0; top:0; bottom:0; width:6px;
+  border-radius:14px 0 0 14px; background:#334155;
+}
+.bcard .bh{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.bcard .blv{font-size:13px;font-weight:800;padding:2px 10px;border-radius:9px;letter-spacing:1px;background:rgba(148,163,184,.14);color:#94a3b8}
+.bcard .bstp{font-size:12.5px;font-weight:700;padding:2px 9px;border-radius:9px;background:rgba(34,211,238,.10);color:#67e8f9;letter-spacing:.3px}
+.bcard .btm{font-size:13.5px;color:var(--txt3);font-variant-numeric:tabular-nums;margin-left:auto}
+.bcard .bttl{font-size:20px;font-weight:800;line-height:1.45}
+.bcard .bmsg{font-size:15px;color:var(--txt2);line-height:1.75;margin-top:6px}
+.bcard .bwhy{margin-top:9px;font-size:12.5px;color:var(--txt3);line-height:1.6;letter-spacing:.3px}
+.bcard .bextra{margin-top:9px;padding-top:8px;border-top:1px dashed rgba(153,27,27,.45);font-size:14px;color:#fca5a5}
+.bcard .bai{
+  margin-top:10px;padding:10px 13px;border-radius:10px;
+  background:rgba(34,211,238,.08);border-left:3px solid var(--accent);
+  font-size:14.5px;line-height:1.72;color:var(--txt);
+}
+.bcard .bai .lb{display:block;font-size:10.5px;opacity:.6;letter-spacing:1px;margin-bottom:4px}
+.bcard.l1::before,.bcard.l2::before{background:var(--l2)}
+.bcard.l1 .blv,.bcard.l2 .blv{background:rgba(96,165,250,.16);color:#93c5fd}
+.bcard.l1 .bttl,.bcard.l2 .bttl{color:#93c5fd}
+.bcard.l3::before{background:var(--l3)}
+.bcard.l3 .blv{background:rgba(245,158,11,.18);color:#fbbf24}
+.bcard.l3 .bttl{color:#fbbf24}
+.bcard.l4::before{background:var(--l4)}
+.bcard.l4 .blv{background:rgba(239,68,68,.2);color:#fca5a5}
+.bcard.l4 .bttl{color:#fca5a5}
+.bcard.l5::before{background:var(--l5)}
+.bcard.l5 .blv{background:rgba(153,27,27,.35);color:#fca5a5}
+.bcard.l5 .bttl{color:#fca5a5}
+.bcard.fresh{box-shadow:0 0 0 1px rgba(34,211,238,.4),0 12px 34px rgba(34,211,238,.13)}
+@media (max-width:1100px){
+  body.role-child .side.side-child{flex-direction:column;gap:14px;justify-content:flex-start}
+  body.role-child .child-big{max-width:none;width:100%;flex:1 1 auto}
+}
+
+/* ===== 装机引导 ===== */
+.su-ovl{
+  position:fixed; inset:0; z-index:80; display:none; align-items:center; justify-content:center;
+  background:rgba(3,7,18,.85); backdrop-filter:blur(8px); padding:24px;
+}
+.su-ovl.on{display:flex}
+.su-panel{
+  width:560px; max-width:100%; max-height:90vh; display:flex; flex-direction:column;
+  background:var(--panel); border:1px solid var(--line); border-radius:18px; overflow:hidden;
+  box-shadow:0 30px 90px rgba(0,0,0,.65); animation:dIn .28s ease;
+}
+.su-head{
+  flex-shrink:0; display:flex; align-items:center; justify-content:space-between;
+  padding:16px 20px; border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(34,211,238,.06), transparent);
+}
+.su-head .dt{display:flex; flex-direction:column; gap:3px}
+.su-head b{font-size:17px}
+.su-head .dsub{font-size:11px; color:var(--txt3)}
+.su-warn{
+  flex-shrink:0; display:none; align-items:center; gap:10px;
+  padding:10px 20px; background:rgba(239,68,68,.14); border-bottom:1px solid rgba(239,68,68,.45);
+  font-size:12.5px; font-weight:700; color:#fca5a5;
+}
+.su-warn.on{display:flex; animation:evIn .3s}
+.su-list{flex:1; overflow-y:auto; padding:16px 20px}
+.su-item{
+  display:flex; align-items:center; gap:12px; padding:13px 14px; margin-bottom:10px;
+  border:1px solid var(--line); border-radius:12px; background:var(--panel2); transition:border-color .2s;
+}
+.su-item.off{border-color:rgba(239,68,68,.4)}
+.su-item.on{border-color:rgba(34,197,94,.35)}
+.su-item .ic{
+  width:40px; height:40px; border-radius:10px; flex-shrink:0; font-size:20px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(34,211,238,.09); border:1px solid rgba(34,211,238,.22);
+}
+.su-item .mid{flex:1; min-width:0}
+.su-item .nm{font-size:13.5px; font-weight:800}
+.su-item .ds{font-size:11px; color:var(--txt2); margin-top:3px; line-height:1.5}
+.su-item .st{font-size:10px; font-weight:800; padding:2px 8px; border-radius:8px; flex-shrink:0; letter-spacing:1px}
+.su-item.on .st{background:rgba(34,197,94,.15); color:#4ade80}
+.su-item.off .st{background:rgba(239,68,68,.15); color:#fca5a5}
+.su-go{
+  height:30px; padding:0 14px; border-radius:8px; flex-shrink:0;
+  border:1px solid var(--accent); background:rgba(34,211,238,.1); color:var(--accent);
+  font-size:12px; font-weight:700; font-family:inherit; cursor:pointer; transition:background .15s;
+}
+.su-go:hover{background:rgba(34,211,238,.22)}
+.su-done{text-align:center; padding:28px 20px}
+.su-done .big{font-size:54px; line-height:1}
+.su-done .t{font-size:19px; font-weight:800; color:#4ade80; margin-top:10px}
+.su-done .d{font-size:12px; color:var(--txt2); margin-top:8px; line-height:1.8}
+</style>
+</head>
+<body data-page-node-id="Byn6zgjhrxPntTM4lfjEWD">
+
+<div class="topbar" data-page-node-id="KLnrrk320QoC5W5lMsKzr5">
+  <div class="brand" data-page-node-id="P9x5eGTznz5mTUNZsYb8gK">
+    <div class="logo" data-page-node-id="T9rgywWBoh5T6icpA28rsj">🛡️</div>
+    <div class="name" data-page-node-id="l8v1s12JVrQ652JJ9aRvxm"><b data-page-node-id="PHk5fyhmlNo0bS0ar3eQ0e">银盾</b> · 反诈守护</div>
+    <div class="sub" data-page-node-id="pr382DjhDAoAPqXNfqw8Cl">不听您说什么，只看您做什么 · <span id="netState" data-page-node-id="HNR2j7WtgqV0YvG4rbV2GS">检测中…</span></div>
+  </div>
+  <div class="steps" data-page-node-id="RsUij2naT78lKaX0YNUg8F">
+    <button class="btn" data-step="1" data-page-node-id="F1hZ51sEF6iEbNah6JE5B9"><span class="n" data-page-node-id="mXFXwc4mAhEiszdw7jP6ve">1</span>陌生来电</button>
+    <button class="btn" data-step="2" data-page-node-id="iwY5DBP7WY9XxJ0IHuS2ep"><span class="n" data-page-node-id="aiF31f0CRVcgvRMHVSRLYg">2</span>通话5分钟</button>
+    <button class="btn" data-step="3" data-page-node-id="iTT202O23SU9tX1V4xGTFt"><span class="n" data-page-node-id="tKAKIqcw3NNHaEHoDncWNY">3</span>通话8分钟</button>
+    <button class="btn" data-step="4" data-page-node-id="IgEUgl8rKF1faBYcD1Lmef"><span class="n" data-page-node-id="YaYlxjCE0gl1KdXEAHqIUl">4</span>打开银行</button>
+    <button class="btn" data-step="5" data-page-node-id="LFsGAjKHVbrkl5AeV0VXCT"><span class="n" data-page-node-id="ZxzXX7otWEJDejFWTTCDDi">5</span>收到验证码</button>
+    <button class="btn" data-step="g1" title="反例：没有通话时打开银行，不应误报" data-page-node-id="6BDoEcCWvkwnTl3jyvUFEz"><span class="n" data-page-node-id="RAtUGYo2yGvq44jc4bDrrb">A</span>独自转账</button>
+    <button class="btn" data-step="g2" title="反例：和通讯录联系人通话时转账，不应误报" data-page-node-id="ircG4RbOmr3udhGACka6qn"><span class="n" data-page-node-id="DW9wkF0NrTzVRAFyJaTH6X">B</span>亲人转账</button>
+    <button class="btn" data-step="setup" title="装机引导：5 个权限开关" data-page-node-id="iDWJNsRMIb0MPheokltwxB"><span class="n" data-page-node-id="ukvWEQbQctRz2Ck5U4HJqI">⚙</span>装机引导</button>
+    <button class="btn" data-step="lock" title="锁屏状态下的振动提醒：证明息屏也照振" data-page-node-id="lockBtn"><span class="n" data-page-node-id="lockNum">🔒</span>息屏也振</button>
+    <button class="btn reset" data-step="0" data-page-node-id="78bez8QtkWNA2Fj3hY5sdY"><span class="n" data-page-node-id="LqTYgIJNLDKqraA1eGdiYx">↻</span>重置</button>
+  </div>
+</div>
+
+<div class="stage" data-page-node-id="AskJYxAezsicMrfHKHpzuW">
+  <div class="side side-elder" data-page-node-id="G5G1o3mT6hjHaBUvoxzszc">
+    <div class="tag" data-page-node-id="2RORxKExenIFBf9FEXc0rR">▎ <b data-page-node-id="QRAvXG4wWuClJUUvkcjBrK">老人端</b> · 父亲手机</div>
+    <div class="phone" data-page-node-id="0pyvdF31PfuVIfpGTyAhbR">
+      <div class="notch" data-page-node-id="Qt4pX50TCZZattxFghtgEx"></div>
+      <div class="screen" data-page-node-id="xvjMoBboCPg8Dz1dfskZzZ">
+        <div class="lock-screen" id="lockScreen">
+          <div class="t1">9:24</div>
+          <div class="t2">11月4日 星期三</div>
+          <div class="t3">（点一下 = 把手机拿起来亮屏）</div>
+          <div class="t4" id="lockVib">🔔 手机正在振动 —— 真机上是你手能感觉到的</div>
+        </div>
+        <div class="statusbar" data-page-node-id="HLq5a6ueIzBsc0dJeF1LDM">
+          <span data-page-node-id="aNyZQLhReBXJHPLwxECAVl">9:24</span>
+          <span class="sig" data-page-node-id="9AEdDpGuJFFW3rOiji9Pgc"><i style="height:4px" data-page-node-id="4REbJuIJTDRSxFipAh6jBk"></i><i style="height:6px" data-page-node-id="BXqHR0ibVJFMtUUraeNrWg"></i><i style="height:8px" data-page-node-id="V8tccaNbY1cajgr1zRH0LD"></i><i style="height:10px" data-page-node-id="lWnoKHmVbTnghVxuYNXcBG"></i></span>
+          <span class="bat" data-page-node-id="VSXvO1MV4kdtkZAB6Pm5xo"><span class="b" data-page-node-id="3ods7IZCvUGYmVEuHjP0Xb"></span></span>
+        </div>
+        <div class="elder-top" data-page-node-id="9dDBFgGAuSmzhZHEKwDEzY">
+          <div class="guard-line" data-page-node-id="8ACKynCYj4VTs4Ce5EL7nA">
+            <div class="shield" data-page-node-id="iubYGpBPyj3HOYwPyk0xRB">🛡️</div>
+            <div class="t" data-page-node-id="1K5DxnWLBu1EUJ3G5jLJSH"><b data-page-node-id="l7actpFyjyBC9KnqLiGY6n">银盾</b>守护中</div>
+            <div class="dot" data-page-node-id="YLcHvk7ZsV5iCUcFVMaTzG"></div>
+          </div>
+          <div class="call-state" data-page-node-id="IAllngfrUdOGyyrcugSDVc">
+            <span class="num" id="callNum" data-page-node-id="uFHUQumFBTRPb4g069ulZ4">待机中</span>
+            <span class="tm" id="callTime" data-page-node-id="DfljVYfx0lHkSwNoxdsPWV"></span>
+          </div>
+        </div>
+        <div class="events" id="events" data-page-node-id="hixWIBvcONZlpAEK04L478"></div>
+        <div class="hint" id="hint" data-page-node-id="qbA3GR04nB08koxPokMQc0">💡 这个号码不在你通讯录里<div class="hint-sub" data-page-node-id="xjohUZV33QdUdzHz0qCVNm">你认识就点「认识」，不点也没关系</div></div>
+        <div class="block" id="block" data-page-node-id="5F6VKdwZhciCY2cLeFOjve">
+          <div class="big" data-page-node-id="oFNehMjpHVXDDlbNvyXmeY">先别操作</div>
+          <div class="sub" data-page-node-id="NjT6W4RpADKzxBxDAGhelx">你正在边打电话边转钱</div>
+          <button class="callbtn" data-page-node-id="t39EazKUZdDvM9gxyZ4JSm">📞 打给女儿</button>
+          <div class="release-wrap" data-page-node-id="k7dfTMiNI0mKPeH0MCMZrV">
+            <div class="release-tip" data-page-node-id="iI66ftVqW331GXNfZJzWVW">如果你确定没问题</div>
+            <button class="release-btn" id="releaseBtn" data-page-node-id="H6eKMBGsHQ8Dk939H7pV74"><span class="release-label" data-page-node-id="5FxddHSsHwniX6chu939wq">我知道自己在做什么（按住 3 秒）</span><span class="release-bar" id="releaseBar" data-page-node-id="2XqZPRPEv7ZkV6UFVFCyw1"></span></button>
+          </div>
+          <div class="lock" data-page-node-id="V4BXrevKFJFFO70D6uv6mn">🔒 此提示无法关闭</div>
+          <div class="vib-strip" id="vibStrip">
+            <span class="dot"></span>
+            <span id="vibTxt">正在振动提醒</span>
+          </div>
+          <button class="vibstop" id="vibStop">关闭振动</button>
+          <div class="code-mask" id="codeMask" data-page-node-id="lnpCQ1ZY9dBY6HVGFnB7UB">
+            <div class="lbl" data-page-node-id="4tfCF73H3q1cizgAablPx4">银行验证码已临时遮蔽</div>
+            <div class="v" data-page-node-id="J4jDg2Ht4GXHX0UmI101eJ">••••••</div>
+          </div>
+        </div>
+        <div class="acquaint" id="acquaint" data-page-node-id="awZSI4nSh9XEL3dPHJm4oF">
+          <div class="aq-main" data-page-node-id="vfg87CQOTQm8BVSkqTrF1T">这个号码不在通讯录里</div>
+          <div class="aq-ask" data-page-node-id="ogDVUv3CycFNvF2TrOyc9a">是你认识的人吗？</div>
+          <div class="aq-btns" data-page-node-id="4NiH1FAu4Y6HbmLtO0qQq5">
+            <button class="aq-btn" id="aqYes" data-page-node-id="hzoR47G6V9yAaevWqg63sq">认识</button>
+            <button class="aq-btn" id="aqNo" data-page-node-id="eBXeKdD3XWn4l4woZASnQC">不认识</button>
+          </div>
+        </div>
+        <div class="known-record" id="knownRecord" data-page-node-id="BaTbCBSCQ6wGihaBWy7XPQ">已记录：你认识这个号码（15 分钟内不再询问）</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="side side-child" data-page-node-id="7Hv6KBoBScv9O0XjipHzjj">
+    <div class="tag" data-page-node-id="mB335dOY15pu05CqwAjTPa">▎ <b data-page-node-id="USumoq8Ef1cCuB3nLjSZE1">子女端</b> · 女儿手机</div>
+    <div class="phone-fit" id="phoneFit">
+    <div class="phone" data-page-node-id="96addsOZubev9RQ9LM6CKO">
+      <div class="notch" data-page-node-id="ASJDLbcxNgbD9kCLBS4XnW"></div>
+      <div class="screen" data-page-node-id="cFiXLhFPJaplsAuS5RnMoX">
+        <div class="statusbar" data-page-node-id="SSXrvcHAVqHACDPPWlTfAp">
+          <span data-page-node-id="2oFMDtr468Ess4Jpc8wAVR">9:24</span>
+          <span class="sig" data-page-node-id="34XXi2SWo5Z7bKoGnxp0rj"><i style="height:4px" data-page-node-id="C8mR2CGncXtd6uZqOP61TQ"></i><i style="height:6px" data-page-node-id="CiC1hoCs6cgHbZlK78TEOc"></i><i style="height:8px" data-page-node-id="Z4F4NLwEvckiVOzTRpFhBu"></i><i style="height:10px" data-page-node-id="HGNKZaFaF2FndkLzjTY8HO"></i></span>
+          <span class="bat" data-page-node-id="bFNFCdZTGEd1dPFu2HiyKt"><span class="b" data-page-node-id="nNKx8c0JctTvwqFRTGTyB1"></span></span>
+        </div>
+        <div class="child-top" data-page-node-id="ktb9RgOgRLLiscEOcb5F1c">
+          <div class="ct-l">
+            <div class="ttl" data-page-node-id="JC8VD5FPGPlqOT6ND6JcgR">📱 <b data-page-node-id="E3l0NhgovbVwal038GDngI">爸爸</b> 的守护动态</div>
+            <div class="sub" data-page-node-id="Hj2tuOJxzzGLXPqB0UKhSF">实时行为推送 · 不含通话内容</div>
+          </div>
+          <button class="ct-call" id="childCall" title="一键回拨爸爸" aria-label="一键回拨爸爸" data-page-node-id="JBUs1zRUivsfg22UrmplnJ">📞</button>
+        </div>
+        <div class="notis" id="notis" data-page-node-id="eJR44nz2n3FFaPM5W3toHq">
+          <div class="empty" data-page-node-id="MylB8VH5ZCCXuLTVEi60MB">爸爸的手机很平静<br data-page-node-id="tiHgQvLA8GHpDhAt9Axy5I">有异常会立刻推给你</div>
+        </div>
+      </div>
+    </div>
+    </div><!-- /phone-fit -->
+    <!-- 投影用的大屏时间线：内容和左边手机里的推送同源，只是字大到后排也看得清 -->
+    <div class="child-big" id="childBig" data-view="call">
+      <div class="big-hd">
+        <div class="bi">📱</div>
+        <div>
+          <div class="bt"><b>爸爸</b> 的守护动态</div>
+          <div class="bs">实时行为推送 · 不含通话内容</div>
+        </div>
+        <div class="bstat">
+          <div>
+            <div class="k" id="bigCnt">0</div>
+            <div class="u" id="bigCntU">通话事件</div>
+          </div>
+          <div>
+            <div class="k" id="bigRisk">—</div>
+            <div class="u">当前等级</div>
+          </div>
+        </div>
+      </div>
+      <!-- 两个视图：短信上报和通话事件自动分流，来什么跳什么 -->
+      <div class="big-tabs" id="bigTabs">
+        <button class="big-tab on" data-view="call" id="tabCall">
+          📞 通话<span class="bnum" id="numCall">0</span><span class="udot" id="udotCall"></span>
+        </button>
+        <button class="big-tab" data-view="sms" id="tabSms">
+          ✉️ 短信<span class="bnum" id="numSms">0</span><span class="udot" id="udotSms"></span>
+        </button>
+        <div class="bt-live" id="btLive"><i></i><span id="btLiveTx">实时连接中</span></div>
+      </div>
+      <div class="big-line" id="bigLine">
+        <div class="big-empty" id="bigEmpty"><span class="e">🛡️</span>爸爸的手机很平静<br>有异常会立刻推到这里</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ghost-hint" id="ghostHint" data-page-node-id="oiAwy11l4BZQZ5joTb4n3b"></div>
+
+<!-- 实时通道断开时横在屏幕顶上。以前连接悄悄断了页面毫无反应，
+     演示时只能看到"怎么不来了"，却不知道为什么。 -->
+<div class="live-bar" id="liveBar">⚠️ 与服务器的实时连接已断开，正在自动重连…</div>
+
+<!-- ==========================================================================
+     装机引导：5 个权限一页看完（?view=setup 直接打开）
+     悬浮窗没开就一直提示 —— 它是唯一能"挡在骗子前面"的权限
+     ========================================================================== -->
+<div class="su-ovl" id="suOvl" data-page-node-id="jaNHzK8YeZaAZz3JkEpAAi">
+  <div class="su-panel" data-page-node-id="GAPjuFEuXW0KMqJbIIa7Cp">
+    <div class="su-head" data-page-node-id="90O6pgC0U1cr0kXWTuYIHP">
+      <div class="dt" data-page-node-id="Hnq5dwnr7OQ6ls9aOJfa4S">
+        <b data-page-node-id="H3XvjQR1rFC5AkvlnFhXu4">把守护打开</b>
+        <span class="dsub" data-page-node-id="crIwTqzkWB4w5PFZYDusd1">5 个开关，缺一个功能就残 · 打开后不用再管</span>
+      </div>
+      <button class="dx" id="suClose" data-page-node-id="OACr1dpayUfCIGHEbErfcF">×</button>
+    </div>
+    <div class="su-warn" id="suWarn" data-page-node-id="CRGUt8HbbrHMZdK299Yo42">⚠️ 悬浮窗还没开 —— 骗子让爸爸转钱时，我们挡不到他面前</div>
+    <div class="su-list" id="suList" data-page-node-id="cSoJGgbF1IzZ227X6RXDih"></div>
+    <div class="su-done" id="suDone" style="display:none" data-page-node-id="xkeweEe7enL2mGaIXmZpjk">
+      <div class="big" data-page-node-id="4isbhhT8MujFQWh7AoDg9U">✅</div>
+      <div class="t" data-page-node-id="ex0vnTzeWTQcaKZaOoIDvl">已经守住了</div>
+      <div class="d" data-page-node-id="wZoJbPNhGm60yR8Sp8oRKR">5 个开关全开着。<br data-page-node-id="OOgs0TCpEWD9CGKbU85Aq3">平时它不吭声；有事会先替爸爸挡住，再通知你。</div>
+      <button class="child-call" id="suFinish" style="max-width:230px;margin:18px auto 0" data-page-node-id="RPPJV7DzzBI3xCBVIGERHU">好，我知道了</button>
+    </div>
+  </div>
+</div>
+
+<div class="judge" data-page-node-id="7kaP0ql5oUr1syLYSn1cLx">
+  <div class="hd" data-page-node-id="yxC7UGRDC2omhXHkQm0dfC">
+    <div class="t" data-page-node-id="ROVJgKXjwkl9Z3qLMUtY5P">⚖️ 行为判据看板 · <b data-page-node-id="I4vIKykaa0A5bRowN7koai">9 条</b></div>
+    <div class="hint" data-page-node-id="6XPFpJXLz696TTggFGYN3s">我们听不到骗子说什么，但<b data-page-node-id="KbPKuDHvseKYFS0whdkq6W">他要爸爸动手机</b> —— 这 9 件事，手机上全看得见</div>
+  </div>
+  <div class="judge-grid" id="judgeGrid" data-page-node-id="rwBth1uHVajjpUOvOJGdbT"></div>
+</div>
+
+<script>
+const JUDGES = [
+  {t:'陌生号码',     w:'号码不在通讯录里'},
+  {t:'通话时长异常', w:'陌生号码聊得比平常久'},
+  {t:'通话持续过长', w:'一直不挂，超过 8 分钟'},
+  {t:'通话中开银行', w:'一边打电话一边开银行'},
+  {t:'收到验证码',   w:'有验证码短信进来'},
+  {t:'未告知家人',   w:'这期间没给家里人打过电话'},
+  {t:'时段异常',     w:'时间点不寻常'},
+  {t:'历史无此号',   w:'以前从没打过交道'},
+  {t:'熟人标记后仍升级', w:'说是熟人，还是要动钱'},
+];
+const jg = document.getElementById('judgeGrid');
+JUDGES.forEach((j,i)=>{
+  const d=document.createElement('div'); d.className='jcard'; d.id='j'+(i+1);
+  d.innerHTML=`<div class="jt"><span class="jn">${i+1}</span>${j.t}</div><div class="jw">${j.w}</div><div class="jmiss">本例未触发</div>`;
+  jg.appendChild(d);
+});
+
+let step=0, timer=null, baseSec=0;
+const callNumEl=document.getElementById('callNum');
+const callTimeEl=document.getElementById('callTime');
+const eventsEl=document.getElementById('events');
+const notisEl=document.getElementById('notis');
+const bigLineEl=document.getElementById('bigLine');
+const bigEmptyEl=document.getElementById('bigEmpty');
+const bigCntEl=document.getElementById('bigCnt');
+const bigRiskEl=document.getElementById('bigRisk');
+const childBigEl=document.getElementById('childBig');
+const bigTabsEl=document.getElementById('bigTabs');
+const numCallEl=document.getElementById('numCall');
+const numSmsEl=document.getElementById('numSms');
+const udotCallEl=document.getElementById('udotCall');
+const udotSmsEl=document.getElementById('udotSms');
+const btLiveEl=document.getElementById('btLive');
+const btLiveTxEl=document.getElementById('btLiveTx');
+const liveBarEl=document.getElementById('liveBar');
+const phoneFitEl=document.getElementById('phoneFit');
+const hintEl=document.getElementById('hint');
+const blockEl=document.getElementById('block');
+const codeMaskEl=document.getElementById('codeMask');
+const acquaintEl=document.getElementById('acquaint');
+const knownRecordEl=document.getElementById('knownRecord');
+const ghostHintEl=document.getElementById('ghostHint');
+const releaseBtn=document.getElementById('releaseBtn');
+const releaseBar=document.getElementById('releaseBar');
+let knownMark=0;
+let ghostTimer=null;
+const phoneElder=document.querySelector('.side-elder .phone');
+const vibStrip=document.getElementById('vibStrip');
+const vibTxt=document.getElementById('vibTxt');
+const lockScreenEl=document.getElementById('lockScreen');
+
+/* ==========================================================================
+   振动提醒 —— 阻断级唯一"身体能感觉到"的信号
+   ==========================================================================
+   定稿规则（2026-11-04）：
+     ① 触发就振，不管息屏还是亮屏。息屏时不振，等于老人根本没收到通知。
+     ② 振动和弹窗同时开始 —— 先振后弹会慢半拍，先弹后振又像"才想起来"。
+     ③ 节奏 400ms 振 / 1200ms 停。一开始用连续振动，老人直接把振动权限关了。
+     ④ 弹窗上必须有「关闭振动」：老人知道它在响，但不知道怎么关，会去关掉整个 App。
+        这个按钮只停振动，不撤屏幕 —— 骗子还在电话那头，屏幕不能撤。
+     ⑤ 120 秒保底自动停：人不可能真的不管，但也不能让手机在桌上振一下午。
+
+   浏览器里 navigator.vibrate 只有安卓 Chrome 生效，桌面端不振 ——
+   所以同步做了视觉：手机整体抖动 + 红晕 + 状态条。演示时桌面也看得见。
+   ========================================================================== */
+const VIB_BUZZ=400, VIB_GAP=1200, VIB_MAX_MS=120000;
+let vibTimer=null, vibDeadline=0;
+
+function startVibrate(reason){
+  if(vibTimer) return;                       // 已经在振，别叠第二层定时器
+  if(phoneElder) phoneElder.classList.add('vib');
+  if(lockScreenEl) lockScreenEl.classList.add('vibing');
+  if(vibStrip){
+    vibStrip.classList.add('on');
+    if(vibTxt) vibTxt.textContent = reason || '正在振动提醒';
+  }
+  vibDeadline = Date.now() + VIB_MAX_MS;
+  const tick = ()=>{
+    try{ if(navigator.vibrate) navigator.vibrate(VIB_BUZZ); }catch(e){}
+    if(Date.now() >= vibDeadline){ stopVibrate(); }
+  };
+  tick();
+  vibTimer = setInterval(tick, VIB_BUZZ + VIB_GAP);
+}
+
+function stopVibrate(){
+  if(vibTimer){ clearInterval(vibTimer); vibTimer=null; }
+  try{ if(navigator.vibrate) navigator.vibrate(0); }catch(e){}
+  if(phoneElder) phoneElder.classList.remove('vib');
+  if(lockScreenEl) lockScreenEl.classList.remove('vibing');
+  if(vibStrip) vibStrip.classList.remove('on');
+}
+
+/* 息屏演示：锁屏后照振，点一下等于把手机拿起来 */
+function setLocked(on){
+  if(!lockScreenEl) return;
+  lockScreenEl.classList.toggle('on', !!on);
+}
+if(lockScreenEl){
+  lockScreenEl.addEventListener('click', ()=>{
+    setLocked(false);
+    if(vibTimer) ghostHint('老人把手机拿起来了，看到拦截页。振动还在继续 —— 说明息屏时也在振。');
+  });
+}
+const vibStopBtn=document.getElementById('vibStop');
+if(vibStopBtn){
+  vibStopBtn.addEventListener('click', ()=>{
+    stopVibrate();
+    ghostHint('振动已关掉，但拦截页还在 —— 骗子还在电话那头，屏幕不能撤。');
+  });
+}
+let holdTimer=null, holdStart=0;
+const HOLD_MS=3000;
+
+/* ===== 单端模式：?role=elder 只显示老人端，?role=child 只显示子女端 ===== */
+(function(){
+  const role=new URLSearchParams(location.search).get('role');
+  if(role==='elder'||role==='child'){
+    document.body.classList.add('role','role-'+role);
+    // 手机框尺寸依赖布局算出的舞台高度，等这一轮样式结算完再量
+    if(role==='child'){
+      setTimeout(fitChildPhone,0);
+      window.addEventListener('load',fitChildPhone);
+      // 顶栏和字体都会在实际渲染后才定高，量一次不够 —— 再补两次
+      requestAnimationFrame(()=>requestAnimationFrame(fitChildPhone));
+      if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitChildPhone);
+    }
+  }
+})();
+
+/* ==========================================================================
+   装机引导
+   —— 5 个权限，一行一个：图标 + 一句人话 + 当前状态 + 「去打开」
+   —— 状态优先问原生 SilverBridge；浏览器演示时用本地模拟状态
+   ========================================================================== */
+const SU_PERMS=[
+  {key:'sms',     ic:'💬', nm:'看短信',        ds:'帮爸爸看，有没有骗子发短信过来',            sn:'sms'},
+  {key:'overlay', ic:'🛡️', nm:'悬浮窗',        ds:'最重要。不给这个，就挡不到骗子前面',        sn:'overlay', must:true},
+  {key:'usage',   ic:'🏦', nm:'看正在用哪个 App', ds:'爸爸一打开银行，我们才知道要拦',          sn:'usage'},
+  {key:'notify',  ic:'💌', nm:'读通知',        ds:'看微信里有没有人发链接给他',                sn:'notify'},
+  {key:'battery', ic:'🔋', nm:'关掉省电限制',  ds:'不然系统半夜会把守护悄悄关掉',              sn:'battery'},
+];
+let suState={sms:true, overlay:false, usage:false, notify:true, battery:false};
+
+function suRender(){
+  const list=document.getElementById('suList');
+  const warn=document.getElementById('suWarn');
+  const done=document.getElementById('suDone');
+  if(!list) return;
+  const allOn=SU_PERMS.every(p=>suState[p.key]);
+  warn.classList.toggle('on', !suState.overlay && !allOn);
+  done.style.display=allOn?'block':'none';
+  list.style.display=allOn?'none':'block';
+  list.innerHTML=SU_PERMS.map(p=>{
+    const on=!!suState[p.key];
+    return `<div class="su-item ${on?'on':'off'}">
+      <div class="ic">${p.ic}</div>
+      <div class="mid">
+        <div class="nm">${p.nm}</div>
+        <div class="ds">${p.ds}</div>
+      </div>
+      <div class="st">${on?'已开':'没开'}</div>
+      ${on?'':`<button class="su-go" data-k="${p.key}">去打开</button>`}
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.su-go').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const k=b.dataset.k;
+      const p=SU_PERMS.find(x=>x.key===k);
+      if(window.SilverBridge && typeof SilverBridge.openSetting==='function'){
+        SilverBridge.openSetting(p.sn);
+        // 原生跳转后用户可能开了也可能没开，回来时重新问一次。
+        // usage/notify/battery 问不到确切状态，用户点了就当他自己确认过，记在本地。
+        setTimeout(()=>{
+          if(p.key!=='sms' && p.key!=='overlay'){
+            try{ localStorage.setItem('su.'+p.key,'1'); }catch(e){}
+          }
+          suSync();
+        }, 1200);
+      }else{
+        suState[k]=true; suRender();
+        ghostHint('演示：已把「'+p.nm+'」标为开启。真机上会跳到系统设置页。');
+      }
+    });
+  });
+}
+/* 同步权限状态。原则：问不到的一律按"没开"处理，绝不把没把握的事显示成已开。
+   原实现写成 if(SilverBridge.ready()) 就把 5 项全标已开 —— 但原生 ready() 只查
+   短信/电话/通讯录那 6 个运行时权限，根本不查悬浮窗、usage、通知监听、电池优化。
+   结果：悬浮窗没开的手机上页面显示"全部已开"、红色警告条消失，恰好把最要紧的藏了。 */
+function suSync(){
+  if(!window.SilverBridge || typeof SilverBridge.ready!=='function') return;
+  const need=SilverBridge.ready();                       // 只管短信/电话/通讯录那组
+  suState.sms    = need;
+  suState.overlay= (typeof SilverBridge.canShield==='function') ? !!SilverBridge.canShield() : false;
+  // usage / notify / battery 目前没有对应的原生查询接口，不能猜 —— 如实标成未确认
+  suState.usage  = suAsk('usage');
+  suState.notify = suAsk('notify');
+  suState.battery= suAsk('battery');
+  suRender();
+}
+/* 用户在设置里手动开过的，记在本地，下次进来看就是"已开"；没开过就是"没开" */
+function suAsk(k){
+  try{ return localStorage.getItem('su.'+k)==='1'; }catch(e){ return false; }
+}
+function openSetup(){
+  suSync(); suRender();
+  document.getElementById('suOvl').classList.add('on');
+}
+(function(){
+  const q=new URLSearchParams(location.search);
+  if(q.get('view')==='setup'){ document.body.classList.add('view-setup'); setTimeout(openSetup,60); }
+})();
+document.getElementById('suClose').addEventListener('click',()=>{
+  document.getElementById('suOvl').classList.remove('on');
+});
+document.getElementById('suFinish').addEventListener('click',()=>{
+  document.getElementById('suOvl').classList.remove('on');
+  ghostHint('守护已就绪。以后有事才会打扰你。');
+});
+
+/* ===== 一键回拨：真机上走原生拨号，浏览器里只做演示反馈 ===== */
+function dialChild(){
+  if(window.SilverBridge && typeof SilverBridge.callChild==='function'){
+    SilverBridge.callChild(); return;
+  }
+  ghostHint('演示：已向爸爸发起回拨。真机上会直接拨出电话。');
+}
+document.getElementById('childCall').addEventListener('click',function(){
+  const b=this;
+  if(b.dataset.done) return;
+  b.dataset.done='1'; b.classList.add('done');
+  b.innerHTML='✓ 正在回拨爸爸…';
+  dialChild();
+  setTimeout(()=>{ b.dataset.done=''; b.innerHTML='📞 一键回拨爸爸'; },3000);
+});
+
+function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
+function startTimer(from){stopTimer(); baseSec=from; callTimeEl.textContent=fmt(baseSec);
+  timer=setInterval(()=>{baseSec++; callTimeEl.textContent=fmt(baseSec);},1000);}
+function stopTimer(){if(timer){clearInterval(timer); timer=null;}}
+function now(){const d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+
+/* ==========================================================================
+   云端接口层
+   —— 判定权在云端（L1 规则 + L2 模型复审），前端只负责把结果画出来。
+   —— 用 file:// 直接打开时 fetch 会失败，此时自动退化为本地演示，不影响答辩兜底。
+   ========================================================================== */
+const API_BASE = (location.protocol === 'file:') ? null : location.origin;
+let online = false;
+
+async function api(path, opt){
+  if(!API_BASE) return null;
+  try{
+    const r = await fetch(API_BASE+path, Object.assign({cache:'no-store'}, opt));
+    if(!r.ok) return null;
+    return await r.json();
+  }catch(e){ return null; }
+}
+
+function send(ev){
+  return api('/api/event',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(Object.assign({elderId:'demo', elderName:'父亲'}, ev))
+  });
+}
+
+/* 后端 why 文本 → 判据编号，用于点亮看板 */
+const WHY2J=[
+  [/陌生号码/, [1]],
+  [/5 分钟/, [2,7]],
+  [/8 分钟/, [3]],
+  [/银行/, [4,6]],
+  [/验证码/, [5]],
+  [/熟人/, [9]],
+];
+function hitByWhy(why){
+  const s=String(why||''); const ids=new Set();
+  WHY2J.forEach(([re,arr])=>{ if(re.test(s)) arr.forEach(i=>ids.add(i)); });
+  return [...ids];
+}
+
+const LV_CLS={none:'l1', watch:'l1', warn:'l4', high:'l4', block:'l5'};
+const LV_IC ={none:'📞', watch:'⏱️', warn:'⚠️', high:'⚠️', block:'🛑'};
+const LV_TXT={none:'守护中', watch:'留意中', warn:'警惕中', high:'高危', block:'已拦截'};
+const LV_TAG={l1:'留意', l2:'留意', l3:'警惕', l4:'高危', l5:'拦截'};
+
+function setBadge(level){
+  const t=document.querySelector('.guard-line .t');
+  if(t) t.innerHTML='<b>银盾</b>'+(LV_TXT[level]||'守护中');
+}
+
+/* 把云端返回的 alert 画到两端屏幕上
+   opt.silent —— 历史回填用：只画卡片，不放动画、不盖屏、不再响铃 */
+function renderAlert(a, opt){
+  if(!a) return;
+  opt = opt || {};
+  const cls=LV_CLS[a.level]||'l1', ic=LV_IC[a.level]||'📞';
+  const alertId = (a.alertId!=null) ? a.alertId : a.id;
+  const src = srcOf(a);
+  /* 实时来的要先切栏，卡片才落在已经切好的那一栏里。
+     历史回填（silent）不跳转 —— 否则加载 20 条历史，视图会被最后一条拽着乱跳。 */
+  if(!opt.silent) routeView(src);
+  if(!opt.silent) addEv(cls, ic, a.title, a.body);
+  const card = addNoti(cls, a.title, a.body,
+      a.channel==='push+call'?'已自动回拨，接通中':'', alertId, src, a.why);
+  if(a.summary) attachSummary(card, a.summary);   // 历史卡片自带摘要，直接贴上
+  if(!opt.silent){
+    if(a.why) hitJ(hitByWhy(a.why));
+    if(a.level==='block'){
+      // 已经拦下来了，就别再问"这个号码你认识吗" —— 两件事同时出现会互相削弱
+      if(typeof hideAcquaint==='function') hideAcquaint();
+      blockEl.classList.add('show');
+      // 弹窗和振动同时开始：老人可能正低着头、或手机扣在桌上，只有振动能把他叫住
+      startVibrate('正在振动提醒');
+    }
+    setBadge(a.level);
+  }
+  return cls;
+}
+
+/* 订阅云端实时推送：预警本体 + 大模型生成的人话摘要（后补） */
+function subscribe(){
+  if(!API_BASE || typeof EventSource==='undefined') return;
+  try{
+    const es=new EventSource(API_BASE+'/api/stream?elderId=demo');
+    es.onmessage=ev=>{
+      let m; try{ m=JSON.parse(ev.data); }catch(e){ return; }
+      // ① 预警本体。以前这里漏了这一个分支，导致手机上判出预警、电脑端一条都收不到
+      if(m.type==='alert'){ renderAlert(m); return; }
+      // ② AI 摘要后补：按 alertId 找回对应的卡，找不到才退回"最后一张"
+      if(m.type==='summary' && m.summary){
+        let card=null;
+        if(m.alertId!=null) card=notisEl.querySelector('.noti[data-alert-id="'+m.alertId+'"]');
+        if(!card) card=notisEl.querySelector('.noti:last-child');
+        attachSummary(card, m.summary);
+      }
+    };
+    es.onopen=()=>{ online=true; setLive(true); loadHistory(); };   // 连上就补一次历史，断线重连也补
+    es.onerror=()=>{
+      online=false;
+      /* EventSource 会自己重连（readyState=CONNECTING），只有 CLOSED 才是真没了。
+         两种情况都要让屏幕看得见，不能像以前那样悄悄失败。 */
+      const closed = (typeof EventSource!=='undefined' && es.readyState===EventSource.CLOSED);
+      setLive(false, closed ? '实时连接已关闭' : '正在重连…');
+    };
+  }catch(e){ /* 忽略 */ }
+}
+
+/* 把 AI 摘要贴到指定那张卡片里。已贴过就不重复 */
+function attachSummary(card, text){
+  if(!card || !text) return;
+  if(card.querySelector('.ai-sum')) return;
+  const d=document.createElement('div');
+  d.className='ai-sum';
+  d.style.cssText='margin-top:8px;padding:8px 10px;border-radius:8px;background:rgba(34,211,238,.08);border-left:2px solid var(--accent);font-size:12px;line-height:1.6;color:var(--txt)';
+  d.innerHTML='<span style="opacity:.6;font-size:10px">AI 摘要</span><br>'+text;
+  // 必须塞进 .ct 里：.noti 是 flex row，多一个直接子元素会被挤成细条
+  (card.querySelector('.ct')||card).appendChild(d);
+  /* 投影那张大卡也要贴上 —— 右边看不到 AI 说了什么，等于白讲 */
+  if(bigLineEl && card.dataset.sig){
+    const big=Array.prototype.slice.call(bigLineEl.querySelectorAll('.bcard'))
+                   .filter(b=>b.dataset.sig===card.dataset.sig).pop();
+    if(big && !big.querySelector('.bai')){
+      const bd=document.createElement('div');
+      bd.className='bai';
+      bd.innerHTML='<span class="lb">AI 摘要</span>'+text;
+      big.appendChild(bd);
+      bigLineEl.scrollTop=bigLineEl.scrollHeight;
+    }
+  }
+}
+
+/* 拉历史预警。
+   【2026-11-09 改】以前默认只恢复「本场会话」产生的，新开标签页或刷新就是一片空白，
+   演示时看着像"子女端根本没收到"。现在默认恢复最近 20 条（库里已清过测试数据，
+   不会再出现一屏旧卡）；加 ?since=session 才回到旧的"只看本场"行为。
+
+   这里刻意不按时间过滤：服务器 MySQL 的时区与浏览器不一定一致，
+   用 created_at 做时间窗会把刚产生的数据一起挡掉（实测差 8 小时）。 */
+async function loadHistory(){
+  const mode=new URLSearchParams(location.search).get('since');
+  let since=0;
+  if(mode==='session'){
+    since=Number(sessionStorage.getItem('yd.session')||0);
+    if(!since){ since=Date.now(); sessionStorage.setItem('yd.session', String(since)); }
+  }
+  const r = await api('/api/alerts?elderId=demo&limit=20');
+  if(!r || !Array.isArray(r.list)) return;
+  const list = r.list.slice().reverse();          // 接口给的是倒序，画的时候要正序
+  list.forEach(a=>{
+    if(a.id!=null && notisEl.querySelector('.noti[data-alert-id="'+a.id+'"]')) return;
+    const t = a.created_at ? new Date(a.created_at).getTime() : 0;
+    if(since && t && t < since) return;           // 上一场演示留下的，不恢复
+    renderAlert(a, {silent:true});
+  });
+}
+
+
+/* ==========================================================================
+   子女端投影大屏（?role=child）
+   ==========================================================================
+   手机框原本固定 330×598，1080P 投影上只有巴掌大，后排完全看不清。
+   这里按舞台可用高度算缩放比（严格保持手机比例，不拉伸），
+   空出来的右边用同源的当天时间线填满 —— 大字，后排也读得清。
+   注意：只影响展示，不改任何判定逻辑。 */
+const PHONE_W=330, PHONE_H=598, PHONE_MAX_SCALE=3.2;
+function fitChildPhone(){
+  if(!phoneFitEl) return;
+  const p=phoneFitEl.querySelector('.phone');
+  if(!p) return;
+  if(!document.body.classList.contains('role-child')){
+    p.style.transform=''; phoneFitEl.style.width=''; phoneFitEl.style.height='';
+    return;
+  }
+  const stage=document.querySelector('.stage');
+  if(!stage) return;
+  const narrow=window.innerWidth<1100;      // 窄屏改成上下排，右栏挪到手机下方
+  const availH=Math.max(240, stage.clientHeight-14);
+  const availW=Math.max(240, stage.clientWidth-32);
+  const hLimit=narrow? availH*0.5 : availH;
+  const wLimit=narrow? availW : availW*0.44;
+  let s=Math.min(hLimit/PHONE_H, wLimit/PHONE_W);
+  s=Math.max(0.45, Math.min(s, PHONE_MAX_SCALE));
+  p.style.transform=`scale(${s.toFixed(4)})`;
+  phoneFitEl.style.width=(PHONE_W*s)+'px';
+  phoneFitEl.style.height=(PHONE_H*s)+'px';
+}
+window.addEventListener('resize', fitChildPhone);
+window.addEventListener('orientationchange', fitChildPhone);
+
+const LV_NAME={l1:'关注',l2:'留意',l3:'偏高',l4:'高危',l5:'紧急'};
+
+/* 云端 channel → 页面上的两个视图
+     upload（老人/子女转发的短信、截图） → 短信
+     push / push+call（来电、超时、复问、拦截） → 通话
+   历史数据里 channel 可能缺失，一律归到通话，不会凭空造出短信卡 */
+function srcOf(a){
+  const ch=String((a&&a.channel)||'');
+  if(ch==='upload'||ch==='screenshot') return 'sms';
+  return 'call';
+}
+
+/* 把一条推送镜像到大屏时间线。手机里那张是"真机模拟"，右边这张是给投影看的 */
+function mirrorBig(cls,ttl,msg,extra,ts,src,why){
+  if(!bigLineEl) return null;
+  // 用 querySelector 而不是缓存的节点：清空后空提示是新建的，缓存那个已经脱离 DOM
+  const emp=bigLineEl.querySelector('.big-empty'); if(emp) emp.remove();
+  const d=document.createElement('div');
+  d.className='bcard '+cls;
+  d.dataset.src=src||'call';
+  const sig=cls+'|'+ttl+'|'+msg;
+  d.dataset.sig=sig;
+  const tag=LV_TAG[cls]||'提醒';
+  /* 从 why 里抽出「S4要钱」这一节，做成标题行上的小 chip。
+     短信剧本是一条条转的，四条卡的标题本来就一样，只有这一步能看出"又深入了一层" */
+  let stepChip='';
+  const mm=/S(\d)\s*([^\s·｜|]+)/.exec(why||'');
+  if(mm) stepChip=`<span class="bstp">第${mm[1]}步${mm[2]?' · '+mm[2]:''}</span>`;
+  let h=`<div class="bh"><span class="blv">${tag}</span>${stepChip}<span class="btm">${ts}</span></div>`
+      + `<div class="bttl">${ttl}</div><div class="bmsg">${msg}</div>`;
+  /* 判据来源：投影上要能一眼看出「老人自己传的」还是「子女代传」、判到第几步。
+     这句话以前只存在库里，屏幕上没有，评委问起来只能靠嘴说。 */
+  if(why) h+=`<div class="bwhy">${why}</div>`;
+  if(extra) h+=`<div class="bextra">📞 ${extra}</div>`;
+  d.innerHTML=h;
+  bigLineEl.appendChild(d);
+  const all=bigLineEl.querySelectorAll('.bcard');
+  if(all.length>20) all[0].remove();
+  bigLineEl.scrollTop=bigLineEl.scrollHeight;
+  d.classList.add('fresh');
+  setTimeout(()=>{ d.classList.remove('fresh'); }, 2600);
+  syncBigEmpty();
+  refreshBigStat();
+  return d;
+}
+
+/* 统计跟着当前视图走：右上角「当前等级」必须是这一栏里最重的那条。
+   否则切到短信栏、还挂着通话的「紧急」，看着就像短信出事了 */
+function refreshBigStat(){
+  if(!bigCntEl || !bigLineEl) return;
+  const all=Array.prototype.slice.call(bigLineEl.querySelectorAll('.bcard'));
+  const calls=all.filter(c=>(c.dataset.src||'call')==='call');
+  const sms=all.filter(c=>c.dataset.src==='sms');
+  bigCntEl.textContent=all.length;
+  if(numCallEl) numCallEl.textContent=calls.length;
+  if(numSmsEl)  numSmsEl.textContent=sms.length;
+  const v=(childBigEl&&childBigEl.dataset.view)||'call';
+  const mine=(v==='sms')?sms:calls;
+  let top='';
+  ['l5','l4','l3','l2','l1'].forEach(k=>{
+    if(!top && mine.some(c=>c.classList.contains(k))) top=k;
+  });
+  if(top){
+    bigRiskEl.textContent=LV_NAME[top]||'—';
+    bigRiskEl.className='k'+((top==='l4'||top==='l5')?' hot':'');
+  }else{
+    bigRiskEl.textContent='—';
+    bigRiskEl.className='k';
+  }
+}
+
+/* 当前视图没有卡时，说清"这一栏为什么空"，别让人以为页面坏了 */
+function syncBigEmpty(){
+  if(!bigLineEl) return;
+  const v=(childBigEl&&childBigEl.dataset.view)||'call';
+  const cards=Array.prototype.slice.call(bigLineEl.querySelectorAll('.bcard'))
+      .filter(c=>(c.dataset.src||'call')===v);
+  let emp=bigLineEl.querySelector('.big-empty');
+  if(cards.length===0){
+    if(!emp){
+      emp=document.createElement('div');
+      emp.className='big-empty'; emp.id='bigEmpty';
+      bigLineEl.appendChild(emp);
+    }
+    emp.innerHTML = (v==='sms')
+      ? '<span class="e">✉️</span>这一栏还没有短信<br>老人转发可疑短信后会出现在这里'
+      : '<span class="e">📞</span>这一栏还没有通话<br>接到陌生号码来电会出现在这里';
+  }else if(emp){
+    emp.remove();
+  }
+}
+
+/* 未读数。默认 AUTO_JUMP_MS=0 = 严格抢回：一切都立刻切过去，红点看不到。
+   调成 10000 就变成"手动切走后 10 秒内不抢"，新事件只在另一个 tab 上挂红点。
+   这个是留给现场看效果再定的开关，改一个常量就能切。 */
+const AUTO_JUMP_MS = 0;
+let manualUntil = 0;
+const unread = {call:0, sms:0};
+
+function bumpUnread(v){
+  unread[v]=(unread[v]||0)+1;
+  const dot=(v==='sms')?udotSmsEl:udotCallEl;
+  if(dot){ dot.textContent=unread[v]; dot.classList.add('show'); }
+}
+function clearUnread(v){
+  unread[v]=0;
+  const dot=(v==='sms')?udotSmsEl:udotCallEl;
+  if(dot){ dot.textContent=''; dot.classList.remove('show'); }
+}
+
+/* 切视图。手动点、自动跳都走这里，只有一处真相 */
+function setView(v, opt){
+  opt=opt||{};
+  if(v!=='call' && v!=='sms') v='call';
+  if(childBigEl) childBigEl.dataset.view=v;
+  Array.prototype.forEach.call(document.querySelectorAll('.big-tab'),
+    t=>t.classList.toggle('on', t.dataset.view===v));
+  clearUnread(v);
+  if(opt.auto && bigLineEl){
+    bigLineEl.classList.remove('switching');
+    void bigLineEl.offsetWidth;        // 强制重排，否则同名动画连播不生效
+    bigLineEl.classList.add('switching');
+  }
+  syncBigEmpty();
+  refreshBigStat();
+  if(bigLineEl) bigLineEl.scrollTop=bigLineEl.scrollHeight;
+}
+
+/* 收到一条推送：该跳就跳。这就是"短信来了，子女这块屏自己翻到短信页" */
+function routeView(src){
+  const cur=(childBigEl&&childBigEl.dataset.view)||'call';
+  if(src===cur) return;
+  if(manualUntil>Date.now()){ bumpUnread(src); return; }   // 手动切走的保护窗口内
+  setView(src,{auto:true});
+}
+
+if(bigTabsEl){
+  Array.prototype.forEach.call(bigTabsEl.querySelectorAll('.big-tab'), t=>{
+    t.addEventListener('click',()=>{
+      setView(t.dataset.view);
+      manualUntil=Date.now()+AUTO_JUMP_MS;
+    });
+  });
+}
+
+/* 实时通道状态：绿点=连着；红点 + 顶部横幅=断了。
+   以前连接悄悄断掉页面毫无反应，演示时只能看到"怎么不来了"，不知道为什么。 */
+function setLive(on, txt){
+  if(btLiveEl){
+    btLiveEl.classList.toggle('off', !on);
+    if(btLiveTxEl) btLiveTxEl.textContent = txt || (on?'实时连接中':'已断开');
+  }
+  if(liveBarEl) liveBarEl.classList.toggle('show', !on);
+}
+
+function clearBigLine(){
+  if(!bigLineEl) return;
+  bigLineEl.innerHTML='';
+  syncBigEmpty();
+  refreshBigStat();
+}
+
+function addEv(cls,ic,ttl,desc){
+  const d=document.createElement('div'); d.className='ev '+cls;
+  d.innerHTML=`<div class="bar"></div><div class="ic">${ic}</div><div class="body"><div class="ttl">${ttl}</div><div class="desc">${desc}</div><div class="ts">${now()}</div></div>`;
+  eventsEl.appendChild(d); eventsEl.scrollTop=eventsEl.scrollHeight;
+}
+function addNoti(cls,ttl,msg,extra,alertId,src,why){
+  const e=notisEl.querySelector('.empty'); if(e)e.remove();
+  // 同一条预警可能既从 SSE 实时推来、又从历史接口补拉回来，按 alertId 去重
+  if(alertId!=null){
+    const dup=notisEl.querySelector('.noti[data-alert-id="'+alertId+'"]');
+    if(dup) return dup;
+  }
+  // 没有 id 的本地卡片，用「等级+标题+正文」兜底去重（演示脚本重复点击时不会堆两条一样的）
+  //
+  // 【2026-11-09 修】这个兜底只对没有 alertId 的本地卡生效。
+  // 原来对服务端预警也套了一遍：第二通陌生电话的「通话超时」如果等级、标题、
+  // 正文和上一通完全一样（都是"聊了 5 分钟"），就被当成重复卡直接吞掉——
+  // 库里明明有新记录（id 不同），子女端时间线却一条都不多。
+  // 库里有 id 就说明是两次独立事件，必须各画一张。
+  const sig=cls+'|'+ttl+'|'+msg;
+  if(alertId==null){
+    const same=[...notisEl.querySelectorAll('.noti')].find(n=>n.dataset.sig===sig);
+    if(same) return same;
+  }
+  const d=document.createElement('div'); d.className='noti '+cls; d.dataset.sig=sig;
+  // 记下库内 id：AI 摘要后补时要靠它找回"是哪一张卡"
+  if(alertId!=null) d.dataset.alertId=String(alertId);
+  const tag=LV_TAG[cls]||'提醒';
+  const ts=now();                          // 两侧共用同一个时间戳，投影上不会对不上
+  let h=`<div class="stripe"></div><div class="ct">
+    <div class="h"><span class="t"><span class="lv-tag">${tag}</span>${ttl}</span><span class="time">${ts}</span></div>
+    <div class="msg">${msg}</div>`;
+  if(extra)h+=`<div class="extra">📞 ${extra}</div>`;
+  /* 高危以上直接在卡片里给动作 —— 让子女不用进二级页、一次点击就能拨回去 */
+  if(cls==='l4'||cls==='l5'){
+    h+=`<div class="acts">
+      <button class="act" data-act="ack">知道了</button>
+      <button class="act pri" data-act="call">📞 打过去</button>
+    </div>`;
+  }else if(cls==='l3'){
+    h+=`<div class="acts"><button class="act" data-act="call">📞 问问</button></div>`;
+  }
+  h+=`</div>`; d.innerHTML=h;
+  notisEl.appendChild(d);
+  mirrorBig(cls,ttl,msg,extra,ts,src,why);
+  // 只留最近 12 条，翻久了也不会把 DOM 堆爆
+  const all=notisEl.querySelectorAll('.noti');
+  if(all.length>12) all[0].remove();
+  notisEl.scrollTop=notisEl.scrollHeight;
+  d.querySelectorAll('.act').forEach(b=>{
+    b.addEventListener('click',()=>{
+      if(b.dataset.act==='call'){ dialChild(); b.textContent='✓ 拨出中'; }
+      else { b.textContent='✓ 已记录'; }
+      b.classList.add('done');
+    });
+  });
+  return d;      // renderAlert 要拿它贴 AI 摘要
+}
+function hitJ(ids){ids.forEach(i=>document.getElementById('j'+i).classList.add('hit'));}
+
+function ghostHint(msg){
+  ghostHintEl.textContent=msg; ghostHintEl.classList.add('show');
+  if(ghostTimer)clearTimeout(ghostTimer);
+  ghostTimer=setTimeout(()=>ghostHintEl.classList.remove('show'),3000);
+}
+
+function showAcquaint(){
+  if(knownMark && Date.now()-knownMark < 15*60*1000) return;
+  acquaintEl.classList.add('show');
+}
+function hideAcquaint(){acquaintEl.classList.remove('show');}
+function markKnown(){
+  knownMark=Date.now(); hideAcquaint(); knownRecordEl.classList.add('show');
+  addNoti('l2','父亲说这个陌生号码是熟人','138****6621 · 通话 3 分钟 · 他点了「是认识的」 —— 但仍请您确认一下');
+  // 告知云端：只免打扰 15 分钟，不撤销任何防护
+  api('/api/known',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({elderId:'demo'})}).then(r=>{
+      if(r&&r.hint) ghostHint(r.hint);
+    });
+}
+function markUnknown(){hideAcquaint();}
+
+function startHold(){
+  holdStart=Date.now();
+  if(holdTimer)clearInterval(holdTimer);
+  holdTimer=setInterval(()=>{
+    const p=Math.min((Date.now()-holdStart)/HOLD_MS,1);
+    releaseBar.style.width=(p*100)+'%';
+    if(p>=1){endHold(); releaseBlock();}
+  },50);
+}
+function endHold(){
+  if(holdTimer){clearInterval(holdTimer); holdTimer=null;}
+  releaseBar.style.width='0%';
+}
+function releaseBlock(){
+  blockEl.classList.remove('show');
+  stopVibrate();                       // 屏幕都撤了还振，老人会以为手机坏了
+  addNoti('l3','父亲自己解除了拦截','他按住了 3 秒确认。如果您不放心，建议打个电话。');
+}
+
+function clearAll(){
+  step=0; stopTimer();
+  stopVibrate();                       // 重置时振动必须一起停，否则会一直振到 120 秒
+  setLocked(false);
+  eventsEl.innerHTML='';
+  notisEl.innerHTML='<div class="empty">暂无异常动态<br>父亲手机处于安全状态</div>';
+  clearBigLine();                      // 大屏时间线跟着一起清，重置后两边状态必须一致
+  hintEl.classList.remove('show'); blockEl.classList.remove('show'); codeMaskEl.classList.remove('show');
+  acquaintEl.classList.remove('show'); knownRecordEl.classList.remove('show'); ghostHintEl.classList.remove('show');
+  releaseBar.style.width='0%'; if(holdTimer){clearInterval(holdTimer); holdTimer=null;}
+  knownMark=0;
+  callNumEl.textContent='待机中'; callTimeEl.textContent='';
+  document.querySelectorAll('.jcard').forEach(c=>c.classList.remove('hit'));
+  document.querySelectorAll('.btn').forEach(b=>b.classList.remove('active'));
+}
+
+async function go(n){
+  if(typeof n==='string' && /^\d+$/.test(n)) n=Number(n);
+  if(n===0){clearAll(); api('/api/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}); return;}
+  if(typeof n==='number'){
+    if(n>step+1) return;            // 必须顺序推进
+    document.querySelector(`.btn[data-step="${n}"]`).classList.add('active');
+    step=n;
+  }
+  if(n===1){
+    callNumEl.textContent='陌生号码 +1 202 555 0137 · 通话中';
+    startTimer(0);
+    addEv('l1','📞','陌生号码来电','该号码不在您的通讯录中，首次接触。');
+    addNoti('l1','父亲接听陌生来电','+1 202 555 0137 · 不在通讯录，已开始关注。');
+    hitJ([1,8]); setBadge('none');
+    await send({type:'call',state:'ringing',number:'+12025550137',who:'stranger'});
+    setTimeout(showAcquaint,2000);
+  }
+  if(n===2){
+    startTimer(320); hintEl.classList.add('show');
+    const r=await send({type:'call',state:'active',dur:320});
+    if(r&&r.alert){ renderAlert(r.alert); }
+    else{
+      addEv('l3','⏱️','通话时长异常','陌生号码通话已达 5 分钟，超出正常来电时长。');
+      addNoti('l3','陌生号码通话已 5 分钟','父亲与陌生号码持续通话 5 分钟，建议留意。');
+    }
+    hitJ([2,7]);
+  }
+  if(n===3){
+    startTimer(490);
+    const r=await send({type:'call',state:'active',dur:490});
+    if(r&&r.alert){ renderAlert(r.alert); }
+    else{
+      addEv('l4','⚠️','通话持续过长','已通话 8 分钟，符合"套近乎→吓唬"话术时长特征。');
+      addNoti('l4','通话已达 8 分钟','时长进入高危区间，话术诱导可能性升高。');
+    }
+    hitJ([3]);
+  }
+  if(n===4){
+    stopTimer(); callTimeEl.textContent='08:42';
+    const r=await send({type:'app',pkg:'com.icbc',label:'工商银行',isBank:true});
+    if(r&&r.alert){ renderAlert(r.alert); }
+    else{
+      blockEl.classList.add('show'); hideAcquaint();
+      startVibrate('正在振动提醒');
+      addEv('l5','🛑','检测到转账环境','通话中打开手机银行，触发阻断，验证码将被遮蔽。');
+      addNoti('l5','父亲正在操作手机银行','通话中打开银行 APP，已盖住屏幕。','');
+    }
+    hitJ([4,6]);
+  }
+  if(n===5){
+    const r=await send({type:'sms',body:'【工商银行】验证码 382910，请勿告诉他人',isCode:true});
+    codeMaskEl.classList.add('show');
+    if(r&&r.alert){ renderAlert(r.alert); }
+    else{
+      blockEl.classList.add('show'); hideAcquaint();
+      startVibrate('正在振动提醒');
+      addEv('l5','🔒','验证码已拦截遮蔽','银行短信验证码到达，已临时遮蔽，阻止转出。');
+      addNoti('l5','父亲收到银行验证码，但看不到内容','验证码念不出来，对方也拿不到。现在打过去最有用。','已自动回拨，接通中');
+    }
+    hitJ([5]);
+  }
+  if(n==='setup'){ openSetup(); return; }
+  if(n==='g1'){
+    clearAll(); api('/api/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    callNumEl.textContent='待机中';
+    const r=await send({type:'app',pkg:'com.icbc',label:'工商银行',isBank:true});
+    if(r&&r.alert){ renderAlert(r.alert); }
+    else{ addEv('l1','💳','有人在用手机银行','无通话状态下打开银行 APP，正常自主操作。'); }
+    ghostHint('无通话 + 打开银行 → 不触发（云端判定：'+(r?r.level:'离线')+'）。正常人也会自己转账。');
+  }
+  if(n==='lock'){
+    clearAll();
+    setLocked(true);
+    addEv('l5','🛑','息屏状态下检测到转账环境','锁着屏也一直在盯：通话中打开银行，直接阻断。');
+    ghostHint('已锁屏。3 秒后模拟一次诈骗触发 —— 注意看手机在振动，这时屏幕是黑的。');
+    setTimeout(()=>{
+      blockEl.classList.add('show'); hideAcquaint();
+      startVibrate('正在振动提醒');
+      addNoti('l5','父亲正在操作手机银行','锁屏状态下触发，已盖住屏幕并振动提醒。','');
+      ghostHint('看清了吗：屏幕是黑的，但手机在振。点一下屏幕 = 老人把手机拿起来。');
+    }, 3000);
+    return;
+  }
+  if(n==='g2'){
+    clearAll(); api('/api/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    callNumEl.textContent='儿子（通讯录）· 通话中';
+    startTimer(120);
+    await send({type:'call',state:'ringing',number:'13800000000',who:'son'});
+    const r=await send({type:'app',pkg:'com.icbc',label:'工商银行',isBank:true});
+    if(r&&r.alert){ renderAlert(r.alert); }
+    else{ addEv('l1','💳','有人在用手机银行','通讯录联系人通话中打开银行，号码已在本机通讯录。'); }
+    ghostHint('联系人 + 打开银行 → 不触发（云端判定：'+(r?r.level:'离线')+'）。号码在通讯录里。');
+  }
+}
+
+document.querySelectorAll('.btn').forEach(b=>b.addEventListener('click',()=>go(b.dataset.step)));
+document.getElementById('aqYes').addEventListener('click',markKnown);
+document.getElementById('aqNo').addEventListener('click',markUnknown);
+releaseBtn.addEventListener('mousedown',startHold);
+releaseBtn.addEventListener('mouseup',endHold);
+releaseBtn.addEventListener('mouseleave',endHold);
+releaseBtn.addEventListener('touchstart',e=>{e.preventDefault();startHold();},{passive:false});
+releaseBtn.addEventListener('touchend',e=>{e.preventDefault();endHold();},{passive:false});
+
+/* ==========================================================================
+   启动自检：确认云端可达，并订阅实时推送
+   —— 探不到就退回本地演示，答辩现场断网也不会开天窗
+   ========================================================================== */
+(async()=>{
+  setView('call');                     // 初始就落到「通话」栏，空态文案才对
+  const el=document.getElementById('netState');
+  if(!API_BASE){ if(el) el.textContent='本地演示'; setLive(false,'未配置云端'); return; }
+  const h=await api('/api/health');
+  if(h&&h.ok){
+    online=true;
+    const m=(h.model&&h.model.model)||'规则引擎';
+    if(el) el.textContent='云端在线 · '+m;
+    subscribe();
+    loadHistory();   // 不等 SSE 连上：HTTP 通则先把历史画出来，一进页面就有内容
+  }else{
+    if(el) el.textContent='云端未连接（本地演示）';
+    setLive(false,'云端未连接');
+  }
+})();
+</script>
+<!-- ==========================================================================
+     反诈演练（定期）—— AI 扮演骗子，4 轮攻防
+     独立挂载，不影响主演示流程；后端挂了也能看到剧本原文
+     ========================================================================== -->
+<!-- ==========================================================================
+     上报可疑信息 —— 把收到的诈骗短信甩进来，AI 判到第几步、什么套路、该干嘛
+     手机 App 里点这个按钮会跳到原生页（那边能直接读短信和相册）；
+     浏览器里点就在这儿填表单，效果一样。
+     ========================================================================== -->
+<button class="rep-fab" id="repFab" data-page-node-id="5y6k093wJtA0ncfpODBnAN">📮 上报可疑信息</button>
+
+<div class="dovl" id="repOvl" data-page-node-id="WTtmiuZ6YUkI7eZowwSX9R">
+  <div class="dpanel" style="width:660px" data-page-node-id="z4olE6C8IcXzLiAFecbRAo">
+    <div class="dhead" data-page-node-id="e0OcD8hFvCPCOTfDd4Rktz">
+      <div class="dt" data-page-node-id="Ty5EZD7WVw5jaG5tu5bwLE">
+        <b data-page-node-id="TWEnKoQn8fT3HJaCbJ9QlQ">上报可疑信息</b>
+        <span class="dsub" data-page-node-id="i2afanHYtIu1r57W516lRh">发过来，AI 帮你看看是不是骗子</span>
+      </div>
+      <button class="dx" id="repClose" data-page-node-id="sOvKGv2zJJyHUW63i2ZpIn">×</button>
+    </div>
+    <div class="dbody" data-page-node-id="uveQ4AaKw72PP1wjve3W4M">
+      <div id="repForm" data-page-node-id="XoAH4xHA4KAAsi3leL6Hix">
+        <span class="rep-lab" data-page-node-id="IdLGHHRC16BECkxoKvcN1K">对方号码（可以不填）</span>
+        <input class="rep-in" id="repNum" placeholder="1069xxxxx / 陌生手机号" autocomplete="off" data-page-node-id="UlhE5hijTgi5qr3J1CtkTs">
+        <span class="rep-lab" data-page-node-id="ucEBw57tsvS1xXL0MeCn6D">短信 / 聊天内容</span>
+        <textarea class="rep-in" id="repTxt" placeholder="把骗子说的话粘在这里…"></textarea>
+        <div class="rep-row" data-page-node-id="GNO6ql2IEeczZd0FpEsaXS">
+          <label class="rep-pick" for="repFile" data-page-node-id="wNPSlgwE3dfc16GjneM4Gh">🖼 选截图</label>
+          <input type="file" id="repFile" accept="image/*" hidden data-page-node-id="L92P4t0GDYSiCfDX2CrUR0">
+          <span class="rep-hint" id="repPic" data-page-node-id="QS6cuVGs4AoKTNk8SHdwa8">还没选截图</span>
+        </div>
+        <button class="rep-btn" id="repGo" data-page-node-id="mpsO6LlwuWtbd7cgwgzKxo">开始识别</button>
+      </div>
+      <div id="repRes" data-page-node-id="HdRSxn2o8JLGyiHTfGNUG1"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ===== 上报入口 ===== */
+.rep-fab{
+  position:fixed; right:26px; bottom:96px; height:46px; padding:0 20px; border-radius:23px;
+  border:none; cursor:pointer; font-family:inherit; font-weight:800; font-size:14px;
+  background:linear-gradient(135deg,#f43f5e,#f97316); color:#fff; z-index:60;
+  box-shadow:0 10px 30px rgba(244,63,94,.4);
+  display:flex; align-items:center; gap:8px; transition:transform .18s, box-shadow .18s;
+}
+.rep-fab:hover{transform:translateY(-2px); box-shadow:0 14px 38px rgba(244,63,94,.55)}
+
+/* ===== 表单 ===== */
+.rep-lab{display:block; font-size:11px; color:#64748b; font-weight:700; margin:16px 0 0;}
+.rep-in{
+  width:100%; box-sizing:border-box; margin-top:7px; padding:11px 13px;
+  background:#0b1220; color:#e5e7eb; border:1px solid var(--line); border-radius:10px;
+  font-family:inherit; font-size:14px; outline:none;
+}
+.rep-in:focus{border-color:#f43f5e}
+textarea.rep-in{min-height:110px; resize:vertical; line-height:1.65}
+.rep-row{display:flex; align-items:center; gap:10px; margin-top:14px}
+.rep-pick{
+  padding:9px 16px; border-radius:10px; cursor:pointer; font-size:13px; font-weight:700;
+  background:#0d1b2a; color:#f43f5e; border:1px solid #f43f5e;
+}
+.rep-hint{font-size:11px; color:#64748b}
+.rep-btn{
+  width:100%; height:46px; margin-top:18px; border:none; border-radius:12px; cursor:pointer;
+  font-family:inherit; font-weight:800; font-size:15px;
+  background:linear-gradient(135deg,#f43f5e,#f97316); color:#fff;
+}
+.rep-btn:disabled{opacity:.55; cursor:default}
+
+/* ===== 结果 ===== */
+.rep-res{
+  margin-top:12px; padding:14px 16px; border-radius:12px;
+  background:#0f1524; border:1px solid #1e293b;
+}
+.rep-head{font-size:19px; font-weight:800}
+.rep-bars{display:flex; margin-top:12px}
+.rep-stage{font-size:12.5px; color:#94a3b8; margin-top:8px}
+.rep-lab2{font-size:11px; color:#64748b; font-weight:700}
+.rep-type{font-size:16px; font-weight:800; color:#e5e7eb; margin-top:6px}
+.rep-reason{font-size:13px; color:#94a3b8; margin-top:8px; line-height:1.7}
+.rep-chip{
+  display:inline-block; margin:6px 6px 0 0; padding:4px 9px; border-radius:7px;
+  font-size:11px; color:#f59e0b; background:#2a2110; border:1px solid #f59e0b;
+}
+.rep-advice{font-size:15px; font-weight:700; color:#e5e7eb; margin-top:7px; line-height:1.7}
+.rep-black{border-color:#ef4444; background:#2a1214}
+.rep-cnt{font-size:14px; font-weight:700; color:#e5e7eb; margin-top:6px}
+.rep-meta{font-size:10px; color:#475569; margin-top:10px; text-align:right}
+.rep-err{
+  margin-top:12px; padding:14px 16px; border-radius:12px;
+  background:#2a1214; border:1px solid #ef4444; color:#fca5a5; font-size:13px; line-height:1.7;
+}
+</style>
+
+<script>
+(function(){
+  var fab=document.getElementById('repFab'), ovl=document.getElementById('repOvl');
+  var num=document.getElementById('repNum'), txt=document.getElementById('repTxt');
+  var file=document.getElementById('repFile'), picEl=document.getElementById('repPic');
+  var go=document.getElementById('repGo'), res=document.getElementById('repRes');
+  var pic=null;
+
+  if(!fab) return;
+
+  /* 手机里点：跳原生页。App 内嵌页的 WebView 注入了 SilverBridge，
+     原生那页能直接读短信库和相册，网页没有这些权限。 */
+  fab.onclick=function(){
+    if(window.SilverBridge && typeof SilverBridge.openReport==='function'){
+      SilverBridge.openReport();
+      return;
+    }
+    ovl.classList.add('on');
+  };
+  document.getElementById('repClose').onclick=function(){ ovl.classList.remove('on'); };
+  ovl.onclick=function(e){ if(e.target===ovl) ovl.classList.remove('on'); };
+
+  file.onchange=function(){
+    var f=file.files && file.files[0];
+    if(!f) return;
+    if(f.size>6*1024*1024){
+      picEl.textContent='图太大了（超过 6MB），换一张或只贴文字';
+      picEl.style.color='#f43f5e'; pic=null; return;
+    }
+    var rd=new FileReader();
+    rd.onload=function(){
+      pic=rd.result;
+      picEl.textContent='已选 '+(f.size/1024|0)+'KB · '+f.name;
+      picEl.style.color='#22c55e';
+    };
+    rd.readAsDataURL(f);
+  };
+
+  go.onclick=async function(){
+    var t=txt.value.trim();
+    if(!t && !pic){ alert('图片和文字至少给一样'); return; }
+    go.disabled=true; go.textContent='识别中…'; res.innerHTML='';
+    try{
+      /* 谁在提交：子女端页面（?role=child）传 child，老人端传 elder。
+         两端的入口形态不同（老人从短信里挑、子女在微信里转），
+         但走的同一个接口，身份必须说清楚，否则数据全糊在一起。 */
+      var isChildReporter=document.body.classList.contains('role-child');
+      var body={elderId:'demo', reporter: isChildReporter?'child':'elder'};
+      if(num.value.trim()) body.number=num.value.trim();
+      if(t) body.text=t;
+      if(pic) body.image=pic;
+
+      var r=await fetch('/api/report',{
+        method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)
+      });
+      var d=await r.json();
+      if(!d.ok) throw new Error(d.msg||'识别失败');
+      res.innerHTML=render(d);
+      txt.value=''; num.value=''; pic=null; file.value='';
+      picEl.textContent='还没选截图'; picEl.style.color='';
+    }catch(e){
+      res.innerHTML='<div class="rep-err">这次没成功：'+(e.message||'连不上云端')+'</div>';
+    }finally{
+      go.disabled=false; go.textContent='开始识别';
+    }
+  };
+
+  function render(d){
+    var fraud=!!d.isFraud, stage=d.stage||0;
+    var color = fraud ? (stage>=3 ? '#ef4444' : '#f59e0b') : '#22c55e';
+    var head  = fraud ? (stage>=3 ? '⚠ 这是诈骗，别动钱' : '⚠ 有点可疑') : '✓ 看着不像诈骗';
+
+    var stageNames=['套近乎','吓唬','别告诉家人','要钱'];
+    var bars='';
+    for(var i=1;i<=4;i++){
+      var on=i<=stage;
+      bars+='<div style="flex:1;'+(i>1?'margin-left:5px;':'')+'">'+
+              '<i style="display:block;height:8px;border-radius:4px;background:'+(on?color:'#1e293b')+'"></i>'+
+              '<span style="display:block;font-size:10px;margin-top:5px;color:'+(on?color:'#475569')+
+                ';text-align:'+(i===1?'left':i===4?'right':'center')+'">'+i+' '+stageNames[i-1]+'</span>'+
+            '</div>';
+    }
+
+    var sig='';
+    (d.signals||[]).slice(0,5).forEach(function(w){ sig+='<span class="rep-chip">'+w+'</span>'; });
+
+    var cnt=d.reportCount||0, black=!!d.blacklisted;
+
+    return ''+
+      '<div class="rep-res" style="border-color:'+color+'">'+
+        '<div class="rep-head" style="color:'+color+'">'+head+'</div>'+
+        /* 身份标签：说清这条是谁交上来的。只陈述已发生的事，
+           低危不会推子女端，所以这里不能写"已同步给爸爸"之类的话。 */
+        '<div style="font-size:12px;color:#64748b;margin:-4px 0 10px">'+
+          (d.reporter==='child' ? '由你代传识别' : '老人自己上传识别')+
+        '</div>'+
+        '<div class="rep-bars">'+bars+'</div>'+
+        '<div class="rep-stage">第 '+stage+' 步 · '+(d.stageName||'—')+'</div>'+
+      '</div>'+
+      '<div class="rep-res">'+
+        '<div class="rep-lab2">这是什么套路</div>'+
+        '<div class="rep-type">'+(d.type||'—')+'</div>'+
+        '<div class="rep-reason">'+(d.reason||'')+'</div>'+
+        (sig ? '<div class="rep-lab2" style="margin-top:12px">露馅的地方</div><div>'+sig+'</div>' : '')+
+      '</div>'+
+      '<div class="rep-res" style="border-color:#22d3ee">'+
+        '<div class="rep-lab2" style="color:#22d3ee">现在怎么做</div>'+
+        '<div class="rep-advice">'+(d.advice||'')+'</div>'+
+      '</div>'+
+      (cnt>0
+        ? '<div class="rep-res'+(black?' rep-black':'')+'">'+
+            '<div class="rep-lab2">这个号码</div>'+
+            '<div class="rep-cnt">'+(black
+              ? '已被 '+cnt+' 个人举报过 · 已标红'
+              : '已有 '+cnt+' 个人举报过这个号码，再攒 '+(3-cnt)+' 次就标红')+'</div>'+
+          '</div>'
+        : '')+
+      '<div class="rep-meta">'+(d.meta
+        ? '耗时 '+d.meta.ms+'ms · 花费 ¥'+Number(d.meta.cost||0).toFixed(4)+' · '+(d.meta.model||'')
+        : '')+'</div>';
+  }
+})();
+</script>
+
+<button class="drill-fab" id="drillFab" data-page-node-id="bMm45Sy6yY6bvRAA7pgyRu">🎯 反诈演练</button>
+
+<div class="dovl" id="drillOvl" data-page-node-id="bQUfVQxbf1wlB3PFKb1fuA">
+  <div class="dpanel" data-page-node-id="r5L8ZiDGmTZDmnyQuNtScc">
+    <div class="dhead" data-page-node-id="QbP8ArNTicYQRIt2upWQ6h">
+      <div class="dt" data-page-node-id="Grl2zHBVQ4x0JT1uSFqmBw">
+        <b data-page-node-id="AArQTARViomHEVVkWkbHE9">反诈演练</b>
+        <span class="dsub" data-page-node-id="zTnN5ZCAFMGp9VzFUdXSFq">AI 扮骗子，4 轮攻防 · 得分 ≥75 才算过关</span>
+      </div>
+      <button class="dx" id="drillClose" data-page-node-id="bGh6rBCr7YIyIex9m5AbcA">×</button>
+    </div>
+    <div class="dbody" id="drillBody" data-page-node-id="axH0uy8GAHDiEKLMWrUoYN">
+      <div class="dload" data-page-node-id="8ifqcrdmaovNp8ZKdrxwSq">加载中…</div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ===== 演练入口 ===== */
+.drill-fab{
+  position:fixed; right:26px; bottom:26px; height:46px; padding:0 20px; border-radius:23px;
+  border:none; cursor:pointer; font-family:inherit; font-weight:800; font-size:14px;
+  background:linear-gradient(135deg,#22d3ee,#3b82f6); color:#04121f;
+  box-shadow:0 10px 30px rgba(34,211,238,.35); z-index:60;
+  display:flex; align-items:center; gap:8px; transition:transform .18s, box-shadow .18s;
+}
+.drill-fab:hover{transform:translateY(-2px); box-shadow:0 14px 38px rgba(34,211,238,.5)}
+
+/* ===== 弹层 ===== */
+.dovl{
+  position:fixed; inset:0; z-index:70; display:none; align-items:center; justify-content:center;
+  background:rgba(3,7,18,.8); backdrop-filter:blur(8px); padding:24px;
+}
+.dovl.on{display:flex}
+.dpanel{
+  width:820px; max-width:100%; max-height:88vh; display:flex; flex-direction:column;
+  background:var(--panel); border:1px solid var(--line); border-radius:18px; overflow:hidden;
+  box-shadow:0 30px 90px rgba(0,0,0,.65);
+  animation:dIn .28s ease;
+}
+@keyframes dIn{from{opacity:0; transform:translateY(14px) scale(.98)} to{opacity:1; transform:none}}
+.dhead{
+  flex-shrink:0; display:flex; align-items:center; justify-content:space-between;
+  padding:16px 20px; border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(34,211,238,.06), transparent);
+}
+.dhead .dt{display:flex; flex-direction:column; gap:3px}
+.dhead b{font-size:17px; letter-spacing:.5px}
+.dhead .dsub{font-size:11px; color:var(--txt3)}
+.dx{
+  width:30px; height:30px; border-radius:8px; border:1px solid var(--line);
+  background:var(--panel2); color:var(--txt2); font-size:18px; cursor:pointer; font-family:inherit;
+}
+.dx:hover{color:var(--txt); border-color:var(--accent)}
+.dbody{flex:1; overflow-y:auto; padding:20px}
+.dload{color:var(--txt3); font-size:13px; text-align:center; padding:40px}
+
+/* ===== 首页：计划 + 场景 + 趋势 ===== */
+.dplan{
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  padding:14px 16px; border-radius:12px; margin-bottom:16px;
+  background:linear-gradient(135deg, rgba(34,211,238,.10), rgba(59,130,246,.06));
+  border:1px solid rgba(34,211,238,.28);
+}
+.dplan .l{font-size:11px; color:var(--accent); letter-spacing:1px; font-weight:700}
+.dplan .v{font-size:15px; font-weight:700; margin-top:4px}
+.dplan .h{font-size:11px; color:var(--txt3); margin-top:3px}
+.dplan select{
+  height:32px; padding:0 10px; border-radius:8px; border:1px solid var(--line);
+  background:var(--panel2); color:var(--txt); font-family:inherit; font-size:12px; cursor:pointer;
+}
+.dsect{font-size:12px; color:var(--txt3); letter-spacing:1px; margin:18px 0 10px; font-weight:700}
+.dscn{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
+.dcard{
+  display:flex; gap:12px; align-items:flex-start; padding:13px 14px; cursor:pointer;
+  border-radius:12px; border:1px solid var(--line); background:var(--panel2); transition:all .18s;
+}
+.dcard:hover{border-color:var(--accent); background:rgba(34,211,238,.06); transform:translateY(-1px)}
+.dcard .ico{font-size:24px; line-height:1}
+.dcard .nm{font-size:14px; font-weight:700; margin-bottom:3px}
+.dcard .ds{font-size:11px; color:var(--txt3); line-height:1.5}
+.dcard .lv{
+  font-size:10px; padding:1px 6px; border-radius:4px; margin-left:6px;
+  background:rgba(239,68,68,.15); color:#fca5a5; font-weight:700; vertical-align:1px;
+}
+.dtrend{display:flex; align-items:flex-end; gap:6px; height:76px; padding:10px 12px;
+  border-radius:12px; background:rgba(255,255,255,.02); border:1px solid var(--line)}
+.dbar{flex:1; display:flex; flex-direction:column; align-items:center; gap:5px; justify-content:flex-end; height:100%}
+.dbar i{width:100%; max-width:26px; border-radius:4px 4px 0 0; background:linear-gradient(180deg,#22d3ee,#3b82f6)}
+.dbar i.bad{background:linear-gradient(180deg,#f87171,#b91c1c)}
+.dbar span{font-size:10px; color:var(--txt3)}
+.dempty{font-size:12px; color:var(--txt3); text-align:center; padding:18px}
+
+/* ===== 演练中 ===== */
+.dprog{display:flex; gap:5px; margin-bottom:16px}
+.dprog i{flex:1; height:4px; border-radius:2px; background:var(--line)}
+.dprog i.on{background:var(--accent)}
+.dprog i.ok{background:#22c55e}
+.dprog i.no{background:#ef4444}
+.dchat{display:flex; gap:10px; margin-bottom:14px}
+.dava{
+  width:38px; height:38px; border-radius:10px; flex-shrink:0; font-size:19px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.3);
+}
+.dbub{
+  background:var(--panel2); border:1px solid var(--line); border-radius:12px 12px 12px 3px;
+  padding:12px 14px; font-size:14px; line-height:1.7; color:var(--txt);
+}
+.dwho{font-size:10px; color:#fca5a5; margin-bottom:5px; letter-spacing:.5px}
+.dq{font-size:12px; color:var(--txt2); margin:14px 0 10px}
+.dopts{display:flex; flex-direction:column; gap:8px}
+.dopt{
+  text-align:left; padding:12px 14px; border-radius:10px; cursor:pointer; font-family:inherit;
+  border:1px solid var(--line); background:var(--panel2); color:var(--txt); font-size:13.5px;
+  transition:all .15s;
+}
+.dopt:hover:not(:disabled){border-color:var(--accent); background:rgba(34,211,238,.07)}
+.dopt:disabled{cursor:default; opacity:.55}
+.dopt.ok{border-color:#22c55e; background:rgba(34,197,94,.12); opacity:1}
+.dopt.no{border-color:#ef4444; background:rgba(239,68,68,.12); opacity:1}
+.dfb{
+  margin-top:14px; padding:12px 14px; border-radius:10px; font-size:12.5px; line-height:1.7;
+  border-left:3px solid var(--accent); background:rgba(34,211,238,.07);
+}
+.dfb.ok{border-color:#22c55e; background:rgba(34,197,94,.08)}
+.dfb.no{border-color:#ef4444; background:rgba(239,68,68,.08)}
+.dfb b{display:block; margin-bottom:4px; font-size:13px}
+
+/* ===== 成绩单 ===== */
+.dres{text-align:center; padding:10px 0}
+.dring{
+  width:132px; height:132px; border-radius:50%; margin:6px auto 14px; position:relative;
+  display:flex; align-items:center; justify-content:center;
+}
+.dring .in{
+  width:106px; height:106px; border-radius:50%; background:var(--panel);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.dring .n{font-size:34px; font-weight:800; line-height:1}
+.dring .u{font-size:10px; color:var(--txt3); margin-top:3px; letter-spacing:1px}
+.dverdict{font-size:15px; font-weight:700; margin-bottom:8px}
+.dcomment{font-size:13px; color:var(--txt2); line-height:1.8; max-width:520px; margin:0 auto 18px}
+.dwrong{text-align:left; max-width:560px; margin:0 auto}
+.dwrong .it{
+  display:flex; gap:10px; padding:10px 12px; border-radius:10px; margin-bottom:8px;
+  background:rgba(239,68,68,.07); border:1px solid rgba(239,68,68,.22); font-size:12.5px; line-height:1.6;
+}
+.dwrong .it .k{color:#fca5a5; font-weight:700; flex-shrink:0}
+.dacts{display:flex; gap:10px; justify-content:center; margin-top:20px}
+.dbtn{
+  height:40px; padding:0 22px; border-radius:10px; border:1px solid var(--line);
+  background:var(--panel2); color:var(--txt); font-family:inherit; font-size:13px; cursor:pointer; font-weight:600;
+}
+.dbtn.pri{background:linear-gradient(135deg,#22d3ee,#3b82f6); color:#04121f; border:none}
+.dbtn:hover{transform:translateY(-1px)}
+
+/* ===== 出题方式：热点 / 上传案例 / 跨套路混合 ===== */
+.dmode{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
+.dm{
+  background:var(--panel2); border:1px solid var(--line); border-radius:12px;
+  padding:12px 13px; cursor:pointer; transition:.18s; text-align:left;
+}
+.dm:hover{border-color:var(--accent); transform:translateY(-2px)}
+.dm.off{opacity:.42; cursor:not-allowed}
+.dm.off:hover{border-color:var(--line); transform:none}
+.dm .mi{font-size:20px; margin-bottom:7px; line-height:1}
+.dm .mn{font-size:13px; font-weight:800; margin-bottom:4px; letter-spacing:.3px}
+.dm .md{font-size:11px; color:var(--txt3); line-height:1.55}
+
+/* 热点列表 */
+.dtopics{display:flex; flex-wrap:wrap; gap:8px}
+.dtp{
+  background:var(--panel2); border:1px solid var(--line); border-radius:20px;
+  padding:7px 13px; font-size:12px; cursor:pointer; color:var(--txt2);
+  transition:.16s; display:flex; align-items:center; gap:6px;
+}
+.dtp:hover{border-color:var(--accent); color:var(--txt); transform:translateY(-1px)}
+.dtp .h{color:var(--accent); font-weight:800; font-size:10px}
+
+/* 这一局的来源 */
+.dfrom{
+  font-size:11px; color:var(--txt2); background:var(--panel2);
+  border-left:2px solid var(--accent); border-radius:6px;
+  padding:8px 11px; margin-bottom:14px; line-height:1.6;
+}
+.dfrom b{color:var(--accent)}
+</style>
+
+<script>
+/* ==========================================================================
+   反诈演练前端：开一局 → 4 轮选择 → 成绩单
+   ========================================================================== */
+(function(){
+  const B = (location.protocol==='file:') ? null : location.origin;
+  const ovl = document.getElementById('drillOvl');
+  const body = document.getElementById('drillBody');
+  const fab = document.getElementById('drillFab');
+
+  let state = { scenarios: [], plan: null, stats: null, drill: null, busy: false, topics: [], cases: [] };
+
+  const post = (p, b) => fetch(B+p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b||{})}).then(r=>r.json());
+  const get  = (p) => fetch(B+p).then(r=>r.json());
+
+  function open(){ ovl.classList.add('on'); home(); }
+  function close(){ ovl.classList.remove('on'); }
+
+  fab.addEventListener('click', open);
+  document.getElementById('drillClose').addEventListener('click', close);
+  ovl.addEventListener('click', e => { if(e.target===ovl) close(); });
+
+  // ---------- 首页 ----------
+  async function home(){
+    body.innerHTML = '<div class="dload">加载中…</div>';
+    try{
+      const [sc, pl, tp, cs] = await Promise.all([
+        get('/api/drill/scenarios'),
+        get('/api/drill/plan'),
+        get('/api/drill/topics').catch(()=>({list:[]})),
+        get('/api/drill/cases').catch(()=>({list:[]})),
+      ]);
+      state.scenarios = sc.list || [];
+      state.plan = pl.plan;
+      state.stats = pl.stats;
+      state.topics = (tp.list || []).slice(0, 8);
+      state.cases = cs.list || [];
+    }catch(e){
+      state.scenarios = [
+        {key:'gongan',name:'冒充公检法',icon:'👮',desc:'最常见的"洗钱案"套路，专挑老人下手',level:'高发'},
+        {key:'qinshu',name:'冒充子女换号',icon:'📱',desc:'"妈我换号了"——利用的是亲情',level:'高发'},
+        {key:'kefu',name:'冒充客服退款',icon:'📦',desc:'说要给你退款，其实是要你的验证码',level:'高发'},
+        {key:'shuadan',name:'刷单返利',icon:'💰',desc:'先让你赚几十块，再骗走几万',level:'高发'}
+      ];
+    }
+    renderHome();
+  }
+
+  function planText(){
+    const p = state.plan;
+    if(!p || !p.enabled || p.freq==='off') return '已关闭';
+    const W = ['日','一','二','三','四','五','六'];
+    const freq = {weekly:'每周',biweekly:'每两周',monthly:'每月'}[p.freq] || '';
+    if(p.freq==='monthly') return `${freq} 1 号 ${String(p.hour).padStart(2,'0')}:00`;
+    return `${freq}周${W[p.weekday]} ${String(p.hour).padStart(2,'0')}:00`;
+  }
+
+  function fmtNext(iso){
+    if(!iso) return '';
+    const d = new Date(iso);
+    const now = new Date();
+    const days = Math.ceil((d - now) / 86400000);
+    const W = ['日','一','二','三','四','五','六'];
+    const when = `周${W[d.getDay()]} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    if(days <= 0) return `今天 ${when}`;
+    return `${when}（${days} 天后）`;
+  }
+
+  function renderHome(){
+    const p = state.plan || {};
+    const st = state.stats || {};
+    const trend = (st.trend || []);
+    const bars = trend.length
+      ? trend.map(x=>`<div class="dbar" title="${x.score} 分"><i class="${x.score<75?'bad':''}" style="height:${Math.max(8,x.score)}%"></i><span>${x.score}</span></div>`).join('')
+      : '<div class="dempty">还没练过。第一局不用怕答错，练的就是"答错之后记住"。</div>';
+
+    body.innerHTML = `
+      <div class="dplan">
+        <div>
+          <div class="l">下次演练</div>
+          <div class="v">${p.enabled===false||p.freq==='off' ? '已关闭' : fmtNext(p.nextAt)}</div>
+          <div class="h">当前频率：${planText()}${st.count?` · 已练 ${st.count} 局，平均 ${st.avg} 分`:''}</div>
+        </div>
+        <select id="dFreq">
+          <option value="weekly"${p.freq==='weekly'?' selected':''}>每周一次</option>
+          <option value="biweekly"${p.freq==='biweekly'?' selected':''}>每两周一次</option>
+          <option value="monthly"${p.freq==='monthly'?' selected':''}>每月一次</option>
+          <option value="off"${p.freq==='off'?' selected':''}>关闭</option>
+        </select>
+      </div>
+
+      <div class="dsect">怎么出题</div>
+      <div class="dmode">
+        <div class="dm" data-m="hot">
+          <div class="mi">🔥</div>
+          <div class="mn">按热点演</div>
+          <div class="md">用最近高发的诈骗类型现编一局，每次台词都不一样</div>
+        </div>
+        <div class="dm ${state.cases.length?'':'off'}" data-m="case">
+          <div class="mi">📮</div>
+          <div class="mn">按我上传的演</div>
+          <div class="md">${state.cases.length
+            ? `拿你传的「${state.cases[0].type}」做种子，换外壳重演`
+            : '还没上传过诈骗信息，先传一条再来'}</div>
+        </div>
+        <div class="dm" data-m="mix">
+          <div class="mi">🎭</div>
+          <div class="mn">跨套路混合</div>
+          <div class="md">两层壳：先建信任，再收割。骗子真实打法</div>
+        </div>
+      </div>
+
+      ${state.topics.length?`
+      <div class="dsect">最近高发（点一个直接演）</div>
+      <div class="dtopics">
+        ${state.topics.map(t=>`<div class="dtp" data-h="${t.id}">
+          <span class="h">${t.hot}</span>${t.icon} ${t.name}
+        </div>`).join('')}
+      </div>`:''}
+
+      <div class="dsect">经典剧本（固定四套，不联网也能演）</div>
+      <div class="dscn">
+        ${state.scenarios.map(s=>`
+          <div class="dcard" data-k="${s.key}">
+            <div class="ico">${s.icon}</div>
+            <div>
+              <div class="nm">${s.name}<span class="lv">${s.level||'高发'}</span></div>
+              <div class="ds">${s.desc}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+
+      <div class="dsect">练习记录 ${st.weak&&st.weak.length?`· 最常失守：${st.weak.map(w=>w.name+'（'+w.times+'次）').join('、')}`:''}</div>
+      <div class="dtrend">${bars}</div>
+    `;
+
+    body.querySelectorAll('.dcard').forEach(el=>{
+      el.addEventListener('click', ()=> start(el.dataset.k));
+    });
+    body.querySelectorAll('.dm').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        if(el.classList.contains('off')) return;
+        start(null, { mode: el.dataset.m });
+      });
+    });
+    body.querySelectorAll('.dtp').forEach(el=>{
+      el.addEventListener('click', ()=> start(null, { mode:'hot', hotId: el.dataset.h }));
+    });
+    const sel = document.getElementById('dFreq');
+    sel.addEventListener('change', async ()=>{
+      const r = await post('/api/drill/plan', { freq: sel.value, enabled: sel.value!=='off' });
+      state.plan = r.plan; renderHome();
+    });
+  }
+
+  // ---------- 开一局 ----------
+  async function start(key, opts){
+    if(state.busy) return;
+    state.busy = true;
+    body.innerHTML = '<div class="dload">AI 正在扮演骗子，现编台词…（约 2 秒）</div>';
+    try{
+      const payload = {};
+      if(key) payload.scenario = key;
+      if(opts){
+        if(opts.mode) payload.mode = opts.mode;
+        if(opts.hotId) payload.hotId = opts.hotId;
+        if(opts.reportId) payload.reportId = opts.reportId;
+      }
+      const d = await post('/api/drill/start', payload);
+      if(!d.ok) throw new Error(d.msg||'开局失败');
+      state.drill = d;
+      renderRound(d);
+    }catch(e){
+      body.innerHTML = `<div class="dload">开局失败：${e.message}<br><br>后端可能没起来。剧本在内置兜底里，重启服务后再试。</div>`;
+    }
+    state.busy = false;
+  }
+
+  function renderRound(d){
+    const r = d.round;
+    const total = d.total;
+    const prog = Array.from({length: total}, (_,i)=>{
+      const cls = i < d.idx ? 'ok' : (i===d.idx ? 'on' : '');
+      return `<i class="${cls}"></i>`;
+    }).join('');
+
+    body.innerHTML = `
+      <div class="dprog">${prog}</div>
+      ${d.from?`<div class="dfrom">本局来自：<b>${d.from}</b></div>`:''}
+      <div class="dchat">
+        <div class="dava">${d.scenario.icon}</div>
+        <div>
+          <div class="dwho">对方 · 第 ${d.idx+1}/${total} 轮</div>
+          <div class="dbub">${r.aiText}</div>
+        </div>
+      </div>
+      <div class="dq">你会怎么做？</div>
+      <div class="dopts">
+        ${r.choices.map((c,i)=>`<button class="dopt" data-i="${i}">${c}</button>`).join('')}
+      </div>
+      <div id="dfb"></div>
+    `;
+
+    body.querySelectorAll('.dopt').forEach(btn=>{
+      btn.addEventListener('click', ()=> pick(Number(btn.dataset.i)));
+    });
+  }
+
+  // ---------- 选一个 ----------
+  async function pick(i){
+    if(state.busy) return;
+    state.busy = true;
+    const d = state.drill;
+    const btns = body.querySelectorAll('.dopt');
+    btns.forEach(b=>b.disabled=true);
+    const fb = document.getElementById('dfb');
+    fb.innerHTML = '<div class="dload" style="padding:10px">…</div>';
+
+    try{
+      const t = await post('/api/drill/turn', { drillId: d.drillId, choice: i });
+      if(!t.ok) throw new Error(t.msg||'提交失败');
+
+      // 标出对错
+      btns.forEach((b,j)=>{
+        if(d.round.choices[j] === t.right) b.classList.add('ok');
+        else if(j===i) b.classList.add('no');
+      });
+
+      fb.innerHTML = `<div class="dfb ${t.correct?'ok':'no'}">
+        <b>${t.correct?'✔ 这一步做对了':'✘ 这一步没守住'}</b>
+        ${t.tip}
+      </div>`;
+
+      if(t.result){
+        setTimeout(()=> renderResult(t.result, d), 1600);
+      }else{
+        state.drill = t.next;
+        setTimeout(()=> renderRound(t.next), 1600);
+      }
+    }catch(e){
+      fb.innerHTML = `<div class="dfb no">提交失败：${e.message}</div>`;
+      btns.forEach(b=>b.disabled=false);
+    }
+    state.busy = false;
+  }
+
+  // ---------- 成绩单 ----------
+  function renderResult(res, d){
+    const ok = res.passed;
+    const color = res.score>=75 ? '#22c55e' : (res.score>=50 ? '#f59e0b' : '#ef4444');
+    body.innerHTML = `
+      <div class="dres">
+        <div class="dring" style="background:conic-gradient(${color} ${res.score*3.6}deg, #1e293b 0)">
+          <div class="in">
+            <div class="n" style="color:${color}">${res.score}</div>
+            <div class="u">分</div>
+          </div>
+        </div>
+        <div class="dverdict" style="color:${ok?'#4ade80':'#f87171'}">
+          ${ok ? '过关了' : '这一局没守住'}
+        </div>
+        <div class="dcomment">${res.comment}</div>
+        ${res.from?`<div class="dfrom" style="text-align:left;margin-top:14px">本局来自：<b>${res.from}</b></div>`:''}
+        ${res.wrong.length ? `
+          <div class="dsect" style="text-align:left">错在哪</div>
+          <div class="dwrong">
+            ${res.wrong.map(w=>`<div class="it">
+              <div class="k">第${w.idx}轮</div>
+              <div>你选了「${w.chose}」<br>应该「${w.right}」<br><span style="color:var(--txt3)">${w.tip}</span></div>
+            </div>`).join('')}
+          </div>` : '<div class="dcomment" style="color:#4ade80">四步全守住了，没有失守环节。</div>'}
+        <div class="dacts">
+          <button class="dbtn pri" id="dAgain">再练一局</button>
+          <button class="dbtn" id="dHome">返回</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('dAgain').addEventListener('click', ()=>{
+      // 经典剧本按 key 重开；热点/案例/混合按原模式再抽一局
+      if(d.source && d.source.mode==='classic') start(d.scenario.key);
+      else start(null, { mode:(d.source && d.source.mode) || 'auto' });
+    });
+    document.getElementById('dHome').addEventListener('click', home);
+  }
+})();
+</script>
+</body>
+</html>

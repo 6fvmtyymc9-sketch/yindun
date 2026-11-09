@@ -1,0 +1,81 @@
+// 银盾 · 根工程
+// 单模块：这个目录本身就是 app 模块，源码目录沿用原来的布局（src / assets / res / AndroidManifest.xml），
+// 一个文件都不搬 —— 手搓的 build2.sh 还能照旧跑，Studio 也能认。
+
+plugins {
+    id 'com.android.application' version '8.7.3'
+}
+
+// ---- 签名信息从 local.properties 读，密码不写进版本库 ----
+// local.properties 已被 .gitignore 排除；缺项时直接报错，避免静默用错钥匙
+def localProps = new Properties()
+def localPropsFile = rootProject.file('local.properties')
+if (localPropsFile.exists()) {
+    localPropsFile.withInputStream { localProps.load(it) }
+}
+['yd.storePassword', 'yd.keyPassword'].each { k ->
+    if (!localProps.getProperty(k)) {
+        throw new GradleException(
+                "缺少签名配置 ${k}：请在 local.properties 中补齐\n" +
+                        "  yd.storeFile=yindun.jks\n" +
+                        "  yd.storePassword=<your password>\n" +
+                        "  yd.keyAlias=<your alias>\n" +
+                        "  yd.keyPassword=<your password>")
+    }
+}
+
+android {
+    namespace 'com.yindun.guard'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.yindun.guard"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    // 关键：把 Gradle 的默认目录映射回现有结构
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            assets.srcDirs = ['assets']
+            res.srcDirs = ['res']
+        }
+    }
+
+    signingConfigs {
+        // 复用 build2.sh 用的那把钥匙，保证两种构建方式装出来是同一个签名（可以直接覆盖安装）
+        // 具体值在 local.properties（不进版本库）
+        yindun {
+            storeFile file(localProps.getProperty('yd.storeFile', 'yindun.jks'))
+            storePassword localProps.getProperty('yd.storePassword')
+            keyAlias localProps.getProperty('yd.keyAlias', 'yindun')
+            keyPassword localProps.getProperty('yd.keyPassword')
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.yindun
+            // 演示用：装得快，不做混淆
+            minifyEnabled false
+        }
+        release {
+            signingConfig signingConfigs.yindun
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    // 纯 Java 手写 View，没有 XML 布局，不需要 buildFeatures
+    lint {
+        abortOnError false
+    }
+}

@@ -1,0 +1,56 @@
+#!/bin/bash
+# 编译演示用「银行壳」App（包名 com.icbc.mobile）
+# 与主 App 同一套工具链，只是没有 res 资源、没有 assets，所以步骤更短。
+set -e
+cd "$(dirname "$0")"
+
+SDK="D:/Android"
+BT="$SDK/build-tools/35.0.1"
+PLATFORM="$SDK/platforms/android-34/android.jar"
+JDK="D:/Java/bin"
+OUT="build_$(date +%m%d_%H%M%S)"
+
+mkdir -p $OUT/classes $OUT/gen $OUT/dex
+
+echo "[1/5] 链接清单 ..."
+"$BT/aapt2.exe" link \
+  -o $OUT/base.apk \
+  -I "$PLATFORM" \
+  --manifest AndroidManifest.xml \
+  --java $OUT/gen \
+  --min-sdk-version 24 \
+  --target-sdk-version 34
+
+echo "[2/5] 编译 Java ..."
+find src $OUT/gen -name "*.java" > $OUT/sources.txt
+"$JDK/javac.exe" -encoding UTF-8 -source 8 -target 8 \
+  -bootclasspath "$PLATFORM" \
+  -d $OUT/classes \
+  @$OUT/sources.txt
+
+echo "[3/5] 转 dex ..."
+find $OUT/classes -name "*.class" > $OUT/classlist.txt
+"$BT/d8.bat" --lib "$PLATFORM" --min-api 24 --output $OUT/dex @$OUT/classlist.txt
+
+echo "[4/5] 打包 + 对齐 ..."
+OUT=$OUT PYTHONPATH= python - <<'PY'
+import os, zipfile, shutil
+out = os.environ['OUT']
+shutil.copy(out + '/base.apk', out + '/app-unsigned.apk')
+with zipfile.ZipFile(out + '/app-unsigned.apk', 'a', zipfile.ZIP_DEFLATED) as z:
+    z.write(out + '/dex/classes.dex', 'classes.dex')
+print('    dex 已写入')
+PY
+"$BT/zipalign.exe" -f 4 $OUT/app-unsigned.apk $OUT/app-aligned.apk
+
+echo "[5/5] 签名 ..."
+"$BT/apksigner.bat" sign \
+  --ks ../yindun.jks \
+  --ks-pass pass:yindun123 \
+  --key-pass pass:yindun123 \
+  --out BankDemo.apk \
+  $OUT/app-aligned.apk
+
+echo ""
+echo "成功！产物：$(pwd)/BankDemo.apk"
+ls -lh BankDemo.apk | awk '{print " 大小：" $5}'

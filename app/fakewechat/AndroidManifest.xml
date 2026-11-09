@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  演示用「微信壳」App
+  ============================================================
+  这不是真的微信，只用于在模拟器上演示这条链路：
+
+      微信收到一条诈骗消息  ->  银盾读通知、判定  ->  弹浮条 + 推子女端
+
+  【为什么需要一个壳】
+  模拟器里装不了真微信：要手机号登录、要扫码、还会检测模拟器。
+  所以照"假银行"那个思路做一个壳，包名取 com.tencent.mm，
+  银盾那头认的就是这个包名。
+
+  【哪些是真的，哪些是假的】
+  假：微信本身（界面、消息内容）。
+  真：它发的是系统标准通知；银盾读的是真通知字段；
+      判定走的是同一份 rules.json 词库；浮条和子女端推送都是真的。
+  也就是说，除了"谁在发这条消息"，后面每一步都没作弊。
+
+  【为什么不自己做判定】
+  这个壳里一行判定逻辑都没有。它只负责"收到消息 + 发通知"，
+  跟真微信干的事一样。判不判得出来，全看银盾的引擎。
+  ============================================================
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.tencent.mm"
+    android:versionCode="1"
+    android:versionName="1.0">
+
+    <!-- 发通知。Android 13 起要用户授权，首次打开会弹一次 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:label="微信"
+        android:icon="@drawable/ic_wechat"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar"
+        android:allowBackup="false">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="微信"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

@@ -1,0 +1,27 @@
+# ===== 构建产物 =====
+build/
+build_*/
+.gradle/
+dist/
+node_modules/
+*.class
+*.dex
+*.log
+
+# ===== 本地环境配置（路径与本机绑定）=====
+local.properties
+.env
+
+# ===== 签名密钥（绝不进版本库）=====
+*.jks
+*.keystore
+
+# ===== IDE =====
+.idea/
+*.iml
+captures/
+
+# ===== 系统垃圾 =====
+.DS_Store
+Thumbs.db
+desktop.ini

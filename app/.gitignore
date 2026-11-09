@@ -1,0 +1,25 @@
+# ===== 构建产物（Gradle 每次 Run 自动重建，不进版本库）=====
+build/
+build_*/
+*.apk
+*.idsig
+*.dex
+*.class
+
+# ===== 本地环境配置（跟本机路径绑定）=====
+local.properties
+.gradle/
+
+# ===== IDE =====
+.idea/
+*.iml
+captures/
+
+# ===== 签名与密钥（绝不进版本库）=====
+*.jks
+*.keystore
+
+# ===== 系统垃圾 =====
+.DS_Store
+Thumbs.db
+desktop.ini

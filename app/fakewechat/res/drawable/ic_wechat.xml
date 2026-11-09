@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 微信图标：绿底 + 两个白色对话气泡。纯矢量，不占体积 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 绿色底（微信绿 #07C160） -->
+    <path
+        android:fillColor="#07C160"
+        android:pathData="M14,0 L94,0 A14,14 0 0 1 108,14 L108,94 A14,14 0 0 1 94,108 L14,108 A14,14 0 0 1 0,94 L0,14 A14,14 0 0 1 14,0 Z" />
+
+    <!-- 大气泡 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M46,26 C61,26 73,36 73,49 C73,62 61,72 46,72 C42,72 38,71 35,70 L26,74 L29,65 C23,60 19,55 19,49 C19,36 31,26 46,26 Z" />
+
+    <!-- 小气泡 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M70,56 C82,56 92,64 92,74 C92,84 82,92 70,92 C67,92 64,91 62,90 L54,93 L57,86 C52,82 48,78 48,74 C48,64 58,56 70,56 Z" />
+
+    <!-- 大气泡里的两只眼 -->
+    <path
+        android:fillColor="#07C160"
+        android:pathData="M38,44 m-3.4,0 a3.4,3.4 0 1,0 6.8,0 a3.4,3.4 0 1,0 -6.8,0 Z" />
+    <path
+        android:fillColor="#07C160"
+        android:pathData="M54,44 m-3.4,0 a3.4,3.4 0 1,0 6.8,0 a3.4,3.4 0 1,0 -6.8,0 Z" />
+
+    <!-- 小气泡里的两只眼 -->
+    <path
+        android:fillColor="#07C160"
+        android:pathData="M64,70 m-2.6,0 a2.6,2.6 0 1,0 5.2,0 a2.6,2.6 0 1,0 -5.2,0 Z" />
+    <path
+        android:fillColor="#07C160"
+        android:pathData="M76,70 m-2.6,0 a2.6,2.6 0 1,0 5.2,0 a2.6,2.6 0 1,0 -5.2,0 Z" />
+</vector>

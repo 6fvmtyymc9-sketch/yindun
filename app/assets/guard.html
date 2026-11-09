@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>银盾</title>
+<style>
+  /* ============================================================
+     老人端首页 —— 只回答一个问题：现在有没有人替我看着
+     ============================================================
+     【为什么把原来的「可疑消息」页整个换掉】
+
+     那一页摆着 4 条写好的短信剧本，一打开全在屏幕上，还都带"转发"按钮。
+     它演的是"银盾能判短信"，不是"银盾在守着我"。
+     更糟的是，真实场景里老人根本不会打开银盾看短信 ——
+     她看的是微信、是系统短信、是别人打来的电话。
+
+     所以这一页只留状态：三只眼睛睁着没有、上一次拦的是什么。
+     真正的拦截发生在微信里、在电话里、在银行 App 上，
+     靠的是屏幕上方那条浮条，不是这一页。
+
+     【字体】
+     老人用，最小 17px，正文 19px，主标题 30px。
+     ============================================================ */
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{
+    font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:#0E1621;color:#E8EEF6;
+    min-height:100vh;display:flex;flex-direction:column;
+    padding:0 0 14px;overflow-x:hidden;
+  }
+
+  /* ---------- 顶栏 ---------- */
+  .top{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 20px 12px;
+  }
+  .logo{display:flex;align-items:center;gap:9px;}
+  .logo .mark{
+    width:26px;height:26px;border-radius:8px;
+    background:linear-gradient(135deg,#19B36B,#0E7F4A);
+    display:flex;align-items:center;justify-content:center;
+    font-size:15px;
+  }
+  .logo b{font-size:19px;letter-spacing:1px;}
+  .state{
+    display:flex;align-items:center;gap:7px;
+    padding:6px 12px;border-radius:20px;
+    background:rgba(25,179,107,.13);
+    font-size:14px;color:#4ADE8B;
+  }
+  .state .dot{
+    width:8px;height:8px;border-radius:50%;background:#2FE08A;
+  }
+  /* 【2026-11-09 拿掉呼吸灯动画】
+     原来这里是个无限循环的 box-shadow 呼吸动画，看着好看，但代价太大：
+     模拟器走软件渲染（GPU 不可用），每帧都要重算整块阴影扩散，
+     银盾切到后台时主线程被渲染调用塞满，系统报
+     "Input dispatching timed out ... Waited 5001ms"，直接弹 ANR。
+     实测：只发一条 watch 级消息（连浮条都没弹）也会触发。
+     状态灯静态就够，绿点本身就说明"在看着"。 */
+  .state.bad{background:rgba(239,68,68,.15);color:#FCA5A5;}
+  .state.bad .dot{background:#EF4444;}
+
+  /* ---------- 中间主视觉 ---------- */
+  .hero{
+    flex:0 0 auto;text-align:center;padding:14px 24px 20px;
+  }
+  .shield{
+    width:96px;height:96px;margin:0 auto 14px;
+    border-radius:28px;
+    background:radial-gradient(circle at 32% 28%,#1F2D3D,#141C27);
+    border:1.5px solid #24344A;
+    display:flex;align-items:center;justify-content:center;
+    font-size:44px;
+    box-shadow:0 12px 32px rgba(0,0,0,.35);
+  }
+  .hero h1{font-size:30px;font-weight:600;letter-spacing:.5px;}
+  .hero p{margin-top:9px;font-size:17px;color:#8FA3BA;line-height:1.6;}
+
+  /* ---------- 三只眼睛 ---------- */
+  .eyes{
+    margin:0 16px;border-radius:18px;overflow:hidden;
+    background:#151F2B;border:1px solid #1F2C3B;
+  }
+  .eye{
+    display:flex;align-items:center;gap:12px;
+    padding:16px 18px;border-bottom:1px solid #1B2735;
+  }
+  .eye:last-child{border-bottom:none;}
+  .eye .ic{
+    width:36px;height:36px;border-radius:11px;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;background:#1D2A3A;
+  }
+  .eye .tx{flex:1 1 auto;min-width:0;}
+  .eye .tx b{display:block;font-size:17px;font-weight:500;}
+  .eye .tx span{display:block;font-size:14px;color:#7E93AB;margin-top:3px;}
+  .eye .st{
+    font-size:14px;color:#4ADE8B;flex:0 0 auto;
+    display:flex;align-items:center;gap:6px;
+  }
+  .eye .st i{
+    width:7px;height:7px;border-radius:50%;background:#2FE08A;
+    font-style:normal;
+  }
+  .eye.off .st{color:#7E93AB;}
+  .eye.off .st i{background:#54687E;}
+
+  /* ---------- 最近一次 ---------- */
+  .last{
+    margin:16px 16px 0;padding:16px 18px;border-radius:18px;
+    background:#151F2B;border:1px solid #1F2C3B;
+  }
+  .last .hd{
+    font-size:14px;color:#7E93AB;margin-bottom:10px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .last .empty{font-size:16px;color:#5F7288;}
+  .last .item{display:flex;gap:11px;align-items:flex-start;}
+  .last .item .bar{
+    width:3px;border-radius:2px;background:#F97316;flex:0 0 auto;
+    align-self:stretch;min-height:38px;
+  }
+  .last .item .bar.high{background:#EF4444;}
+  .last .item .bar.watch{background:#EAB308;}
+  .last .item .bd{flex:1 1 auto;min-width:0;}
+  .last .item .t1{font-size:16px;line-height:1.5;}
+  .last .item .t2{font-size:14px;color:#7E93AB;margin-top:5px;}
+  .last .tm{font-size:13px;color:#5F7288;margin-left:8px;}
+
+  /* ---------- 底部按钮 ---------- */
+  .acts{
+    margin:16px 16px 0;display:flex;gap:10px;
+  }
+  .acts button{
+    flex:1 1 0;padding:15px 0;border-radius:15px;border:1px solid #24344A;
+    background:#182534;color:#CBD8E6;font-size:16px;font-family:inherit;
+  }
+  .acts button:active{background:#1E2E40;}
+  .acts button.primary{
+    background:linear-gradient(135deg,#19B36B,#128a53);
+    border-color:transparent;color:#fff;font-weight:500;
+  }
+
+  .foot{
+    margin-top:auto;padding:18px 16px 0;text-align:center;
+    font-size:12px;color:#3F5165;line-height:1.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <div class="logo">
+    <span class="mark">🛡</span>
+    <b>银盾</b>
+  </div>
+  <div class="state" id="stateTag">
+    <span class="dot"></span><span id="stateTx">守护中</span>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="shield">🛡</div>
+  <h1>我在看着</h1>
+  <p>微信、电话、手机银行，<br>有不对劲的地方我马上提醒您</p>
+</div>
+
+<div class="eyes">
+  <div class="eye" id="eyeWx">
+    <div class="ic">💬</div>
+    <div class="tx"><b>微信消息</b><span>陌生人和您说钱的事</span></div>
+    <div class="st"><i></i>在看着</div>
+  </div>
+  <div class="eye" id="eyeCall">
+    <div class="ic">📞</div>
+    <div class="tx"><b>陌生电话</b><span>不在通讯录里的号码</span></div>
+    <div class="st"><i></i>在看着</div>
+  </div>
+  <div class="eye" id="eyeBank">
+    <div class="ic">🏦</div>
+    <div class="tx"><b>手机银行</b><span>通话中去转账</span></div>
+    <div class="st"><i></i>在看着</div>
+  </div>
+</div>
+
+<div class="last">
+  <div class="hd">
+    <span>最近一次提醒</span>
+    <span id="lastCount"></span>
+  </div>
+  <div id="lastBody">
+    <div class="empty">还没有提醒过 — 这是好事</div>
+  </div>
+</div>
+
+<div class="acts">
+  <button class="primary" onclick="startDrill()">陪我练一遍</button>
+  <button onclick="openSet()">设置</button>
+</div>
+
+<div class="foot" id="foot">银盾 · 家庭协同的 AI 反诈守护</div>
+
+<script>
+/* ============================================================
+   这一页没有任何判定逻辑，只做两件事：
+     1. 把原生那边送过来的结论显示出来
+     2. 把"权限开了没有"如实告诉老人
+   ============================================================ */
+
+var alertCount = 0;
+
+/* 原生推"判出了什么"时调这里（EventBus.pushAlert） */
+window.onAlert = function(o){
+  if (!o) return;
+  alertCount++;
+
+  var bar = 'bar';
+  if (o.level === 'high' || o.level === 'block') bar = 'bar high';
+  else if (o.level === 'watch') bar = 'bar watch';
+
+  var title = levelWord(o.level);
+
+  // 【为什么不显示 o.why】
+  // 原生推过来的 why 是判据串，长这样：'医保卡(+15)、陌生号码(+15)'。
+  // 那是给答辩和追责看的技术话，老人看不懂，写在首页只会让她更慌。
+  // 她只需要知道"刚才提醒过一次、几点的"，细节在子女端那张卡上。
+  document.getElementById('lastBody').innerHTML =
+    '<div class="item">' +
+      '<div class="' + bar + '"></div>' +
+      '<div class="bd">' +
+        '<div class="t1">' + esc(title) +
+          '<span class="tm">' + esc(o.time || '') + '</span></div>' +
+        '<div class="t2">已经过去了，您不用做什么</div>' +
+      '</div>' +
+    '</div>';
+
+  document.getElementById('lastCount').textContent = '共 ' + alertCount + ' 次';
+};
+
+/* 原生推原始事件（EventBus.push）。这一页用不上，留个空壳免得报错 */
+window.onNativeEvent = function(o){};
+
+function levelWord(lv){
+  if (lv === 'block') return '刚才那一下，我拦住了';
+  if (lv === 'high')  return '刚拦下一件危险的事';
+  if (lv === 'warn')  return '刚才提醒过您一件事';
+  return '刚才留意到一件事';
+}
+
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ---------- 权限状态：问了才显示，不猜 ---------- */
+function refresh(){
+  var ok = false;
+  try { ok = SilverBridge.ready(); } catch(e) {}
+
+  var tag = document.getElementById('stateTag');
+  var tx  = document.getElementById('stateTx');
+
+  if (ok){
+    tag.className = 'state';
+    tx.textContent = '守护中';
+  } else {
+    tag.className = 'state bad';
+    tx.textContent = '有权限没开';
+    document.getElementById('eyeWx').className   = 'eye off';
+    document.getElementById('eyeCall').className = 'eye off';
+    document.getElementById('eyeBank').className = 'eye off';
+  }
+}
+
+function startDrill(){
+  try { SilverBridge.openDrill(); } catch(e) {}
+}
+
+function openSet(){
+  try { SilverBridge.openSetting('notification'); } catch(e) {}
+}
+
+refresh();
+// 【2026-11-09】原来 5 秒刷一次。银盾在后台时，每次刷新都要跨进程叫一次 JS，
+// 微信连发几条消息时主线程被这些唤醒塞满，实测触发过 ANR。改成 20 秒。
+setInterval(refresh, 20000);
+</script>
+</body>
+</html>

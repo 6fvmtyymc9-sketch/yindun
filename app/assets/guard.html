@@ -115,6 +115,42 @@ svg{display:block}
 .item .tx b{font-size:20px;color:var(--ink)}
 .item .tx span{font-size:15px;color:var(--ink3)}
 .item .go{font-size:17px;font-weight:700;color:var(--blue)}
+
+/* 首次设置向导 */
+.setup{position:fixed;left:0;top:0;right:0;bottom:0;background:var(--bg);overflow-y:auto;display:none;
+  padding:18px 18px 24px;flex-direction:column;gap:12px;z-index:10}
+.setup.on{display:flex}
+.setup > *{flex-shrink:0}
+.setup .hd{display:flex;flex-direction:column;gap:6px;padding:4px 4px 6px}
+.setup .hd h1{font-size:28px;font-weight:900}
+.setup .hd p{font-size:17px;color:var(--ink2);line-height:1.5}
+.setup .bar{height:8px;border-radius:4px;background:#E4E8EE;overflow:hidden;margin-top:6px}
+.setup .bar i{display:block;height:8px;border-radius:4px;background:var(--navy);width:0}
+.setup .prog{font-size:15px;color:var(--ink3)}
+.step{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.step .top{display:flex;align-items:center;gap:12px;height:auto}
+.step .no{width:32px;height:32px;border-radius:16px;background:#EEF1F5;color:var(--ink2);font-size:16px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step.ok .no{background:var(--okDot);color:#fff}
+.step .tt{flex:1;display:flex;flex-direction:column;gap:2px}
+.step .tt b{font-size:20px}
+.step .tt span{font-size:15px;color:var(--ink3);line-height:1.45}
+.step .tag{font-size:13px;font-weight:700;border-radius:8px;padding:2px 8px;flex-shrink:0}
+.step .tag.req{color:var(--bad);background:var(--badBg)}
+.step .tag.rec{color:#175CD3;background:#EFF4FF}
+.step .tag.done{color:var(--ok);background:#E7F6EC}
+.step .act{height:52px;border-radius:14px;border:1.5px solid var(--navy);background:#fff;color:var(--navy);
+  font-size:19px;font-weight:700}
+.step .act.pri{background:var(--navy);color:#fff;border-color:var(--navy)}
+.step .msg{font-size:16px;line-height:1.5;color:var(--ink2)}
+.step .msg.good{color:var(--ok);font-weight:700}
+.step .msg.bad{color:var(--bad)}
+.code{display:flex;justify-content:center;gap:8px;padding:6px 0}
+.code span{width:42px;height:56px;border-radius:12px;background:var(--bg);border:1.5px solid var(--line2);
+  font-size:30px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:Roboto,Arial,sans-serif}
+.setup .finish{height:64px;border-radius:20px;border:none;background:var(--navy);color:#fff;font-size:22px;font-weight:700;margin-top:4px}
+.setup .finish:disabled{background:#98A2B3}
+.setup .later{background:none;border:none;color:var(--ink3);font-size:17px;padding:8px}
 </style>
 </head>
 <body>
@@ -155,19 +191,19 @@ svg{display:block}
 <div class="grid">
   <button class="tile" onclick="fixPerm()">
     <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2B6CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3.5 7l8.5 6 8.5-6"/></svg></div>
-    <div class="row"><span class="nm">短信识别</span><span class="st" data-need="perm">已开启</span></div>
+    <div class="row"><span class="nm">短信识别</span><span class="st" data-need="base">已开启</span></div>
   </button>
   <button class="tile" onclick="fixPerm('notify')">
     <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2B6CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 12h.01"/><path d="M12 12h.01"/><path d="M15.5 12h.01"/></svg></div>
-    <div class="row"><span class="nm">微信识别</span><span class="st" data-need="perm">已开启</span></div>
+    <div class="row"><span class="nm">微信识别</span><span class="st" data-need="notify">已开启</span></div>
   </button>
   <button class="tile" onclick="fixPerm()">
     <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2B6CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></div>
-    <div class="row"><span class="nm">来电识别</span><span class="st" data-need="perm">已开启</span></div>
+    <div class="row"><span class="nm">来电识别</span><span class="st" data-need="base">已开启</span></div>
   </button>
   <button class="tile" onclick="fixPerm('usage')">
     <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2B6CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10h18"/><path d="M5.5 10v7.5"/><path d="M10 10v7.5"/><path d="M14 10v7.5"/><path d="M18.5 10v7.5"/><path d="M3 20.5h18"/><path d="M12 3.5l9 4.5H3l9-4.5z"/></svg></div>
-    <div class="row"><span class="nm">转账保护</span><span class="st" data-need="perm">已开启</span></div>
+    <div class="row"><span class="nm">转账保护</span><span class="st" data-need="usage">已开启</span></div>
   </button>
   <button class="tile wide" onclick="toggleRec()">
     <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2B6CF6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4"/><path d="M8 7v10"/><path d="M12 4v16"/><path d="M16 7v10"/><path d="M20 10v4"/></svg></div>
@@ -197,6 +233,10 @@ svg{display:block}
     <div class="in"><input id="childNum" type="tel" inputmode="tel" placeholder="请输入手机号码"><button class="save" onclick="saveChild()">保存</button></div>
     <span class="hint" id="childHint">发生高风险情况时，银盾将自动呼叫此号码</span>
   </div>
+  <button class="item" onclick="openSetup()">
+    <span class="tx"><b>初始设置向导</b><span>权限、紧急联系人、子女端配对、测试预警</span></span>
+    <span class="go">打开</span>
+  </button>
   <button class="item" onclick="toggleRec()">
     <span class="tx"><b>通话复盘</b><span id="recSet">陌生来电挂断后分析通话录音</span></span>
     <span class="go">设置</span>
@@ -217,6 +257,40 @@ svg{display:block}
     <span class="tx"><b>电池优化白名单</b><span>防止银盾在后台被系统关闭</span></span>
     <span class="go">前往设置</span>
   </button>
+</div>
+
+<!-- 首次设置向导：第一次打开自动出现，之后可在「设置」里重新进入 -->
+<div class="setup" id="setup">
+  <div class="hd">
+    <h1>初始设置</h1>
+    <p>完成以下设置后，银盾即可开始防护。标有「必需」的项目需要全部完成。</p>
+    <div class="bar"><i id="sBar"></i></div>
+    <span class="prog" id="sProg">已完成 0 / 8</span>
+  </div>
+
+  <div class="step" id="st1"><div class="top"><span class="no">1</span><span class="tt"><b>基础权限</b><span>读取短信、来电状态、通讯录，并发送通知</span></span><span class="tag req">必需</span></div>
+    <button class="act pri" onclick="call('requestBase')">授权</button></div>
+  <div class="step" id="st2"><div class="top"><span class="no">2</span><span class="tt"><b>悬浮窗权限</b><span>用于显示风险提示与拦截界面</span></span><span class="tag req">必需</span></div>
+    <button class="act" onclick="fixPerm('overlay')">前往设置</button></div>
+  <div class="step" id="st3"><div class="top"><span class="no">3</span><span class="tt"><b>紧急联系人</b><span>发生高风险情况时，银盾将自动呼叫此号码</span></span><span class="tag req">必需</span></div>
+    <div class="field" style="padding:0;background:none"><div class="in"><input id="sChild" type="tel" inputmode="tel" placeholder="请输入女儿的手机号码"><button class="save" onclick="sSaveChild()">保存</button></div></div>
+    <span class="msg" id="sChildMsg"></span></div>
+  <div class="step" id="st4"><div class="top"><span class="no">4</span><span class="tt"><b>通知使用权</b><span>用于识别微信消息中的诈骗信息</span></span><span class="tag rec">推荐</span></div>
+    <button class="act" onclick="fixPerm('notify')">前往设置</button></div>
+  <div class="step" id="st5"><div class="top"><span class="no">5</span><span class="tt"><b>使用情况访问权限</b><span>用于识别通话期间打开的银行应用</span></span><span class="tag rec">推荐</span></div>
+    <button class="act" onclick="fixPerm('usage')">前往设置</button></div>
+  <div class="step" id="st6"><div class="top"><span class="no">6</span><span class="tt"><b>电池优化白名单</b><span>防止银盾在后台被系统关闭</span></span><span class="tag rec">推荐</span></div>
+    <button class="act" onclick="fixPerm('battery')">前往设置</button></div>
+  <div class="step" id="st7"><div class="top"><span class="no">7</span><span class="tt"><b>子女端配对</b><span>在子女手机的「银盾家人」中输入配对码</span></span><span class="tag rec">推荐</span></div>
+    <div class="code" id="sCode" style="display:none"></div>
+    <span class="msg" id="sPairMsg"></span>
+    <button class="act pri" id="sPairBtn" onclick="sPair()">获取配对码</button></div>
+  <div class="step" id="st8"><div class="top"><span class="no">8</span><span class="tt"><b>发送测试预警</b><span>确认子女端能够正常收到预警</span></span><span class="tag rec">推荐</span></div>
+    <span class="msg" id="sTestMsg"></span>
+    <button class="act" onclick="sTest()">发送测试预警</button></div>
+
+  <button class="finish" id="sFinish" onclick="sFinish()" disabled>完成设置</button>
+  <button class="later" onclick="closeSetup()">稍后设置</button>
 </div>
 
 <script>
@@ -255,31 +329,36 @@ function render(){
 }
 
 function renderPerm(){
-  var ok = call('ready');
-  if (ok === null) ok = true;   // 浏览器里预览时没有原生桥
-  var sts = document.querySelectorAll('[data-need="perm"]');
+  // 每一项防护看它自己需要的权限：短信/来电 → 基础权限，微信 → 通知使用权，转账 → 使用情况访问
+  var st = null;
+  try { st = JSON.parse(call('setupState') || 'null'); } catch(e){}
+  if (!st) st = { base: true, notify: true, usage: true };   // 浏览器里预览时没有原生桥
+  var off = 0;
+  var sts = document.querySelectorAll('[data-need]');
   for (var i = 0; i < sts.length; i++) {
+    var ok = !!st[sts[i].getAttribute('data-need')];
     sts[i].textContent = ok ? '已开启' : '未开启';
     sts[i].className = ok ? 'st' : 'st off';
+    if (!ok) off++;
   }
   var rec = call('recState') || 'off';
   var recTx = document.getElementById('recTx');
   recTx.textContent = rec === 'on' ? '已开启' : (rec === 'noperm' ? '需授权' : '未开启');
   recTx.className = rec === 'on' ? 'st' : 'st off';
+  if (rec !== 'on') off++;
   document.getElementById('recSub').textContent = rec === 'noperm' ? '需授予文件访问权限，轻触前往设置' : '挂断陌生来电后自动分析录音';
   document.getElementById('recSet').textContent = rec === 'on' ? '已开启 · 轻触可关闭' : '未开启 · 轻触开启';
 
   var all = document.getElementById('allState');
-  var allOk = ok && rec === 'on';
-  all.className = allOk ? '' : 'off';
-  document.getElementById('allTx').textContent = allOk ? '全部开启' : (ok ? '1 项未开启' : '部分权限未授予');
+  all.className = off === 0 ? '' : 'off';
+  document.getElementById('allTx').textContent = off === 0 ? '全部开启' : (off + ' 项未开启');
 }
 
 /* 原生推"判出了什么"（EventBus.pushAlert）：数字和状态立刻刷新 */
 window.onAlert = function(o){ setTimeout(render, 50); };
 window.onNativeEvent = function(o){};
 /* 原生回调：录音复盘开关变了 */
-window.refreshRec = renderPerm;
+window.refreshRec = function(){ renderPerm(); if (setupOpen()) renderSetup(); };
 
 function toggleRec(){ call('recToggle'); }
 function startDrill(){ call('openDrill'); }
@@ -303,9 +382,99 @@ function saveChild(){
   hint.textContent = '已保存紧急联系人：' + v; hint.style.color = '#0F7A4A';
 }
 
+
+/* ---------- 首次设置向导 ---------- */
+var sDone = {};          // 本次会话里点过的推荐项（测试预警、配对）
+var pairTimer = null;
+function openSetup(){ closeSheet(); document.getElementById('setup').className = 'setup on'; renderSetup(); call('pairStatus'); }
+function closeSetup(){ document.getElementById('setup').className = 'setup'; if (pairTimer) { clearInterval(pairTimer); pairTimer = null; } render(); }
+function setupOpen(){ return document.getElementById('setup').className.indexOf('on') >= 0; }
+
+function renderSetup(){
+  var st = {};
+  try { st = JSON.parse(call('setupState') || '{}'); } catch(e){}
+  var paired = (st.paired || 0) > 0 || st.demo;
+  var ok = [st.base, st.overlay, st.child, st.notify, st.usage, st.battery, paired, !!sDone.test];
+  var labels = [['授权','已授权'],['前往设置','已开启'],null,['前往设置','已开启'],['前往设置','已开启'],['前往设置','已开启'],null,null];
+  var n = 0;
+  for (var i = 0; i < 8; i++) {
+    var el = document.getElementById('st' + (i + 1));
+    el.className = ok[i] ? 'step ok' : 'step';
+    el.querySelector('.no').textContent = ok[i] ? '✓' : String(i + 1);
+    if (labels[i]) {
+      var b = el.querySelector('.act');
+      b.textContent = ok[i] ? labels[i][1] : labels[i][0];
+      b.disabled = !!ok[i];
+      b.style.opacity = ok[i] ? .55 : 1;
+    }
+    var tag = el.querySelector('.tag');
+    if (!tag.dataset.orig) tag.dataset.orig = tag.textContent + '|' + tag.className;
+    var o = tag.dataset.orig.split('|');
+    tag.textContent = ok[i] ? '已完成' : o[0];
+    tag.className = ok[i] ? 'tag done' : o[1];
+    if (ok[i]) n++;
+  }
+  if (st.child && !document.getElementById('sChild').value) document.getElementById('sChild').value = st.childNumber || '';
+  var pm = document.getElementById('sPairMsg');
+  if (st.demo) { pm.className = 'msg'; pm.textContent = '当前为演示模式（公开编号 demo），子女端无需配对即可查看。'; document.getElementById('sPairBtn').style.display = 'none'; }
+  else if ((st.paired || 0) > 0) { pm.className = 'msg good'; pm.textContent = '✓ 已配对 ' + st.paired + ' 台子女设备'; document.getElementById('sPairBtn').style.display = 'none'; }
+  document.getElementById('sProg').textContent = '已完成 ' + n + ' / 8';
+  document.getElementById('sBar').style.width = (n / 8 * 100) + '%';
+  document.getElementById('sFinish').disabled = !(st.base && st.overlay && st.child);
+}
+
+function sSaveChild(){
+  var v = document.getElementById('sChild').value.replace(/\s+/g, '');
+  var m = document.getElementById('sChildMsg');
+  if (!/^1\d{10}$|^\d{5,}$/.test(v)) { m.className = 'msg bad'; m.textContent = '号码格式有误，请核对后重新输入'; return; }
+  call('setChildNumber', v);
+  m.className = 'msg good'; m.textContent = '✓ 已保存紧急联系人';
+  renderSetup();
+}
+
+function sPair(){
+  var m = document.getElementById('sPairMsg');
+  m.className = 'msg'; m.textContent = '正在获取配对码…';
+  call('pairStart');
+}
+window.onPairCode = function(r){
+  var m = document.getElementById('sPairMsg'), box = document.getElementById('sCode');
+  if (!r || !r.ok) { m.className = 'msg bad'; m.textContent = '获取失败，请检查网络连接后重试'; return; }
+  box.innerHTML = '';
+  String(r.code).split('').forEach(function(d){ var sp = document.createElement('span'); sp.textContent = d; box.appendChild(sp); });
+  box.style.display = 'flex';
+  m.className = 'msg'; m.textContent = '请在子女手机的「银盾家人 → 设置 → 配对」中输入以上数字，10 分钟内有效。';
+  document.getElementById('sPairBtn').textContent = '重新获取';
+  if (pairTimer) clearInterval(pairTimer);
+  pairTimer = setInterval(function(){ call('pairStatus'); }, 4000);
+};
+window.onPairStatus = function(r){
+  if (r && r.ok && r.children > 0) {
+    if (pairTimer) { clearInterval(pairTimer); pairTimer = null; }
+    document.getElementById('sCode').style.display = 'none';
+  }
+  if (setupOpen()) renderSetup();
+};
+
+function sTest(){
+  var m = document.getElementById('sTestMsg');
+  m.className = 'msg'; m.textContent = '正在发送…';
+  call('testAlert');
+}
+window.onTestAlert = function(r){
+  var m = document.getElementById('sTestMsg');
+  if (r && r.ok) { sDone.test = true; m.className = 'msg good'; m.textContent = '✓ 已发送，请在子女端确认是否收到「银盾测试提醒」'; }
+  else { m.className = 'msg bad'; m.textContent = '发送失败，请检查网络或服务器地址'; }
+  renderSetup();
+};
+
+function sFinish(){ call('setSetupDone', true); closeSetup(); }
+
 render();
+// 第一次打开：自动进入设置向导
+(function(){ var st = {}; try { st = JSON.parse(call('setupState') || '{}'); } catch(e){} if (B && !st.done) openSetup(); })();
 // 从系统设置页回来时刷新；平时 20 秒刷一次数字（太频繁会让后台的银盾卡顿）
-document.addEventListener('visibilitychange', function(){ if (!document.hidden) render(); });
+document.addEventListener('visibilitychange', function(){ if (!document.hidden) { render(); if (setupOpen()) renderSetup(); } });
 setInterval(render, 20000);
 </script>
 </body>

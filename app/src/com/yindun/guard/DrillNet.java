@@ -82,6 +82,7 @@ class DrillNet {
             if (b.endsWith("/")) b = b.substring(0, b.length() - 1);
             URL u = new URL(b + path);
             conn = (HttpURLConnection) u.openConnection();
+            Pair.sign(c, conn);   // 老人端身份（演示模式不带）
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(timeout);
             conn.setRequestProperty("Accept", "application/json");

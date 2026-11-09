@@ -136,7 +136,8 @@ class Judge {
    * @returns {{score:number, hits:Array, stage:string, level:string, why:string}}
    */
   scoreSms(body, who, isCode) {
-    const text = String(body || '');
+    // 与 App 端 Judge.java 对齐：统一转小写再比较（"APP"/"app"、"ETC"/"etc" 算同一个词）
+    const text = String(body || '').toLowerCase();
     let score = 0;
     const hits = [];
 
@@ -145,7 +146,7 @@ class Judge {
       // isCode 已确认是真验证码短信时，"验证码"这个词必然出现，按发送方已经在第 4 步处理过，
       // 词库不再重复计分 —— 否则银行正常验证码短信会被 "验证码+S4" 直接推到盖屏。
       if (isCode && k.word === '验证码') continue;
-      if (text.includes(k.word)) {
+      if (text.includes(k.word.toLowerCase())) {
         score += k.weight;
         hits.push({ word: k.word, weight: k.weight, tag: k.tag });
       }
@@ -153,7 +154,7 @@ class Judge {
 
     // ---------- 2. 反例词减分（压低误报的关键） ----------
     for (const k of this.negatives) {
-      if (text.includes(k.word)) {
+      if (text.includes(k.word.toLowerCase())) {
         score += k.weight; // weight 本身是负数
         hits.push({ word: k.word, weight: k.weight, tag: null });
       }
@@ -192,8 +193,9 @@ class Judge {
       if (who === 'service') {
         hits.push({ word: '服务号验证码(+0)', weight: 0, tag: null });
       } else {
-        score += 30;
-        hits.push({ word: '非服务号发验证码', weight: 30, tag: 'S4' });
+        // v3.4：+30 → +45。正规验证码只来自服务号；个人号码发来的"验证码"本身就够得上要钱阶段
+        score += 45;
+        hits.push({ word: '非服务号发验证码', weight: 45, tag: 'S4' });
       }
     }
 
@@ -318,8 +320,11 @@ class Judge {
     switch (stage) {
       case 'S4': return 'block';
       case 'S3': return score >= (L.high || 70) ? 'block' : 'high';
-      case 'S2': return 'warn';
-      case 'S1': return 'watch';
+      // v3.4：同一阶段里信号叠得多，也要升级 —— 只按阶段定级会让
+      //   "涉嫌洗钱+配合调查+公安局"（100 分、还在吓唬阶段）只得到一个普通提醒，
+      //   "换手机号+猜猜我是谁+有急事"（多个弱信号）完全不提醒。
+      case 'S2': return score >= (L.high || 70) ? 'high' : 'warn';
+      case 'S1': return score >= (L.warn || 45) ? 'warn' : 'watch';
       default: return 'none';
     }
   }

@@ -62,13 +62,18 @@ public class Guard {
      * 所以真机自动按 1 倍（真实时间）跑，模拟器上仍然 20 倍。
      * 装机后要演示，可以在设置里手动改，优先级高于这里的默认值。
      */
-    private static final boolean IS_EMULATOR = isEmulator();
+    private static final boolean IS_EMULATOR = detectEmulator();
+
+    /** 是否跑在模拟器上（演示模式、演示号码只在模拟器上默认启用） */
+    public static boolean isEmulator() {
+        return IS_EMULATOR;
+    }
     private static final int DEFAULT_SPEED = IS_EMULATOR ? 20 : 1;
 
     private int demoSpeed = DEFAULT_SPEED;
 
     /** 跑在模拟器上吗（真机上这几条属性都不会出现） */
-    private static boolean isEmulator() {
+    private static boolean detectEmulator() {
         String fp = Build.FINGERPRINT == null ? "" : Build.FINGERPRINT;
         String hw = Build.HARDWARE == null ? "" : Build.HARDWARE;
         String model = Build.MODEL == null ? "" : Build.MODEL;

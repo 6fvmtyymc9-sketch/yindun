@@ -175,6 +175,7 @@ public class MainActivity extends Activity {
     @Override
     public void onRequestPermissionsResult(int code, String[] perms, int[] results) {
         super.onRequestPermissionsResult(code, perms, results);
+        refreshRecPage();     // 设置向导里的授权状态跟着刷新
         if (code != 1001) return;
         int denied = 0;
         for (int r : results) if (r != PackageManager.PERMISSION_GRANTED) denied++;
@@ -182,6 +183,41 @@ public class MainActivity extends Activity {
             toast("权限已全部授予，银盾防护已开启");
         } else {
             toast("有 " + denied + " 项权限未授予，部分防护功能将无法使用");
+        }
+    }
+
+    /** 回调页面里的 JS 函数（参数是一段 JSON） */
+    private void js(final String fn, final String json) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (web != null) web.evaluateJavascript("try{window." + fn + "(" + json + ")}catch(e){}", null);
+            }
+        });
+    }
+
+    private boolean notifyListenerOn() {
+        String s = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
+        return s != null && s.contains(getPackageName());
+    }
+
+    private boolean usageAccessOn() {
+        try {
+            android.app.AppOpsManager ops = (android.app.AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
+            int m = ops.checkOpNoThrow(android.app.AppOpsManager.OPSTR_GET_USAGE_STATS,
+                    android.os.Process.myUid(), getPackageName());
+            return m == android.app.AppOpsManager.MODE_ALLOWED;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean batteryWhitelisted() {
+        try {
+            android.os.PowerManager pm = (android.os.PowerManager) getSystemService(Context.POWER_SERVICE);
+            return pm.isIgnoringBatteryOptimizations(getPackageName());
+        } catch (Exception e) {
+            return false;
         }
     }
 
@@ -338,7 +374,7 @@ public class MainActivity extends Activity {
                     String body = null;
                     try {
                         org.json.JSONObject o = new org.json.JSONObject();
-                        o.put("elderId", "demo");
+                        o.put("elderId", Pair.id(MainActivity.this));
                         o.put("reporter", "elder");   // 这条是老人自己转发的
                         o.put("number", number == null ? "" : number);
                         o.put("text", text);
@@ -467,6 +503,107 @@ public class MainActivity extends Activity {
                     }
                 }
             });
+        }
+
+        // ======================================================
+        //  首次设置向导（guard.html 的 #setup 页面）
+        // ======================================================
+
+        /** 各项权限 / 设置的当前状态（JSON），向导和设置面板用 */
+        @JavascriptInterface
+        public String setupState() {
+            try {
+                org.json.JSONObject o = new org.json.JSONObject();
+                o.put("base", ready());
+                o.put("overlay", Shield.canOverlay(MainActivity.this));
+                o.put("notify", notifyListenerOn());
+                o.put("usage", usageAccessOn());
+                o.put("battery", batteryWhitelisted());
+                o.put("child", Notifier.childBound(MainActivity.this));
+                o.put("childNumber", Notifier.getChildNumber(MainActivity.this));
+                o.put("demo", Pair.demo(MainActivity.this));
+                o.put("elderId", Pair.id(MainActivity.this));
+                o.put("paired", getSharedPreferences("yindun", MODE_PRIVATE).getInt("paired_children", 0));
+                o.put("done", getSharedPreferences("yindun", MODE_PRIVATE).getBoolean("setup_done", false));
+                return o.toString();
+            } catch (Exception e) {
+                return "{}";
+            }
+        }
+
+        /** 申请短信、电话、通讯录等基础权限（系统弹窗） */
+        @JavascriptInterface
+        public void requestBase() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    List<String> want = new ArrayList<String>();
+                    for (String p : NEED) want.add(p);
+                    if (Build.VERSION.SDK_INT >= 33) want.add("android.permission.POST_NOTIFICATIONS");
+                    requestPermissions(want.toArray(new String[0]), 1001);
+                }
+            });
+        }
+
+        @JavascriptInterface
+        public void setSetupDone(boolean done) {
+            getSharedPreferences("yindun", MODE_PRIVATE).edit().putBoolean("setup_done", done).apply();
+        }
+
+        /** 演示模式：使用公开编号 demo（投影上的网页子女端可直接查看） */
+        @JavascriptInterface
+        public void setDemoMode(boolean on) {
+            Pair.setDemo(MainActivity.this, on);
+        }
+
+        /** 向云端申请 6 位配对码，结果回调 window.onPairCode(json) */
+        @JavascriptInterface
+        public void pairStart() {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    org.json.JSONObject r = null;
+                    if (!Pair.demo(MainActivity.this)) r = DrillNet.post(MainActivity.this, "/api/pair/start", new org.json.JSONObject());
+                    js("onPairCode", r == null ? (Pair.demo(MainActivity.this)
+                            ? "{\"ok\":false,\"demo\":true}" : "{\"ok\":false}") : r.toString());
+                }
+            }).start();
+        }
+
+        /** 查询已配对的子女端数量，结果回调 window.onPairStatus(json) */
+        @JavascriptInterface
+        public void pairStatus() {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    org.json.JSONObject r = Pair.demo(MainActivity.this) ? null : DrillNet.get(MainActivity.this, "/api/pair/status");
+                    if (r != null) {
+                        getSharedPreferences("yindun", MODE_PRIVATE).edit()
+                                .putInt("paired_children", r.optInt("children", 0)).apply();
+                    }
+                    js("onPairStatus", r == null ? "{\"ok\":false}" : r.toString());
+                }
+            }).start();
+        }
+
+        /** 给子女端发一条测试预警，结果回调 window.onTestAlert({ok}) */
+        @JavascriptInterface
+        public void testAlert() {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String r = null;
+                    try {
+                        org.json.JSONObject o = new org.json.JSONObject();
+                        o.put("level", "watch");
+                        o.put("title", "银盾测试提醒");
+                        o.put("body", "这是一条测试消息，用于确认子女端能够正常接收预警，无需处理。");
+                        r = Notifier.postJsonSync(MainActivity.this, "/api/alert", o, 8000);
+                    } catch (Exception ignored) {
+                    }
+                    js("onTestAlert", "{\"ok\":" + (r != null) + "}");
+                }
+            }).start();
         }
 
         /** 子女号码：读 / 写 */

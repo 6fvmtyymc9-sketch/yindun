@@ -44,6 +44,14 @@ public final class Conf {
         sp.edit().putString("elderId", t.length() == 0 ? "demo" : t).apply();
     }
 
+    /** 配对凭证：用老人端给的 6 位配对码换来，只能查看这一位老人的预警 */
+    public String childToken() { return sp.getString("childToken", ""); }
+
+    public void childToken(String v) { sp.edit().putString("childToken", v == null ? "" : v).apply(); }
+
+    /** 有没有完成配对（没配对时看的是公开演示编号 demo） */
+    public boolean paired() { return childToken().length() > 0; }
+
     /** 怎么称呼老人（妈妈 / 爸爸 / 奶奶…），界面上所有"妈妈"都用它 */
     public String elderName() {
         String v = sp.getString("elderName", "妈妈");

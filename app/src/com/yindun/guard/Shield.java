@@ -302,9 +302,9 @@ public class Shield {
             // 播女儿的声音（预录，存本地，断网也能响）
             Speak.play(ctx, Speak.STOP);
 
-            // 6 秒无人操作自动拨
+            // 6 秒无人操作自动拨（没设置紧急联系人的真机不自动拨，倒计时也不显示）
             dialed = false;
-            handler.postDelayed(autoDial, AUTO_DIAL_MS);
+            if (Notifier.canDial(ctx)) handler.postDelayed(autoDial, AUTO_DIAL_MS);
 
             // 兜底：万一电话一直没挂（或系统没回调），2 分钟后自己撤。
             // 屏幕永远退不掉比不盖屏更糟——那是把老人的手机变成了砖头。
@@ -515,7 +515,13 @@ public class Shield {
         countTv = cdTv;
         countBar = bar;
         countStart = System.currentTimeMillis();
-        handler.post(countTick);
+        if (Notifier.canDial(ctx)) {
+            handler.post(countTick);
+        } else {
+            cdTv.setText("尚未设置紧急联系人，请手动拨打家人电话");
+            track.setVisibility(View.GONE);
+            btn.setText("打开拨号盘");
+        }
 
         // ---------- 第二个出口：只停振动，不撤屏幕 ----------
         // 振动一直不停，老人急了会去抠电池/长按关机，保护就断了。

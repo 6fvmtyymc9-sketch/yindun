@@ -363,9 +363,10 @@ public class Judge {
                 if (hits.length() > 0) hits.append("、");
                 hits.append("服务号验证码(+0)");
             } else {
-                score += 30;
+                // v3.4：+30 → +45，与云端 Judge.js 一致
+                score += 45;
                 if (hits.length() > 0) hits.append("、");
-                hits.append("非服务号发验证码(+30)");
+                hits.append("非服务号发验证码(+45)");
                 // 与云端 Judge.js 对齐：这个信号在 JS 里是 tag:'S4'，这边也要参与定阶段
                 if (stageRankOf("S4") > topRank) {
                     topRank = 4;
@@ -647,8 +648,9 @@ public class Judge {
         if (stage == null) return levelOf(score);
         if ("S4".equals(stage)) return "block";                      // 要钱：一律盖屏
         if ("S3".equals(stage)) return score >= lvHigh ? "block" : "high";
-        if ("S2".equals(stage)) return "warn";
-        if ("S1".equals(stage)) return "watch";
+        // v3.4：同一阶段信号叠得多也要升级（与云端 Judge.js 一致）
+        if ("S2".equals(stage)) return score >= lvHigh ? "high" : "warn";
+        if ("S1".equals(stage)) return score >= lvWarn ? "warn" : "watch";
         return "none";
     }
 

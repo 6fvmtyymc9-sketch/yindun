@@ -59,7 +59,11 @@ function registerCallAudio(app, deps) {
 
   app.post('/api/callaudio', checkToken, bigJson, async (req, res) => {
     const b = req.body || {};
-    const elderId = String(b.elderId || 'demo').slice(0, 32);
+    // 认证过的老人端用自己的编号；未认证的只能用公开演示编号 demo
+    const elderId = (req.yd && req.yd.elderId) || 'demo';
+    if (!(req.yd && req.yd.elderId) && b.elderId && b.elderId !== 'demo') {
+      return res.status(401).json({ ok: false, msg: '需要老人端身份' });
+    }
     const number = String(b.number || '').trim().slice(0, 32);
     const durSec = Math.max(0, Number(b.durSec) || 0);
     const name = String(b.name || 'call.mp3').slice(0, 120);

@@ -474,7 +474,7 @@ public class ReportActivity extends Activity {
             public void run() {
                 JSONObject req = new JSONObject();
                 try {
-                    req.put("elderId", "demo");
+                    req.put("elderId", Pair.id(ReportActivity.this));
                     // 本页是老人手机上的原生页，提交身份固定为 elder。
                     // 子女代传走的是网页端（?role=child），那边传 child。
                     req.put("reporter", "elder");

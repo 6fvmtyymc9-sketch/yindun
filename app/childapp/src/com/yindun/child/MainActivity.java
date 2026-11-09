@@ -68,6 +68,7 @@ public class MainActivity extends Activity implements Hub.Listener {
     private RingView heroRings;
     private Alert heroAlert;
     private LinearLayout listBox;
+    private View pairBanner;
     private final TextView[] tabs = new TextView[4];
     private String filter = "全部";
     private List<Alert> last = new ArrayList<>();
@@ -169,6 +170,32 @@ public class MainActivity extends Activity implements Hub.Listener {
         });
         head.addView(set, new LinearLayout.LayoutParams(-2, dp(44)));
         col.addView(head);
+
+        // ---------- 未配对提示 ----------
+        LinearLayout pb = vbox();
+        GradientDrawable pbg = round(SKY_BG, 18);
+        pbg.setStroke(dp(1), 0xFFC7D7FE);
+        pb.setBackground(pbg);
+        pb.setPadding(dp(16), dp(14), dp(16), dp(14));
+        pb.addView(text("尚未与老人手机配对", 16, INK, true));
+        TextView pbt = text("当前显示的是公开演示数据。请在老人手机「银盾 → 设置 → 初始设置向导」中获取 6 位配对码。", 14, INK2, false);
+        pbt.setLineSpacing(dp(3), 1f);
+        LinearLayout.LayoutParams pbtl = new LinearLayout.LayoutParams(-1, -2);
+        pbtl.topMargin = dp(4);
+        pb.addView(pbt, pbtl);
+        TextView pbBtn = text("输入配对码", 16, Color.WHITE, true);
+        pbBtn.setGravity(Gravity.CENTER);
+        pbBtn.setBackground(round(NAVY, 12));
+        pbBtn.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { showPair(); }
+        });
+        LinearLayout.LayoutParams pbbl = new LinearLayout.LayoutParams(-1, dp(46));
+        pbbl.topMargin = dp(12);
+        pb.addView(pbBtn, pbbl);
+        LinearLayout.LayoutParams pbl = new LinearLayout.LayoutParams(-1, -2);
+        pbl.topMargin = dp(10);
+        col.addView(pb, pbl);
+        pairBanner = pb;
 
         // ---------- 深色汇总卡 ----------
         FrameLayout hero = new FrameLayout(this);
@@ -291,6 +318,7 @@ public class MainActivity extends Activity implements Hub.Listener {
     }
 
     private void refreshName() {
+        if (pairBanner != null) pairBanner.setVisibility(Conf.get().paired() ? View.GONE : View.VISIBLE);
         String n = Conf.get().elderName();
         if (tvName != null) tvName.setText(n);
         if (tvAvatar != null) tvAvatar.setText(n.substring(0, 1));
@@ -383,7 +411,7 @@ public class MainActivity extends Activity implements Hub.Listener {
         } else {
             heroNum.setVisibility(View.GONE);
             heroUnit.setText(list.isEmpty() ? "状态正常" : "暂无待处理风险");
-            heroSub.setText(list.isEmpty() ? name + "近期未发现可疑情况" : "高风险预警均已处理，防护持续进行中");
+            heroSub.setText(list.isEmpty() ? name + "近期未发现可疑情况" : (high == 0 ? "近期无高风险预警，防护持续进行" : "高风险预警均已处理，防护持续进行"));
             heroRings.setTone(0x32D583);
         }
 
@@ -806,7 +834,10 @@ public class MainActivity extends Activity implements Hub.Listener {
         final EditText edName = field(box, "老人称呼（如：妈妈、爸爸）", Conf.get().elderName(), InputType.TYPE_CLASS_TEXT);
         final EditText edPhone = field(box, "老人手机号码（用于一键致电）", Conf.get().elderPhone(), InputType.TYPE_CLASS_PHONE);
         final EditText edServer = field(box, "服务器地址（如 http://1.2.3.4:8080）", Conf.get().server(), InputType.TYPE_TEXT_VARIATION_URI);
-        final EditText edElder = field(box, "老人编号（默认 demo）", Conf.get().elderId(), InputType.TYPE_CLASS_TEXT);
+        TextView pairState = text(Conf.get().paired() ? "配对状态：已配对（编号 " + Conf.get().elderId() + "）" : "配对状态：未配对（当前显示演示数据）", 13, Conf.get().paired() ? OK : AMB, true);
+        LinearLayout.LayoutParams psl = new LinearLayout.LayoutParams(-2, -2);
+        psl.topMargin = dp(14);
+        box.addView(pairState, psl);
 
         final CheckBox cbSound = new CheckBox(this);
         cbSound.setText("收到预警时响铃并振动");
@@ -830,12 +861,63 @@ public class MainActivity extends Activity implements Hub.Listener {
                         Conf.get().elderName(edName.getText().toString());
                         Conf.get().elderPhone(edPhone.getText().toString().replaceAll("\\s+", ""));
                         Conf.get().server(edServer.getText().toString());
-                        Conf.get().elderId(edElder.getText().toString());
                         Conf.get().sound(cbSound.isChecked());
                         Hub.get().restart();
                         refreshName();
                         renderList(last);
                         Toast.makeText(MainActivity.this, "已保存，正在重新连接", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNeutralButton(Conf.get().paired() ? "重新配对" : "配对", new android.content.DialogInterface.OnClickListener() {
+                    @Override public void onClick(android.content.DialogInterface d, int w) { showPair(); }
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    /** 输入老人手机上显示的 6 位配对码 */
+    private void showPair() {
+        LinearLayout box = vbox();
+        box.setPadding(dp(22), dp(8), dp(22), dp(8));
+        TextView tip = text("请在老人手机「银盾 → 设置 → 初始设置向导 → 子女端配对」中获取配对码，10 分钟内有效。", 14, INK2, false);
+        tip.setLineSpacing(dp(3), 1f);
+        box.addView(tip);
+        final EditText ed = new EditText(this);
+        ed.setInputType(InputType.TYPE_CLASS_NUMBER);
+        ed.setTextSize(26);
+        ed.setLetterSpacing(0.3f);
+        ed.setGravity(Gravity.CENTER);
+        ed.setHint("6 位数字");
+        ed.setFilters(new android.text.InputFilter[]{new android.text.InputFilter.LengthFilter(6)});
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
+        lp.topMargin = dp(12);
+        box.addView(ed, lp);
+        new AlertDialog.Builder(this)
+                .setTitle("与老人手机配对")
+                .setView(box)
+                .setPositiveButton("配对", new android.content.DialogInterface.OnClickListener() {
+                    @Override public void onClick(android.content.DialogInterface d, int w) {
+                        final String code = ed.getText().toString().trim();
+                        if (code.length() != 6) {
+                            Toast.makeText(MainActivity.this, "请输入 6 位配对码", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        new Thread(new Runnable() {
+                            @Override public void run() {
+                                final String err = Hub.pair(code);
+                                runOnUiThread(new Runnable() {
+                                    @Override public void run() {
+                                        if (err == null) {
+                                            Toast.makeText(MainActivity.this, "配对成功，正在同步预警记录", Toast.LENGTH_SHORT).show();
+                                            Hub.get().restart();
+                                            refreshName();
+                                        } else {
+                                            Toast.makeText(MainActivity.this, err, Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+                                });
+                            }
+                        }).start();
                     }
                 })
                 .setNegativeButton("取消", null)
@@ -922,6 +1004,12 @@ public class MainActivity extends Activity implements Hub.Listener {
         RingView(Context c) { super(c); }
 
         void setTone(int rgb) { tone = rgb; invalidate(); }
+
+        /** 纯装饰：自己不要高度，跟着汇总卡的内容走（否则列表为空时会把卡片撑满整屏） */
+        @Override
+        protected void onMeasure(int ws, int hs) {
+            setMeasuredDimension(MeasureSpec.getSize(ws), getSuggestedMinimumHeight());
+        }
 
         @Override
         protected void onDraw(Canvas c) {

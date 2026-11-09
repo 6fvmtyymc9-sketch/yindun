@@ -226,7 +226,7 @@ public class CallRecord {
         HttpURLConnection conn = null;
         try {
             JSONObject o = new JSONObject();
-            o.put("elderId", "demo");
+            o.put("elderId", Pair.id(ctx));
             o.put("number", number == null ? "" : number);
             o.put("durSec", durSec);
             o.put("name", f.getName());
@@ -237,6 +237,7 @@ public class CallRecord {
 
             URL url = new URL(Notifier.getBackend(ctx) + "/api/callaudio");
             conn = (HttpURLConnection) url.openConnection();
+            Pair.sign(ctx, conn);
             conn.setRequestMethod("POST");
             conn.setConnectTimeout(8000);
             conn.setReadTimeout(90000);     // 转写 + 大模型，长录音要几十秒

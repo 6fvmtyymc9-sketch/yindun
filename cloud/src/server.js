@@ -25,8 +25,16 @@ const { Db } = require('./Db');
 const { Pangu } = require('./Pangu');
 const { Guard } = require('./Guard');
 const { Drill } = require('./Drill');
+const { RateLimit, clientIp } = require('./RateLimit');
 
 const PORT = Number(process.env.PORT || 8080);
+
+// AI 接口的每日额度。0 = 不限。改 .env 重启即可，不用动代码。
+// 为什么是这两个数：一次演示 /api/report 大概点 5~10 次、一局演练 10~20 轮，
+// 一天录几遍视频也够；真被脚本刷，一天最多也就花掉几十块钱，兜得住。
+const REPORT_PER_DAY = Number(process.env.RATE_REPORT_PER_DAY || 60);
+const DRILL_TURN_PER_DAY = Number(process.env.RATE_DRILL_TURN_PER_DAY || 300);
+const TRUST_PROXY = String(process.env.TRUST_PROXY || '') === '1';
 const ROOT = path.join(__dirname, '..');
 
 // ============================================================================
@@ -126,6 +134,7 @@ const pangu = new Pangu();
 const state = new State(null);   // 等 redis 连上后再注入
 const db = new Db(null);
 const drill = new Drill({ pangu, db });   // AI 模拟演练（定期）
+const rateLimit = new RateLimit(null);    // Redis 连上后再注入
 
 /** SSE 订阅表：elderId → Set(res) */
 const streams = new Map();
@@ -153,6 +162,51 @@ const app = express();
 app.use(express.json({ limit: '12mb' }));   // 要收 base64 截图，默认 256kb 不够
 app.use(express.static(path.join(ROOT, 'public'), { etag: false }));
 
+// ============================================================================
+//  AI 接口限流：按 IP、按北京时间每天清零
+// ----------------------------------------------------------------------------
+//  只拦"花钱"的两个接口（/api/report 截图复审、/api/drill/turn 演练对练）。
+//  其余接口不花钱，拦了反而影响演示。
+//
+//  【为什么超额返回 200 而不是 429】
+//    App 里的 DrillNet.request 遇到非 2xx 直接返回 null，
+//    老人手机上就会显示"连不上云端，检查一下 WiFi"——
+//    可她明明连着网，这是假信息。返回 200 + ok:false，
+//    App 原样把 msg 弹出来，客户端一个字都不用改、不用重新打包。
+//    同时用 X-RateLimit-* 头把状态告诉懂行的调用方。
+//
+//  【为什么限流器自己出错时放行】
+//    见 RateLimit.js 里的说明：宁可漏扣一次额度，不能让人按了没反应。
+// ============================================================================
+async function withinQuota(req, res, bucket, perDay, label, tip) {
+  if (!perDay || perDay <= 0) return true;
+
+  let r;
+  try {
+    r = await rateLimit.check(bucket, clientIp(req, TRUST_PROXY), perDay);
+  } catch (e) {
+    console.warn('[RateLimit] 计数异常，本次放行：', e.message);
+    return true;
+  }
+
+  res.setHeader('X-RateLimit-Limit', String(r.limit));
+  res.setHeader('X-RateLimit-Remaining', String(Math.max(0, r.limit - r.used)));
+  res.setHeader('X-RateLimit-Reset', String(Math.ceil(r.resetAt / 1000)));
+  if (r.allowed) return true;
+
+  console.warn('[RateLimit] ' + clientIp(req, TRUST_PROXY) + ' 超出「' + label + '」日额度 '
+      + r.limit + ' 次，已拒绝');
+  res.status(200).json({
+    ok: false,
+    code: 'RATE_LIMITED',
+    msg: '今天的' + label + '次数用完了（每天 ' + r.limit + ' 次），明天零点恢复。' + (tip || ''),
+    limit: r.limit,
+    used: r.used,
+    resetAt: r.resetAt,
+  });
+  return false;
+}
+
 // ---------- 健康检查（部署后第一个要打的接口）----------
 app.get('/api/health', async (req, res) => {
   const [rulesVer, stats] = await Promise.all([
@@ -165,6 +219,7 @@ app.get('/api/health', async (req, res) => {
     rules: { version: (rulesVer && rulesVer.version) || currentRules.version || 'file', keywords: currentRules.sms_keywords.length },
     storage: { rds: db.online, redis: !!redis },
     model: { enabled: pangu.enabled, model: pangu.model },
+    limits: { reportPerDay: REPORT_PER_DAY, drillTurnPerDay: DRILL_TURN_PER_DAY, trustProxy: TRUST_PROXY },
     stats,
   });
 });
@@ -345,6 +400,9 @@ function parseDataUrl(s) {
 }
 
 app.post('/api/report', async (req, res) => {
+  if (!await withinQuota(req, res, 'report', REPORT_PER_DAY,
+      '智能识别', '拿不准的事，先别点链接、别转账，给女儿打个电话。')) return;
+
   const b = req.body || {};
   const elderId = b.elderId || 'demo';
   // 谁提交的。老人端（App 原生页）传 elder，子女端（网页 role=child）传 child。
@@ -543,6 +601,8 @@ app.post('/api/drill/start', async (req, res) => {
 
 // ---------- 作答 ----------
 app.post('/api/drill/turn', async (req, res) => {
+  if (!await withinQuota(req, res, 'drill_turn', DRILL_TURN_PER_DAY, '演练对练', '')) return;
+
   const { drillId, choice } = req.body || {};
   try {
     const r = await drill.turn(drillId, Number(choice));
@@ -573,7 +633,7 @@ app.get(/^\/(?!api\/).*/, (req, res) => {
 
 (async () => {
   const r = await initRedis();
-  if (r) { redis = r; state.redis = r; }
+  if (r) { redis = r; state.redis = r; rateLimit.redis = r; }
 
   const p = initPool();
   if (p) { pool = p; db.pool = p; await db.init(); }

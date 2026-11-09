@@ -128,8 +128,8 @@ mysql -u root -p < sql/schema.sql
 node src/server.js
 ```
 
-需要 MySQL。Redis 可选（没有就降级为单机内存），华为云盘古大模型可选
-（用于灰区复审，没有就只靠本地规则）。
+需要 MySQL。Redis 可选（没有就降级为单机内存），华为云 MaaS 大模型可选
+（跑的是 DeepSeek，用于灰区复审；没有就只靠本地规则）。
 
 `.env` 模板在 `.env.example`，**仓库里不含任何真实账号密码**。
 

@@ -65,6 +65,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Stats.init(this);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -165,7 +166,7 @@ public class MainActivity extends Activity {
             if (checkSelfPermission(n) != PackageManager.PERMISSION_GRANTED) missing.add(n);
         }
         if (missing.isEmpty()) {
-            toast("权限已齐，银盾开始守护");
+            toast("权限已全部授予，银盾防护已开启");
             return;
         }
         requestPermissions(missing.toArray(new String[0]), 1001);
@@ -178,10 +179,31 @@ public class MainActivity extends Activity {
         int denied = 0;
         for (int r : results) if (r != PackageManager.PERMISSION_GRANTED) denied++;
         if (denied == 0) {
-            toast("权限已齐，银盾开始守护");
+            toast("权限已全部授予，银盾防护已开启");
         } else {
-            toast("有 " + denied + " 项没开，短信检测会失效");
+            toast("有 " + denied + " 项权限未授予，部分防护功能将无法使用");
         }
+    }
+
+    /** 带老人去开读录音要的权限：安卓 11+ 是"所有文件访问"，以下是存储权限 */
+    private void askFileAccess() {
+        try {
+            if (Build.VERSION.SDK_INT >= 30) {
+                Intent i = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                        Uri.parse("package:" + getPackageName()));
+                startActivity(i);
+                toast("请开启「允许访问所有文件」，用于读取系统通话录音");
+            } else {
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1002);
+            }
+        } catch (Exception e) {
+            toast("无法打开权限设置页，请前往 设置 → 应用 → 银盾 → 权限 手动开启存储权限");
+        }
+    }
+
+    /** 让首页重新读一次录音复盘的状态 */
+    private void refreshRecPage() {
+        if (web != null) web.evaluateJavascript("try{refreshRec()}catch(e){}", null);
     }
 
     // ==========================================================
@@ -386,8 +408,65 @@ public class MainActivity extends Activity {
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
             } catch (Exception e) {
-                toast("这台手机打不开这个设置页，请手动去设置里找");
+                toast("无法打开该设置页，请在系统设置中手动开启");
             }
+        }
+
+        /** 首页数字：守护天数、今天检查了多少、最近一次提醒（JSON） */
+        @JavascriptInterface
+        public String stats() {
+            return Stats.json(MainActivity.this);
+        }
+
+        /** 通话录音复盘的状态：on=在工作 / noperm=开了但没文件权限 / off=没开 */
+        @JavascriptInterface
+        public String recState() {
+            if (!CallRecord.enabled(MainActivity.this)) return "off";
+            return CallRecord.hasAccess(MainActivity.this) ? "on" : "noperm";
+        }
+
+        /** 首页点「通话录音复盘」：没开 → 同意说明；缺权限 → 去授权；已开 → 问要不要关 */
+        @JavascriptInterface
+        public void recToggle() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String st = recState();
+                    if ("noperm".equals(st)) {
+                        askFileAccess();
+                    } else if ("on".equals(st)) {
+                        new android.app.AlertDialog.Builder(MainActivity.this)
+                                .setTitle("关闭通话复盘？")
+                                .setMessage("关闭后，陌生来电挂断后将不再分析通话录音。")
+                                .setPositiveButton("关闭", new android.content.DialogInterface.OnClickListener() {
+                                    public void onClick(android.content.DialogInterface d, int w) {
+                                        CallRecord.setEnabled(MainActivity.this, false);
+                                        refreshRecPage();
+                                    }
+                                })
+                                .setNegativeButton("取消", null)
+                                .show();
+                    } else {
+                        new android.app.AlertDialog.Builder(MainActivity.this)
+                                .setTitle("开启通话复盘")
+                                .setMessage("· 请先在系统电话中开启「自动通话录音」\n"
+                                        + "· 仅分析不在通讯录中的陌生号码\n"
+                                        + "· 挂断后，录音将上传至银盾云端进行诈骗识别\n"
+                                        + "· 云端不保存录音及完整对话内容\n\n"
+                                        + "您可随时在此关闭。")
+                                .setPositiveButton("同意并开启", new android.content.DialogInterface.OnClickListener() {
+                                    public void onClick(android.content.DialogInterface d, int w) {
+                                        CallRecord.setEnabled(MainActivity.this, true);
+                                        if (CallRecord.hasAccess(MainActivity.this)) toast("通话复盘已开启");
+                                        else askFileAccess();
+                                        refreshRecPage();
+                                    }
+                                })
+                                .setNegativeButton("暂不开启", null)
+                                .show();
+                    }
+                }
+            });
         }
 
         /** 子女号码：读 / 写 */
@@ -458,6 +537,7 @@ public class MainActivity extends Activity {
                     : "未绑定（阻断时拨演示号 " + Notifier.DEMO_CHILD_NUMBER + "）").append("\n");
             sb.append("演示倍速=×").append(Guard.get(MainActivity.this).demoSpeed()).append("\n");
             sb.append("后端=").append(Notifier.getBackend(MainActivity.this)).append("\n");
+            sb.append("录音复盘=").append(recState()).append("\n");
             for (String p : NEED) {
                 sb.append(p.replace("android.permission.", ""))
                   .append("=")
@@ -667,6 +747,8 @@ public class MainActivity extends Activity {
         // 每次回到主界面都把演练提醒重排一遍。
         // 国产 ROM 会清后台闹钟，"设一次管一辈子"在这里不成立。
         DrillAlarm.schedule(this);
+        // 从"所有文件访问"设置页回来，首页的录音复盘状态要跟着变
+        refreshRecPage();
     }
 
     @Override

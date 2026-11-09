@@ -72,6 +72,7 @@ public class EventBus {
      */
     public static void pushAlert(final String level, final String why,
                                  final String stage, final int score) {
+        Stats.alert(level, why);   // 首页的"今天提醒了几次 / 最近一次提醒"
         if (webRef == null) return;
         final WebView web = webRef.get();
         if (web == null) return;

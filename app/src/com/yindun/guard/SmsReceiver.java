@@ -104,6 +104,7 @@ public class SmsReceiver extends BroadcastReceiver {
 
         // ---------- 3. 交给判定引擎打分 ----------
         Judge.Result r = Judge.get(ctx).judgeSms(text, who, isCode);
+        Stats.sms(ctx);
         Log.i(TAG, "短信 from=" + from + " who=" + who + " 验证码=" + isCode
                 + " 分数=" + r.score + " 阶段=" + r.stage + " 级别=" + r.level);
 
@@ -152,9 +153,9 @@ public class SmsReceiver extends BroadcastReceiver {
         // 为什么只对"高危诈骗"和"验证码"弹：
         // 每来一条短信都弹，老人会烦，然后去关权限。宁可少弹，不能烦人。
         if (isCode) {
-            alert(ctx, "warn", "这是一条验证码", "谁打电话要都别念");
+            alert(ctx, "warn", "收到验证码短信", "请勿向任何人透露验证码");
         } else if (!"none".equals(r.level) && !"watch".equals(r.level)) {
-            alert(ctx, r.level, "疑似诈骗信息", "请谨慎点击短信链接");
+            alert(ctx, r.level, "疑似诈骗短信", "请勿点击短信中的链接");
         }
 
         // ---------- 7. 灰区复审：本地拿不准的，交给华为云盘古判一次 ----------
@@ -233,7 +234,7 @@ public class SmsReceiver extends BroadcastReceiver {
                     EventBus.pushAlert("warn", "AI 复审：" + reason, stage, score + 20);
                     Notifier.alertChild(ctx, "warn",
                             "妈妈收到一条可疑短信",
-                            "AI 复审确认可疑：" + reason
+                            "AI 复核判定为可疑：" + reason
                                     + "。原文：" + brief(body));
 
                 } catch (Exception e) {

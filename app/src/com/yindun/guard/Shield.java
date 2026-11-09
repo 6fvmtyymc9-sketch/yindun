@@ -170,7 +170,7 @@ public class Shield {
     private static final Runnable dialDone = new Runnable() {
         @Override
         public void run() {
-            updateButtonText("已拨给女儿，等接听");
+            updateButtonText("已呼叫女儿，等待接听");
         }
     };
 
@@ -197,9 +197,9 @@ public class Shield {
         handler.removeCallbacks(dialDone);
         Notifier.callChild(ctx);      // 没绑定号码也会拨演示号码，绝不空转
         if (auto) {
-            updateButtonText("已拨给女儿，等接听");
+            updateButtonText("已呼叫女儿，等待接听");
         } else {
-            updateButtonText("正在拨号");
+            updateButtonText("正在呼叫…");
             handler.postDelayed(dialDone, 2500);
         }
     }
@@ -277,6 +277,8 @@ public class Shield {
 
             // 窗口正好一屏，不需要偏移
             lp.x = 0;
+            // 悬浮窗默认不走硬件加速；警报动效要靠 GPU 才画得顺
+            lp.flags |= WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED;
 
             wm.addView(view, lp);
 
@@ -316,6 +318,9 @@ public class Shield {
 
     /** 撤掉盖屏（子女接通后由界面调用） */
     public static void hide(Context ctx) {
+        handler.removeCallbacks(countTick);
+        countTv = null;
+        countBar = null;
         handler.removeCallbacks(autoDial);
         handler.removeCallbacks(dialDone);
         handler.removeCallbacks(safetyHide);
@@ -349,99 +354,134 @@ public class Shield {
     // ==========================================================
     //  界面（用代码画，不写 XML —— 少一个文件少一处出错）
     // ==========================================================
+    /** 倒计时：每秒更新一次"N 秒后自动拨出"，拨出后停 */
+    private static TextView countTv = null;
+    private static View countBar = null;
+    private static long countStart = 0;
+    private static final Runnable countTick = new Runnable() {
+        @Override
+        public void run() {
+            if (view == null || countTv == null) return;
+            if (dialed) {
+                countTv.setText("正在呼叫女儿");
+                if (countBar != null) countBar.setScaleX(0f);
+                return;
+            }
+            long left = AUTO_DIAL_MS - (System.currentTimeMillis() - countStart);
+            int sec = (int) Math.max(0, Math.ceil(left / 1000.0));
+            countTv.setText(sec + " 秒后自动呼叫女儿");
+            if (countBar != null) countBar.setScaleX(Math.max(0f, left / (float) AUTO_DIAL_MS));
+            if (left > 0) handler.postDelayed(this, 100);
+        }
+    };
+
+    /**
+     * 红屏布局：底下一层 AlarmView 画警报动效，上面一层是文字和按钮。
+     *
+     * 【设计】深红底 + 防护罩（雷达扫描、冲击波、HUD 角标），和首页的盾牌圆环同一图形。
+     * "打给女儿"是全屏唯一的白色实心块 —— 一眼就知道该按哪里。
+     */
     private static View build(final Context ctx, String title, String number) {
-        // ---------- 根：全屏红色 ----------
+        final FrameLayout outer = new FrameLayout(ctx);
+        AlarmView.addBackground(ctx, outer);     // 全屏警报底层（静态图 + 图层动画）
+
         LinearLayout root = new LinearLayout(ctx);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setGravity(Gravity.CENTER);
-        GradientDrawable bg = new GradientDrawable(
-                GradientDrawable.Orientation.TOP_BOTTOM,
-                new int[]{0xFFE23B3B, 0xFFC7000B});
-        root.setBackground(bg);
-        // 窗口本身比屏幕宽 28dp（抖动余量），内容得把这份宽度还回去，
-        // 否则按钮会被拉宽、贴到屏幕边上。
-        int pad = dp(ctx, 28);
-        root.setPadding(pad, dp(ctx, 48), pad, dp(ctx, 40));
+        root.setGravity(Gravity.CENTER_HORIZONTAL);
+        root.setClipChildren(false);
+        int pad = dp(ctx, 24);
+        root.setPadding(pad, dp(ctx, 40), pad, dp(ctx, 30));
 
-        // ---------- 顶部警示徽标 ----------
-        // 【2026-11-07 改】原来是 🛡 emoji。
-        // emoji 走的是系统的彩色字体，setTextColor 对它无效，
-        // 在红底上渲染成暗橙棕色——一块红屏上糊着一个几乎看不见的图标，
-        // 看着像界面做坏了，而不是"有个盾在保护你"。
-        // 换成白色圆环 + "!"，颜色和粗细 100% 可控。
-        TextView icon = new TextView(ctx);
-        icon.setText("!");
-        icon.setTextSize(TypedValue.COMPLEX_UNIT_SP, 54);
-        icon.setTextColor(0xFFFFFFFF);
-        icon.setTypeface(null, android.graphics.Typeface.BOLD);
-        icon.setGravity(Gravity.CENTER);
-        GradientDrawable ring = new GradientDrawable();
-        ring.setShape(GradientDrawable.OVAL);
-        ring.setColor(0x24FFFFFF);
-        ring.setStroke(dp(ctx, 3), 0xFFFFFFFF);
-        icon.setBackground(ring);
-        LinearLayout.LayoutParams pIcon =
-                new LinearLayout.LayoutParams(dp(ctx, 108), dp(ctx, 108));
-        root.addView(icon, pIcon);
+        // ---------- 顶栏：闪烁红点 + 银盾已拦截 ｜ 威胁等级 ----------
+        LinearLayout top = new LinearLayout(ctx);
+        top.setOrientation(LinearLayout.HORIZONTAL);
+        top.setGravity(Gravity.CENTER_VERTICAL);
+        View dot = new View(ctx);
+        GradientDrawable dotBg = new GradientDrawable();
+        dotBg.setShape(GradientDrawable.OVAL);
+        dotBg.setColor(0xFFFF5A45);
+        dot.setBackground(dotBg);
+        top.addView(dot, new LinearLayout.LayoutParams(dp(ctx, 9), dp(ctx, 9)));
+        android.animation.ObjectAnimator blink = android.animation.ObjectAnimator.ofFloat(dot, "alpha", 1f, 0.25f);
+        blink.setDuration(600);
+        blink.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+        blink.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+        blink.start();
+        TextView brand = text(ctx, "银盾 · 风险拦截", 15, 0xE6FFFFFF, true);
+        brand.setLetterSpacing(0.12f);
+        LinearLayout.LayoutParams pBrand = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        pBrand.leftMargin = dp(ctx, 8);
+        top.addView(brand, pBrand);
+        TextView lv = text(ctx, "风险等级 4 / 4", 12, 0xD9FFD6D0, true);
+        lv.setLetterSpacing(0.12f);
+        GradientDrawable lvBg = new GradientDrawable();
+        lvBg.setCornerRadius(dp(ctx, 6));
+        lvBg.setStroke(dp(ctx, 1), 0x73FF8C78);
+        lv.setBackground(lvBg);
+        lv.setPadding(dp(ctx, 8), dp(ctx, 3), dp(ctx, 8), dp(ctx, 3));
+        top.addView(lv);
+        root.addView(top, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
 
-        // ---------- 主标题 ----------
-        TextView t1 = new TextView(ctx);
-        t1.setText(title == null ? "先别操作" : title);
-        t1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 40);
-        t1.setTextColor(Color.WHITE);
+        // ---------- 中央防护罩（唯一逐帧重画的区域）----------
+        final View core = new AlarmView.Core(ctx);
+        LinearLayout.LayoutParams pCore = new LinearLayout.LayoutParams(dp(ctx, 250), dp(ctx, 250));
+        pCore.topMargin = dp(ctx, 18);
+        root.addView(core, pCore);
+
+        // ---------- 主标题（发光呼吸）----------
+        String t = title == null ? "请暂停操作" : title;
+        final TextView t1 = text(ctx, t, t.length() <= 5 ? 56 : 36, 0xFFFFFFFF, true);
         t1.setGravity(Gravity.CENTER);
-        t1.setTypeface(null, android.graphics.Typeface.BOLD);
-        LinearLayout.LayoutParams p1 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        p1.topMargin = dp(ctx, 16);
+        t1.setLetterSpacing(t.length() <= 5 ? 0.1f : 0.02f);
+        LinearLayout.LayoutParams p1 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        p1.topMargin = dp(ctx, 10);
         root.addView(t1, p1);
+        android.animation.ValueAnimator glow = android.animation.ValueAnimator.ofFloat(4f, 22f);
+        glow.setDuration(800);
+        glow.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+        glow.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+        glow.addUpdateListener(new android.animation.ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(android.animation.ValueAnimator a) {
+                t1.setShadowLayer(dp(ctx, 1) * (Float) a.getAnimatedValue(), 0, 0, 0xE6FF6E5A);
+            }
+        });
+        glow.start();
 
-        // ---------- 副标题 ----------
-        // 【2026-11-07 改】原来是"女儿正在打你电话"。
-        // 这句是写死的：拨号可能失败、可能没绑号码走的演示号，
-        // 一旦失败，屏幕上就在告诉老人一件没发生的事。
-        // 改成"这通电话可能是骗子"（说原因）+ "正在叫女儿打给您"（说我们在做什么）。
-        // 前者是这一屏存在的理由——老人最需要知道的不是"谁来电话了"，
-        // 而是"电话那头这个人是坏人"。之前整屏没有一个字说这件事。
-        TextView t2 = new TextView(ctx);
-        t2.setText("这通电话可能是骗子\n正在叫女儿打给您");
-        t2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 23);
-        t2.setTextColor(0xFFFFE8E6);
+        // ---------- 原因 + 号码 ----------
+        TextView t2 = text(ctx, "当前通话疑似诈骗", 23, 0xFFFFFFFF, true);
         t2.setGravity(Gravity.CENTER);
-        t2.setLineSpacing(dp(ctx, 10), 1f);
-        LinearLayout.LayoutParams p2 = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        p2.topMargin = dp(ctx, 20);
+        LinearLayout.LayoutParams p2 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        p2.topMargin = dp(ctx, 12);
         root.addView(t2, p2);
-
-        // ---------- 骗子号码 ----------
-        // 【2026-11-07 改】原来只写"正在通话：xxx"——她当然知道正在通话。
-        // 换成"不在通讯录里"，这才是这块屏想说的事：这个号她不认识。
         if (number != null && number.length() > 0) {
-            TextView t3 = new TextView(ctx);
-            t3.setText("对方号码 " + number + " · 不在通讯录里");
-            t3.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-            t3.setTextColor(0xB3FFFFFF);
+            TextView t3 = text(ctx, NumberInfo.pretty(number) + " · 不在通讯录里", 17, 0xD1FFE1DC, false);
             t3.setGravity(Gravity.CENTER);
-            LinearLayout.LayoutParams p3 = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            p3.topMargin = dp(ctx, 16);
+            LinearLayout.LayoutParams p3 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            p3.topMargin = dp(ctx, 8);
             root.addView(t3, p3);
         }
 
-        // ---------- 唯一出口：打给女儿 ----------
-        Button btn = new Button(ctx);
-        btn.setTag("dial");          // updateButtonText 靠这个 tag 认人（屏上现在有两个按钮了）
-        btn.setText("打给女儿");
-        btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
-        btn.setTextColor(0xFFB32711);
-        btn.setTypeface(null, android.graphics.Typeface.BOLD);
-        btn.setBackgroundColor(Color.WHITE);
-        LinearLayout.LayoutParams pb = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 78));
-        pb.topMargin = dp(ctx, 40);
-        root.addView(btn, pb);
+        root.addView(new View(ctx), new LinearLayout.LayoutParams(1, 0, 1f));
 
+        // ---------- 唯一的实心按钮：打给女儿 ----------
+        final Button btn = new Button(ctx);
+        btn.setTag("dial");          // updateButtonText 靠这个 tag 认人
+        btn.setText("呼叫女儿");
+        btn.setAllCaps(false);
+        btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28);
+        btn.setTextColor(0xFF9E1C15);
+        btn.setTypeface(null, android.graphics.Typeface.BOLD);
+        GradientDrawable btnBg = new GradientDrawable();
+        btnBg.setColor(Color.WHITE);
+        btnBg.setCornerRadius(dp(ctx, 24));
+        btn.setBackground(btnBg);
+        btn.setStateListAnimator(null);
+        FrameLayout btnBox = new FrameLayout(ctx);
+        btnBox.setClipChildren(false);
+        btnBox.addView(AlarmView.callPulse(ctx), new FrameLayout.LayoutParams(-1, -1));   // 按钮外扩散光
+        btnBox.addView(btn, new FrameLayout.LayoutParams(-1, -1));
+        root.addView(btnBox, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 82)));
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -449,38 +489,58 @@ public class Shield {
             }
         });
 
+        // ---------- 倒计时条 ----------
+        LinearLayout cd = new LinearLayout(ctx);
+        cd.setOrientation(LinearLayout.HORIZONTAL);
+        cd.setGravity(Gravity.CENTER_VERTICAL);
+        FrameLayout track = new FrameLayout(ctx);
+        GradientDrawable trackBg = new GradientDrawable();
+        trackBg.setColor(0x2EFFFFFF);
+        trackBg.setCornerRadius(dp(ctx, 3));
+        track.setBackground(trackBg);
+        View bar = new View(ctx);
+        GradientDrawable barBg = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT, new int[]{0xFFFFFFFF, 0xFFFFC9C1});
+        barBg.setCornerRadius(dp(ctx, 3));
+        bar.setBackground(barBg);
+        bar.setPivotX(0);
+        track.addView(bar, new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, dp(ctx, 6)));
+        cd.addView(track, new LinearLayout.LayoutParams(0, dp(ctx, 6), 1f));
+        TextView cdTv = text(ctx, "6 秒后自动呼叫女儿", 16, 0xEBFFEBE8, false);
+        LinearLayout.LayoutParams pCdTv = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        pCdTv.leftMargin = dp(ctx, 12);
+        cd.addView(cdTv, pCdTv);
+        LinearLayout.LayoutParams pCd = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        pCd.topMargin = dp(ctx, 14);
+        root.addView(cd, pCd);
+        countTv = cdTv;
+        countBar = bar;
+        countStart = System.currentTimeMillis();
+        handler.post(countTick);
+
         // ---------- 第二个出口：只停振动，不撤屏幕 ----------
-        // 为什么要有这个按钮：
-        // 振动是一直振不停的，如果没地方关，老人急起来会直接抠电池/长按关机，
-        // 那保护就彻底丢了。给她一个"我知道，别响了"的按钮，
-        // 她才愿意停下来看这块屏幕。而屏幕留着，就还留着她看到"打给女儿"的机会。
+        // 振动一直不停，老人急了会去抠电池/长按关机，保护就断了。
+        // 给她一个"别响了"的按钮，屏幕留着，"打给女儿"也还在。
         final Button stopBtn = new Button(ctx);
         stopBtn.setTag("stop");
         stopBtn.setText("停止振动");
-        stopBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        stopBtn.setAllCaps(false);
+        stopBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
         stopBtn.setTextColor(0xFFFFFFFF);
-        // 【2026-11-07 改】原来是 0x3DFFFFFF 的半透明白底。
-        // 在红色渐变上，这个色几乎化进背景，看着像个"禁用"按钮，
-        // 老人不会想到它是可以按的。
-        // 改成透明底 + 白色描边：仍然是次要动作（不跟"打给女儿"抢），
-        // 但明确是"一个按钮"。
+        stopBtn.setTypeface(null, android.graphics.Typeface.BOLD);
         GradientDrawable stopBg = new GradientDrawable();
-        stopBg.setColor(0x1FFFFFFF);
-        stopBg.setCornerRadius(dp(ctx, 28));
-        stopBg.setStroke(dp(ctx, 2), 0xE6FFFFFF);
+        stopBg.setColor(0x0DFFFFFF);
+        stopBg.setCornerRadius(dp(ctx, 20));
+        stopBg.setStroke(dp(ctx, 2), 0x99FFBEB4);
         stopBtn.setBackground(stopBg);
-        LinearLayout.LayoutParams ps = new LinearLayout.LayoutParams(
-                dp(ctx, 210), dp(ctx, 56));
-        ps.topMargin = dp(ctx, 22);
+        stopBtn.setStateListAnimator(null);
+        LinearLayout.LayoutParams ps = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 60));
+        ps.topMargin = dp(ctx, 18);
         root.addView(stopBtn, ps);
-
         stopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Vibrate.stop();
-                // 振动停了，屏幕也得停 —— 否则画面还在晃，
-                // 老人会以为关不掉，反而更慌。
-                shakeStop();
+                shakeStop();       // 振动停了，屏幕也别晃，不然老人以为关不掉
                 stopBtn.setText("已停止振动");
                 stopBtn.setEnabled(false);
                 stopBtn.setAlpha(0.5f);
@@ -488,31 +548,28 @@ public class Shield {
             }
         });
 
-        // ---------- 底部小字 ----------
-        // 【2026-11-07 改】原来写"🔒 屏幕关不掉，只能让振动停下来"。
-        // 这句有两个毛病：
-        //   1. "屏幕关不掉"是在告诉她手机被锁住了。老人第一反应是"手机坏了/中病毒了"，
-        //      慌起来就去抠电池、长按电源键——保护反而断了。
-        //   2. 它解释了机制，却没给行动。老人看完不知道下一步该干嘛。
-        // 改成：先说清"这是有人在保护你"（安心），再给唯一的行动（等女儿电话）。
-        TextView lock = new TextView(ctx);
-        lock.setText("别担心，这是「银盾」在保护您\n转账的事，等接完女儿的电话再说");
-        lock.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
-        lock.setTextColor(0xE6FFFFFF);
-        lock.setGravity(Gravity.CENTER);
-        lock.setLineSpacing(dp(ctx, 7), 1f);
-        LinearLayout.LayoutParams pl = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        pl.topMargin = dp(ctx, 26);
-        root.addView(lock, pl);
+        // ---------- 底部：告诉她这块红屏怎么消失（安心）----------
+        TextView foot = text(ctx, "此界面由银盾安全防护触发\n通话结束后将自动关闭", 16, 0xBFFFE1DC, false);
+        foot.setGravity(Gravity.CENTER);
+        foot.setLineSpacing(dp(ctx, 4), 1f);
+        LinearLayout.LayoutParams pf = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        pf.topMargin = dp(ctx, 18);
+        root.addView(foot, pf);
 
-        // 外面再套一层：红底铺满整屏不动，里面这层才是被抖的内容。
-        FrameLayout outer = new FrameLayout(ctx);
-        outer.setBackground(bg);
         outer.addView(root, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
         shakeTarget = root;
+
         return outer;
+    }
+
+    private static TextView text(Context ctx, String s, int sp, int color, boolean bold) {
+        TextView tv = new TextView(ctx);
+        tv.setText(s);
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, sp);
+        tv.setTextColor(color);
+        if (bold) tv.setTypeface(null, android.graphics.Typeface.BOLD);
+        return tv;
     }
 
     /** 改按钮文字（自动拨号后告诉老人"已经在拨了"） */

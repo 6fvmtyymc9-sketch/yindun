@@ -613,7 +613,7 @@ public class ReportActivity extends Activity {
         LinearLayout c3 = card();
         c3.setBackground(roundRect(0xFF0d1b2a, C_ACCENT, 1));
         c3.addView(label("现在怎么做", 11, C_ACCENT, true));
-        TextView adv = label(r.optString("advice", "先别转账，打电话确认一下"), 15, C_TXT, true);
+        TextView adv = label(r.optString("advice", "请暂缓转账，先与家人核实"), 15, C_TXT, true);
         adv.setPadding(0, dp(8), 0, 0);
         adv.setLineSpacing(dp(4), 1f);
         c3.addView(adv);

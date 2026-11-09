@@ -293,13 +293,13 @@ public class Notifier {
      */
     public static void pushInCallAnswer(Context ctx, boolean known, String number) {
         if (known) {
-            pushToBackend(ctx, "watch", "她说电话那头是熟人（已经聊了 5 分钟）",
-                    "通话满 5 分钟时又问了一次，她选了「认识」。\n"
-                            + "认识的人开口要钱，同样要先核实——建议您还是打过去问一句。");
+            pushToBackend(ctx, "watch", "妈妈确认通话对方为熟人（通话已超过 5 分钟）",
+                    "通话超过 5 分钟时再次确认，妈妈选择了「认识」。\n"
+                            + "熟人提出钱款要求同样需要核实，建议您致电确认。");
         } else {
-            pushToBackend(ctx, "warn", "妈妈说不认识电话那头的人",
-                    "陌生号码已经聊了 5 分钟，复问时她选了「不认识」。\n"
-                            + "这是最危险的一种，建议立刻打给她。");
+            pushToBackend(ctx, "warn", "妈妈表示不认识通话对方",
+                    "与陌生号码通话已超过 5 分钟，再次确认时妈妈选择了「不认识」。\n"
+                            + "此类情况风险较高，建议立即致电。");
         }
     }
 

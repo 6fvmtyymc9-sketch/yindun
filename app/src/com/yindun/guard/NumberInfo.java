@@ -153,4 +153,15 @@ public class NumberInfo {
         }
         return false;
     }
+
+    /** 给人看的号码：11 位手机号分成 3-4-4（139 0000 1111），其它原样 */
+    public static String pretty(String n) {
+        if (n == null) return "";
+        String d = n.replaceAll("[^0-9]", "");
+        if (d.startsWith("86") && d.length() == 13) d = d.substring(2);
+        if (d.length() == 11 && d.charAt(0) == '1') {
+            return d.substring(0, 3) + " " + d.substring(3, 7) + " " + d.substring(7);
+        }
+        return n;
+    }
 }

@@ -30,6 +30,7 @@ public class GuardService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Stats.init(this);
         Log.i(TAG, "守护服务启动");
 
         // 1. 挂上"守护中"那条常驻通知（这一步做了才算前台服务）

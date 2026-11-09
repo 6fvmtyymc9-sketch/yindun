@@ -10,6 +10,10 @@ build_*/
 local.properties
 .gradle/
 
+# ===== 构建时注入的私有配置 =====
+# build_child.sh 会把真实服务器地址写进这个文件，绝不能提交
+childapp/src/com/yindun/child/ServerGen.java
+
 # ===== IDE =====
 .idea/
 *.iml

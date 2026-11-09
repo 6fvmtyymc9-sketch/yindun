@@ -10,6 +10,16 @@ PLATFORM="$SDK/platforms/android-34/android.jar"
 JDK="D:/Java/bin"
 OUT="build_$(date +%m%d_%H%M%S)"
 
+# 【2026-11-09】签名密码不再写死在这里。
+# 源码要进版本库，密码跟着进去就等于把钥匙挂在门上；
+# 统一从 local.properties 的 yd.storePassword 读（该文件已被 .gitignore 排除）。
+read_prop() { grep -E "^$1=" "../local.properties" 2>/dev/null | head -1 | cut -d= -f2- | tr -d '\r'; }
+KS_PASS=$(read_prop yd.storePassword)
+if [ -z "$KS_PASS" ]; then
+  echo "✗ local.properties 里没有 yd.storePassword，无法签名"
+  exit 1
+fi
+
 mkdir -p $OUT/classes $OUT/gen $OUT/dex $OUT/resc
 
 echo "[1/6] 编译资源 ..."
@@ -50,8 +60,8 @@ PY
 echo "[6/6] 签名 ..."
 "$BT/apksigner.bat" sign \
   --ks ../yindun.jks \
-  --ks-pass pass:yindun123 \
-  --key-pass pass:yindun123 \
+  --ks-pass "pass:$KS_PASS" \
+  --key-pass "pass:$KS_PASS" \
   --out WechatDemo.apk \
   $OUT/app-aligned.apk
 

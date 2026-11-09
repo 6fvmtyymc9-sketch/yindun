@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  银盾 · 家人守护（子女端）
+  ============================================================================
+  这是子女手机上装的那个 App。它不产生任何判定，只做三件事：
+    1. 连云端 /api/stream，实时听老人手机上报的提醒
+    2. 按时间线把提醒摆出来，一眼看清「妈妈今天遇到了什么」
+    3. 有新提醒就响铃 + 振动 + 弹通知，哪怕 App 不在前台
+
+  包名故意用 com.yindun.child 而不是 com.yindun.guard：
+  两个 App 要装在同一台电脑的两台模拟器上，包名相同会互相覆盖。
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.yindun.child">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- 演示用的是 http://IP:8080，没有证书。真上线要换 https 并去掉这一行。 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
+    <application
+        android:label="银盾家人"
+        android:icon="@drawable/ic_child"
+        android:theme="@android:style/Theme.Material.NoActionBar"
+        android:usesCleartextTraffic="true"
+        android:allowBackup="false">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:configChanges="orientation|screenSize|keyboardHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 前台服务：App 退到后台、子女在刷别的 App 时，这条 SSE 连接还活着 -->
+        <service
+            android:name=".WatchService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+    </application>
+</manifest>

@@ -1044,8 +1044,15 @@ function setBadge(level){
 
 /* 把云端返回的 alert 画到两端屏幕上
    opt.silent —— 历史回填用：只画卡片，不放动画、不盖屏、不再响铃 */
+/* 云端推来的文字可能含短信原文、通话原话 —— 一律转义后再拼进 innerHTML，
+   否则骗子发一条带 <img onerror=...> 的短信就能在子女的浏览器里执行脚本 */
+function escH(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
 function renderAlert(a, opt){
   if(!a) return;
+  a = Object.assign({}, a, { title: escH(a.title), body: escH(a.body), why: escH(a.why) });
   opt = opt || {};
   const cls=LV_CLS[a.level]||'l1', ic=LV_IC[a.level]||'📞';
   const alertId = (a.alertId!=null) ? a.alertId : a.id;
@@ -1102,6 +1109,7 @@ function subscribe(){
 /* 把 AI 摘要贴到指定那张卡片里。已贴过就不重复 */
 function attachSummary(card, text){
   if(!card || !text) return;
+  text = escH(text);
   if(card.querySelector('.ai-sum')) return;
   const d=document.createElement('div');
   d.className='ai-sum';

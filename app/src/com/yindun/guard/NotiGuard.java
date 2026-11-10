@@ -152,6 +152,7 @@ public class NotiGuard extends NotificationListenerService {
                     // 微信里发消息的不是通讯录里的号码，也不是服务号 —— 一律按陌生人算。
                     // 注意这一步本身会 +15，但还不够 warn 的门槛，正常聊天不会被误报。
                     Judge.Result r = Judge.get(app).judgeSms(body, NumberInfo.STRANGER, false);
+                    Stats.wechat(app);
 
                     Log.i(TAG, "微信消息 from=" + from + " 分数=" + r.score
                             + " 阶段=" + r.stage + " 级别=" + r.level + " 原因=" + r.why);
@@ -168,7 +169,7 @@ public class NotiGuard extends NotificationListenerService {
                         @Override
                         public void run() {
                             TipBar.showBottom(NotiGuard.this,
-                                    r.level, "疑似诈骗信息", "请谨慎点击短信链接");
+                                    r.level, "疑似诈骗消息", "请勿点击消息中的链接或转账");
                         }
                     });
 

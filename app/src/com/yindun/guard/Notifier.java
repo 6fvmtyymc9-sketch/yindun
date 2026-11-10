@@ -185,10 +185,29 @@ public class Notifier {
         return num != null && num.trim().length() >= 5;
     }
 
+    /**
+     * 能不能自动拨号：绑定了紧急联系人才行。
+     * 演示号码只在模拟器上兜底 —— 真机上没绑号码就拨 13800138000，等于打给一个陌生人。
+     */
+    public static boolean canDial(Context ctx) {
+        return childBound(ctx) || Guard.isEmulator();
+    }
+
     public static void callChild(Context ctx) {
+        if (!canDial(ctx)) {
+            // 真机未设置紧急联系人：打开拨号盘，让老人自己拨，并提示去设置
+            Log.w(TAG, "未设置紧急联系人，不自动拨号，改为打开拨号盘");
+            try {
+                Intent d = new Intent(Intent.ACTION_DIAL);
+                d.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                ctx.startActivity(d);
+            } catch (Exception ignored) {
+            }
+            return;
+        }
         String num = dialTarget(ctx);
         if (!childBound(ctx)) {
-            Log.w(TAG, "还没绑定子女号码，改用演示号码拨出 " + num);
+            Log.w(TAG, "模拟器上未绑定子女号码，改用演示号码拨出 " + num);
         }
         try {
             Intent i = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + num));
@@ -274,7 +293,7 @@ public class Notifier {
     public static void pushKnown(Context ctx, String number, String title, String body) {
         try {
             org.json.JSONObject k = new org.json.JSONObject();
-            k.put("elderId", "demo");
+            k.put("elderId", Pair.id(ctx));
             k.put("number", number);
             postJson(ctx, "/api/known", k);
         } catch (Exception ignored) {
@@ -293,13 +312,13 @@ public class Notifier {
      */
     public static void pushInCallAnswer(Context ctx, boolean known, String number) {
         if (known) {
-            pushToBackend(ctx, "watch", "她说电话那头是熟人（已经聊了 5 分钟）",
-                    "通话满 5 分钟时又问了一次，她选了「认识」。\n"
-                            + "认识的人开口要钱，同样要先核实——建议您还是打过去问一句。");
+            pushToBackend(ctx, "watch", "妈妈确认通话对方为熟人（通话已超过 5 分钟）",
+                    "通话超过 5 分钟时再次确认，妈妈选择了「认识」。\n"
+                            + "熟人提出钱款要求同样需要核实，建议您致电确认。");
         } else {
-            pushToBackend(ctx, "warn", "妈妈说不认识电话那头的人",
-                    "陌生号码已经聊了 5 分钟，复问时她选了「不认识」。\n"
-                            + "这是最危险的一种，建议立刻打给她。");
+            pushToBackend(ctx, "warn", "妈妈表示不认识通话对方",
+                    "与陌生号码通话已超过 5 分钟，再次确认时妈妈选择了「不认识」。\n"
+                            + "此类情况风险较高，建议立即致电。");
         }
     }
 
@@ -314,6 +333,8 @@ public class Notifier {
                     String base = getBackend(ctx);
                     URL url = new URL(base + path);
                     conn = (HttpURLConnection) url.openConnection();
+            Pair.sign(ctx, conn);
+                    Pair.sign(ctx, conn);
                     conn.setRequestMethod("POST");
                     conn.setConnectTimeout(3000);
                     conn.setReadTimeout(3000);
@@ -355,6 +376,7 @@ public class Notifier {
             String base = getBackend(ctx);
             URL url = new URL(base + path);
             conn = (HttpURLConnection) url.openConnection();
+            Pair.sign(ctx, conn);
             conn.setRequestMethod("POST");
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(readTimeoutMs);

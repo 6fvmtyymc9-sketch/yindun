@@ -141,6 +141,7 @@ public class CallWatcher {
 
         } else if (state == TelephonyManager.CALL_STATE_RINGING) {
             // ---------- 响铃 ----------
+            Stats.call(ctx);
             Guard.get(ctx).onCallState(1, num, NumberInfo.classify(ctx, num));
 
         } else {

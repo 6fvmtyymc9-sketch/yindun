@@ -286,6 +286,62 @@ class Pangu {
   }
 
   /**
+   * 通话复盘：一通陌生电话的转写文字 → 是不是诈骗、走到第几步、证据原话。
+   *
+   * 转写来自单声道录音，分不清哪句是老人说的、哪句是对方说的，
+   * 所以提示词里专门交代：要靠语义判断说话人，证据只许摘原文。
+   *
+   * @param {string} transcript 转写全文
+   * @returns {Promise<null|{isFraud,stage,stageName,type,reason,advice,evidence}>}
+   */
+  async judgeCall(transcript) {
+    if (!this.enabled) return null;
+    const text = String(transcript || '').trim();
+    if (!text) return null;
+
+    const sys = [
+      '你是反电信诈骗研判器，服务中国老年用户及其子女。',
+      '输入是一通陌生号码来电的录音转写稿，单声道，没有标注说话人，需要你根据语义自己区分老人和对方。',
+      '按四阶段判断对方把骗局推进到了哪一步：',
+      '1=套近乎（冒充熟人/机构拉关系、套个人信息）；2=吓唬（涉嫌犯罪、账户冻结、医保社保异常等制造紧张）；',
+      '3=隔离（要求别告诉家人、别挂电话、换个安静地方、保密）；4=要钱（转账、安全账户、验证码、下载软件/共享屏幕、投资充值、买卡）。',
+      '0=不是诈骗（家常、正常客服回访、快递、推销但不涉及钱款操作）。',
+      '注意：这通电话已经挂断，advice 要说接下来该怎么做（比如别转账、别给验证码、打给子女），不要说“挂断”。',
+      '只输出一行 JSON，不要 markdown 代码块，不要任何解释。格式：',
+      '{"is_fraud":true,"stage":4,"type":"冒充公检法","reason":"不超过30字","advice":"给老人的一句行动建议，不超过20字","evidence":["必须是转写稿里的原话片段","最多4条，每条不超过30字"]}',
+    ].join('\n');
+
+    try {
+      const raw = await this.chat(
+        [{ role: 'system', content: sys }, { role: 'user', content: `通话转写稿：\n${text.slice(0, 6000)}` }],
+        { maxTokens: 500, temperature: 0.1 }
+      );
+      const m = String(raw).match(/\{[\s\S]*\}/);
+      if (!m) return null;
+      const o = JSON.parse(m[0]);
+      const stage = Math.max(0, Math.min(4, Number(o.stage) || 0));
+      const NAMES = { 0: '无风险', 1: '套近乎', 2: '吓唬', 3: '隔离', 4: '要钱' };
+      // 证据只保留真在原文里出现过的片段，防止模型编造"原话"
+      const evidence = (Array.isArray(o.evidence) ? o.evidence : [])
+        .map(s => String(s).trim().slice(0, 30))
+        .filter(s => s && text.includes(s))
+        .slice(0, 4);
+      return {
+        isFraud: !!o.is_fraud,
+        stage,
+        stageName: NAMES[stage],
+        type: String(o.type || '').slice(0, 20),
+        reason: String(o.reason || '').slice(0, 60),
+        advice: String(o.advice || '').slice(0, 40),
+        evidence,
+      };
+    } catch (e) {
+      console.warn('[Pangu] judgeCall 失败：', e.message);
+      return null;
+    }
+  }
+
+  /**
    * 事件摘要：把一串手机状态翻译成一句人话，贴在子女端卡片上。
    * 这是评委最容易记住的一处 —— 子女不用自己拼信息。
    */

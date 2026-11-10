@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 从 release/Yindun.apk 还原：红底白盾 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path android:fillColor="#C7000B" android:pathData="M0,0h108v108h-108z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M54,18 L82,29 L82,55 C82,73 70,86 54,90 C38,86 26,73 26,55 L26,29 Z" />
+    <path android:fillColor="#C7000B" android:pathData="M54,30 L72,37 L72,55 C72,67 64,76 54,79 C44,76 36,67 36,55 L36,37 Z" />
+    <path android:fillColor="#FFFFFF" android:pathData="M51,45 h6 v18 h-6 z" />
+</vector>

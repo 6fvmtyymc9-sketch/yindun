@@ -68,6 +68,17 @@
          注意：只有"灰区复审"和"生成子女摘要"会走网络，
          实时拦截（盖屏）永远是本地判断，断网照样能用。 -->
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- 读系统通话录音（挂断后复盘用，老人在首页手动开启才生效）。
+         我们自己不录音——安卓 9 起第三方 App 录不了通话。读的是系统电话
+         "自动通话录音"生成的文件（荣耀/华为/小米等国行机型自带）。
+         安卓 10 及以下用 READ_EXTERNAL_STORAGE，安卓 11+ 用"所有文件访问"。 -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!-- ==================== 应用本体 ==================== -->
@@ -76,6 +87,7 @@
         android:icon="@drawable/ic_launcher"
         android:allowBackup="false"
         android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
 

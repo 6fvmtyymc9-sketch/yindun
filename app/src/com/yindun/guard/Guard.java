@@ -62,13 +62,18 @@ public class Guard {
      * 所以真机自动按 1 倍（真实时间）跑，模拟器上仍然 20 倍。
      * 装机后要演示，可以在设置里手动改，优先级高于这里的默认值。
      */
-    private static final boolean IS_EMULATOR = isEmulator();
+    private static final boolean IS_EMULATOR = detectEmulator();
+
+    /** 是否跑在模拟器上（演示模式、演示号码只在模拟器上默认启用） */
+    public static boolean isEmulator() {
+        return IS_EMULATOR;
+    }
     private static final int DEFAULT_SPEED = IS_EMULATOR ? 20 : 1;
 
     private int demoSpeed = DEFAULT_SPEED;
 
     /** 跑在模拟器上吗（真机上这几条属性都不会出现） */
-    private static boolean isEmulator() {
+    private static boolean detectEmulator() {
         String fp = Build.FINGERPRINT == null ? "" : Build.FINGERPRINT;
         String hw = Build.HARDWARE == null ? "" : Build.HARDWARE;
         String model = Build.MODEL == null ? "" : Build.MODEL;
@@ -189,8 +194,8 @@ public class Guard {
                     rangAlerted = true;
                     Log.i(TAG, "陌生号码响铃 → 立刻通知子女 " + number);
                     Notifier.alertChild(ctx, "watch",
-                            "妈妈接到一个陌生号码来电",
-                            "号码不在通讯录里，电话还在响。她接了会继续盯着。");
+                            "妈妈收到陌生号码来电",
+                            "来电号码不在通讯录中，正在响铃。接听后银盾将持续监测。");
                 }
             }
         } else {
@@ -222,6 +227,8 @@ public class Guard {
                 long d = realDur();
                 Log.i(TAG, "通话结束 真实时长=" + d + "秒");
                 EventBus.push(event("call", "state", "idle", st.callWho, callNumber, d, null));
+                // 挂断后复盘：去找系统自带的通话录音，交给云端判断（只处理陌生号码、需老人开启）
+                CallRecord.onCallEnded(ctx, callNumber, st.callWho, callStartAt);
                 callStartAt = 0;
                 callNumber = null;
                 st.callWho = null;
@@ -264,6 +271,20 @@ public class Guard {
         Log.i(TAG, "前台出现银行类 App: " + label + " (" + pkg + ")");
         EventBus.push(event("app", "pkg", pkg, null, null, 0, label));
         evaluate("bank");
+
+        // 电话已经挂了，但刚才那通被录音复盘判成了诈骗 —— 骗子常让老人挂断后再去转账。
+        // 通话中打开银行由上面的组合判据处理，这里只管"挂断之后"这一段。
+        if (!st.inCall() && CallRecord.riskActive() && !Shield.showing()) {
+            String num = CallRecord.riskNumber();
+            Log.i(TAG, "挂断可疑电话后打开了银行 → 盖屏");
+            // 用 high 推子女（不在这里拨号）：盖屏 6 秒无人操作会自己拨，避免拨两次
+            Notifier.alertChild(ctx, "high", "妈妈在可疑通话结束后打开了手机银行",
+                    "刚才的陌生来电经通话复盘判定为疑似诈骗，目前已打开「" + label
+                            + "」。屏幕已拦截，请立即致电。");
+            Acquaint.dismiss();
+            TipBar.hide();
+            Shield.show(ctx, "暂停转账", num);
+        }
     }
 
     /** 前台离开了银行类 App */
@@ -331,7 +352,8 @@ public class Guard {
         // 【为什么只对 stranger 弹】
         // 通讯录里的号码（contact/service）不弹。老人存了谁的号，
         // 我们没理由怀疑；弹了反而让她觉得"手机上的人都不许信"。
-        if (!askedInCall && st.callDur >= 300
+        // 红屏已经盖着就不再问：两张卡叠在一起，老人反而不知道看哪个
+        if (!askedInCall && st.callDur >= 300 && !Shield.showing()
                 && callNumber != null && NumberInfo.STRANGER.equals(st.callWho)) {
             askedInCall = true;
             Log.i(TAG, "通话满 5 分钟 → 第二次询问（持续振动，点按钮才停）");
@@ -420,14 +442,14 @@ public class Guard {
 
     /** 贴在老人屏幕上的那句轻提醒（和推给子女的话不是一回事） */
     private String tipTitle(Judge.Result r) {
-        if ("high".equals(r.level)) return "刚装的软件能看你的屏幕";
+        if ("high".equals(r.level)) return "检测到可远程控制屏幕的应用";
         if ("warn".equals(r.level)) {
             // 【2026-11-07 改】原来写"已经聊了 X 分钟"。
             // 演示是 ×20 倍速，浮条写"聊了 8 分钟"时，底下通话界面的计时才 00:26，
             // 投到大屏上一眼就穿帮。浮条要紧的是"该挂断了"，不是精确分钟数。
-            return "这通电话聊太久了";
+            return "本次通话时间较长";
         }
-        return "这个号码不在通讯录里";
+        return "来电号码不在通讯录中";
     }
 
     private String tipSub(Judge.Result r) {
@@ -435,32 +457,32 @@ public class Guard {
         // 这两句在没有网/服务器没起的时候是假的——推送早就失败了。
         // 演示时投影到大屏上，评委一问"女儿收到什么了"就穿帮。
         // 所以统一改成"正在叫"：这是我们真的在做的事，不是宣称已经完成的事。
-        if ("high".equals(r.level)) return "它还能替您点屏幕 · 正在叫女儿打给您";
+        if ("high".equals(r.level)) return "请勿按对方要求操作 · 正在通知女儿";
         if ("warn".equals(r.level)) {
-            return "号码不认识 · 正在叫女儿打给您";
+            return "请勿透露个人信息 · 正在通知女儿";
         }
-        return "号码不认识 · 别急着说家里的事";
+        return "请勿透露家庭与财产信息";
     }
 
     private String buildTitle(Judge.Result r) {
-        if ("block".equals(r.level)) return "妈妈可能正在被骗";
-        if ("high".equals(r.level))  return "妈妈手机上被装了远程软件";
-        if ("warn".equals(r.level))  return "妈妈和一个陌生号码通话超时了";
+        if ("block".equals(r.level)) return "妈妈正在进行高风险操作";
+        if ("high".equals(r.level))  return "妈妈的手机安装了远程控制应用";
+        if ("warn".equals(r.level))  return "妈妈与陌生号码通话时间过长";
         return "妈妈接到一个陌生号码来电";
     }
 
     private String buildBody(Judge.Result r) {
         String extra = (r.why == null || r.why.length() == 0) ? "" : "（" + r.why + "）";
         if ("block".equals(r.level)) {
-            return "她在通话中做了会动钱的操作" + extra + "。屏幕已盖住，现在打她一定能接到。";
+            return "通话期间出现涉及资金的操作" + extra + "。屏幕已拦截，建议立即致电。";
         }
         if ("high".equals(r.level)) {
-            return "装了非应用商店的软件，还给它开了无障碍权限" + extra + "。请立刻打电话。";
+            return "检测到非应用商店安装的应用，并已开启无障碍权限" + extra + "。请立即致电确认。";
         }
         if ("warn".equals(r.level)) {
-            return "陌生号码，" + durPhrase() + "，建议打个电话问问。";
+            return "陌生号码，" + durPhrase() + "，建议致电了解情况。";
         }
-        return "陌生号码来电，" + durPhrase() + "。只是提醒，不用做什么。";
+        return "陌生号码来电，" + durPhrase() + "。仅作提醒，暂无需处理。";
     }
 
     /**
@@ -476,9 +498,9 @@ public class Guard {
     }
 
     private String buildShieldTitle(Judge.Result r) {
-        if (r.why != null && r.why.contains("验证码")) return "验证码已被遮住，念不出来";
-        if (r.why != null && r.why.contains("银行"))   return "先别转钱";
-        return "先停一下";
+        if (r.why != null && r.why.contains("验证码")) return "验证码已隐藏";
+        if (r.why != null && r.why.contains("银行"))   return "暂停转账";
+        return "请暂停操作";
     }
 
     // ==========================================================

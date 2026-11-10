@@ -20,3 +20,9 @@ edge-profile/
 
 # 单文件发行版是 build/bundle.js 的生成物，随时可重建，不进仓库
 /dist/
+
+# 定期演练的运行时记录（服务自动生成）
+.drill-last
+
+# 配对数据（老人端密钥哈希、子女端凭证哈希）
+/data/

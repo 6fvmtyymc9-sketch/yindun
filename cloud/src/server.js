@@ -26,6 +26,8 @@ const { Pangu } = require('./Pangu');
 const { Guard } = require('./Guard');
 const { Drill } = require('./Drill');
 const { RateLimit, clientIp } = require('./RateLimit');
+const { registerCallAudio } = require('./CallAudio');
+const { registerPairs } = require('./Pairs');
 
 const PORT = Number(process.env.PORT || 8080);
 
@@ -159,7 +161,14 @@ const guard = new Guard({
 // ============================================================================
 
 const app = express();
-app.use(express.json({ limit: '12mb' }));   // 要收 base64 截图，默认 256kb 不够
+// 身份识别（老人端密钥 / 子女端配对凭证）+ 配对接口：必须最先注册
+const pairing = registerPairs(app, express);
+
+// 通话录音复盘：自带 40mb 的 body 上限，必须注册在全局 express.json 之前
+registerCallAudio(app, { getJudge: () => judge, pangu, db, pushTo });
+
+app.use(express.json({ limit: '12mb' }));
+app.use(pairing.guard);   // body 里的 elderId 不能冒充别的老人   // 要收 base64 截图，默认 256kb 不够
 app.use(express.static(path.join(ROOT, 'public'), { etag: false }));
 
 // ============================================================================

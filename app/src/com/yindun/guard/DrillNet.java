@@ -40,10 +40,14 @@ class DrillNet {
     /** 已部署的云端地址。装完即可用，不必再手填 */
     static final String DEFAULT_BASE = "http://123.249.25.139:8080";
 
-    /** 没填过就走默认的云端地址；用户填过则用用户填的 */
+    /**
+     * 演练 / 上报页单独填过地址就用它；没填过就跟预警上报用同一个地址（Notifier.getBackend）。
+     * 原来没填时直接走 DEFAULT_BASE，结果预警推到了本机云端，演练却去连公网那台，
+     * 演示时演练页一直显示"连不上云端"。
+     */
     static String base(Context c) {
         String v = sp(c).getString(K_BASE, "");
-        if (v == null || v.trim().length() < 8) return DEFAULT_BASE;
+        if (v == null || v.trim().length() < 8) return Notifier.getBackend(c);
         return v.trim();
     }
 
@@ -78,6 +82,7 @@ class DrillNet {
             if (b.endsWith("/")) b = b.substring(0, b.length() - 1);
             URL u = new URL(b + path);
             conn = (HttpURLConnection) u.openConnection();
+            Pair.sign(c, conn);   // 老人端身份（演示模式不带）
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(timeout);
             conn.setRequestProperty("Accept", "application/json");

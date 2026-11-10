@@ -77,6 +77,46 @@ public final class Hub {
 
     public synchronized List<Alert> snapshot() { return new ArrayList<>(list); }
 
+    /** 配对过就带上凭证；云端据此只返回这一位老人的数据 */
+    private static void sign(HttpURLConnection c) {
+        String t = Conf.get().childToken();
+        if (t.length() > 0) c.setRequestProperty("X-Yd-Child", t);
+    }
+
+    /**
+     * 用 6 位配对码换凭证（在后台线程调用）。
+     * @return null 表示成功；否则是给用户看的失败原因
+     */
+    public static String pair(String code) {
+        HttpURLConnection c = null;
+        try {
+            c = (HttpURLConnection) new URL(Conf.get().server() + "/api/pair/claim").openConnection();
+            c.setConnectTimeout(8000);
+            c.setReadTimeout(10000);
+            c.setRequestMethod("POST");
+            c.setDoOutput(true);
+            c.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+            JSONObject o = new JSONObject();
+            o.put("code", code.trim());
+            c.getOutputStream().write(o.toString().getBytes("UTF-8"));
+            int st = c.getResponseCode();
+            java.io.InputStream in = st < 400 ? c.getInputStream() : c.getErrorStream();
+            StringBuilder sb = new StringBuilder();
+            BufferedReader r = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+            String line;
+            while ((line = r.readLine()) != null) sb.append(line);
+            JSONObject res = new JSONObject(sb.toString());
+            if (!res.optBoolean("ok")) return res.optString("msg", "配对失败，请重试");
+            Conf.get().elderId(res.optString("elderId"));
+            Conf.get().childToken(res.optString("token"));
+            return null;
+        } catch (Exception e) {
+            return "无法连接服务器，请检查网络或服务器地址";
+        } finally {
+            if (c != null) c.disconnect();
+        }
+    }
+
     /** 手动重连：用户点界面上的「重试」，或者改完服务器地址 */
     public void restart() {
         final Context c = app;
@@ -139,6 +179,7 @@ public final class Hub {
         c.setConnectTimeout(8000);
         c.setReadTimeout(READ_TIMEOUT_MS);
         c.setRequestProperty("Accept", "text/event-stream");
+        sign(c);
         c.setRequestProperty("Cache-Control", "no-cache");
         c.connect();
 
@@ -221,6 +262,7 @@ public final class Hub {
             HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
             c.setConnectTimeout(8000);
             c.setReadTimeout(12000);
+            sign(c);
             c.connect();
             if (c.getResponseCode() != 200) { c.disconnect(); return; }
 

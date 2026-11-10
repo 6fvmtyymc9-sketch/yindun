@@ -329,56 +329,106 @@ public class Acquaint {
     // ==========================================================
 
     private static View buildRing(final Context ctx, final String number) {
+        // 外层只留左右边距，卡片悬浮在来电界面中部，不挡下方的接听 / 挂断键
+        LinearLayout wrap = new LinearLayout(ctx);
+        wrap.setOrientation(LinearLayout.VERTICAL);
+        wrap.setPadding(dp(ctx, 12), 0, dp(ctx, 12), 0);
+
         LinearLayout root = new LinearLayout(ctx);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.TOP);
-        GradientDrawable bg = new GradientDrawable(
-                GradientDrawable.Orientation.BOTTOM_TOP,
-                new int[]{0xFF070B16, 0xFF101A2C});
-        // 贴顶显示，所以只有下方两个角是圆的
-        bg.setCornerRadii(new float[]{
-                0, 0, 0, 0,
-                dp(ctx, 26), dp(ctx, 26), dp(ctx, 26), dp(ctx, 26)});
-        bg.setStroke(dp(ctx, 2), 0xFF22D3EE);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(0xFFFFFFFF);
+        bg.setCornerRadius(dp(ctx, 28));
         root.setBackground(bg);
-        root.setPadding(dp(ctx, 22), dp(ctx, 20), dp(ctx, 22), dp(ctx, 22));
+        root.setElevation(dp(ctx, 12));
+        root.setPadding(dp(ctx, 20), dp(ctx, 18), dp(ctx, 20), dp(ctx, 18));
+        wrap.addView(root, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        // ---------- 顶栏：银盾 · 来电识别 ｜ 陌生号码 ----------
+        LinearLayout head = new LinearLayout(ctx);
+        head.setOrientation(LinearLayout.HORIZONTAL);
+        head.setGravity(Gravity.CENTER_VERTICAL);
+        View mark = AlarmView.mark(ctx);
+        head.addView(mark, new LinearLayout.LayoutParams(dp(ctx, 28), dp(ctx, 28)));
+        TextView brand = new TextView(ctx);
+        brand.setText("银盾 · 来电识别");
+        brand.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        brand.setTextColor(0xFF475467);
+        brand.setTypeface(null, android.graphics.Typeface.BOLD);
+        brand.setIncludeFontPadding(false);
+        LinearLayout.LayoutParams pb = new LinearLayout.LayoutParams(0, dp(ctx, 28), 1f);
+        pb.leftMargin = dp(ctx, 8);
+        brand.setGravity(Gravity.CENTER_VERTICAL);
+        head.addView(brand, pb);
+        TextView pill = new TextView(ctx);
+        pill.setText("非通讯录号码");
+        pill.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        pill.setTextColor(0xFFB54708);
+        pill.setTypeface(null, android.graphics.Typeface.BOLD);
+        pill.setGravity(Gravity.CENTER);
+        pill.setIncludeFontPadding(false);
+        GradientDrawable pbg = new GradientDrawable();
+        pbg.setColor(0xFFFEF0C7);
+        pbg.setCornerRadius(dp(ctx, 12));
+        pill.setBackground(pbg);
+        pill.setPadding(dp(ctx, 10), 0, dp(ctx, 10), 0);
+        head.addView(pill, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, dp(ctx, 26)));
+        root.addView(head, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 28)));
 
         // 【为什么每个 TextView 都写死高度】
-        // 悬浮窗（TYPE_APPLICATION_OVERLAY）的高度给的是 WRAP_CONTENT，
-        // 里面的 TextView 再 WRAP_CONTENT，在部分机型/模拟器上会被量成 0 高：
-        // 结果就是"卡片在、按钮在、一个字都看不见"。
-        TextView t1 = addText(ctx, root, "这个号码不在通讯录里", 17, 0xFFE6EDF6, dp(ctx, 26));
+        // 悬浮窗高度是 WRAP_CONTENT，里面的 TextView 再 WRAP_CONTENT，
+        // 在部分机型/模拟器上会被量成 0 高（"卡片在、一个字都看不见"）。
+        TextView t1 = addText(ctx, root, "来电号码不在\n您的通讯录中", 26, 0xFF0B1220, dp(ctx, 76));
         t1.setTypeface(null, android.graphics.Typeface.BOLD);
+        t1.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        t1.setLineSpacing(dp(ctx, 4), 1f);
+        ((LinearLayout.LayoutParams) t1.getLayoutParams()).topMargin = dp(ctx, 12);
 
-        TextView t2 = addText(ctx, root, number == null ? "" : number, 20, 0xFF9BA9BF, dp(ctx, 30));
+        // ---------- 号码信息块：号码 + 被举报次数（云端异步查） ----------
+        LinearLayout info = new LinearLayout(ctx);
+        info.setOrientation(LinearLayout.VERTICAL);
+        GradientDrawable ibg = new GradientDrawable();
+        ibg.setColor(0xFFF3F5F8);
+        ibg.setCornerRadius(dp(ctx, 16));
+        info.setBackground(ibg);
+        info.setPadding(dp(ctx, 16), dp(ctx, 10), dp(ctx, 16), dp(ctx, 10));
+        TextView num = addText(ctx, info, number == null || number.length() == 0 ? "号码未知" : NumberInfo.pretty(number), 20, 0xFF0B1220, dp(ctx, 28));
+        num.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        num.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+        num.setLetterSpacing(0.04f);
+        final TextView rep = addText(ctx, info, "正在查询该号码的举报记录…", 16, 0xFF667085, dp(ctx, 24));
+        rep.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+        LinearLayout.LayoutParams pi = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        pi.topMargin = dp(ctx, 10);
+        root.addView(info, pi);
+        lookupReports(ctx, number, rep);
 
-        TextView t3 = addText(ctx, root, "是你认识的人吗？", 19, 0xFF22D3EE, dp(ctx, 30));
-        t3.setTypeface(null, android.graphics.Typeface.BOLD);
+        TextView q = addText(ctx, root, "您是否认识来电人？", 21, 0xFF0B1220, dp(ctx, 34));
+        q.setTypeface(null, android.graphics.Typeface.BOLD);
+        ((LinearLayout.LayoutParams) q.getLayoutParams()).topMargin = dp(ctx, 14);
 
+        // ---------- 两个一模一样的按钮：不暗示哪个答案"更对" ----------
         LinearLayout row = new LinearLayout(ctx);
         row.setOrientation(LinearLayout.HORIZONTAL);
-        row.setGravity(Gravity.CENTER);
-        LinearLayout.LayoutParams pr = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT, dp(ctx, 50));
-        pr.topMargin = dp(ctx, 18);
+        LinearLayout.LayoutParams pr = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 64));
+        pr.topMargin = dp(ctx, 12);
         root.addView(row, pr);
-
         Button yes = mkRingBtn(ctx, "认识", true);
         Button no = mkRingBtn(ctx, "不认识", false);
-        row.addView(yes);
-        row.addView(new View(ctx), new LinearLayout.LayoutParams(dp(ctx, 14), dp(ctx, 50)));
-        row.addView(no);
+        row.addView(yes, new LinearLayout.LayoutParams(0, dp(ctx, 64), 1f));
+        row.addView(new View(ctx), new LinearLayout.LayoutParams(dp(ctx, 12), dp(ctx, 64)));
+        row.addView(no, new LinearLayout.LayoutParams(0, dp(ctx, 64), 1f));
 
         yes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "老人点了「认识」（响铃）：" + number);
                 hide(true);
-                toast(ctx, "已记下。防护不会撤销，聊久了还会再问您");
+                toast(ctx, "已记录。防护将持续，通话较长时会再次确认");
                 // 【2026-11-07 改】不再写 15 分钟免打扰，只把这件事告诉子女。
-                Notifier.pushKnown(ctx, number, "她说这个陌生号码是熟人",
-                        "响铃时她点了「是她认识的」。防护没有撤销，通话满 5 分钟还会再问一次。\n"
-                                + "仍建议您自己确认一下这个号码。");
+                Notifier.pushKnown(ctx, number, "老人表示认识来电人",
+                        "响铃时老人选择了「认识」。防护未撤销，通话超过 5 分钟将再次确认。\n"
+                                + "建议您核实该号码。");
             }
         });
 
@@ -387,17 +437,50 @@ public class Acquaint {
             public void onClick(View v) {
                 Log.i(TAG, "老人点了「不认识」（响铃）：" + number);
                 hide(true);
-                toast(ctx, "好的，这通电话我们盯着");
+                toast(ctx, "已记录，银盾将持续关注本次通话");
             }
         });
 
-        TextView foot = addText(ctx,
-                root,
-                "选「认识」也不会撤掉防护\n通话久了还会再问您一次",
-                15, 0xFF9AA7BC, dp(ctx, 56));
-        foot.setLineSpacing(dp(ctx, 4), 1f);
+        TextView foot = addText(ctx, root, "无论选择哪项，防护都将持续\n通话时间较长时会再次确认", 15, 0xFF667085, dp(ctx, 46));
+        foot.setLineSpacing(dp(ctx, 3), 1f);
+        ((LinearLayout.LayoutParams) foot.getLayoutParams()).topMargin = dp(ctx, 10);
 
-        return root;
+        return wrap;
+    }
+
+    /** 去云端查这个号码被几个人举报过（号码信誉库），查到了改那一行字；查不到就说没有 */
+    private static void lookupReports(final Context ctx, final String number, final TextView tv) {
+        if (number == null || number.length() < 5) {
+            tv.setText("来电号码已隐藏，请谨慎接听");
+            return;
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int n = -1;
+                try {
+                    org.json.JSONObject o = DrillNet.get(ctx, "/api/report/stats?number="
+                            + java.net.URLEncoder.encode(number, "UTF-8"));
+                    if (o != null && o.optBoolean("ok")) n = o.optInt("count", 0);
+                } catch (Exception ignored) {
+                }
+                final int cnt = n;
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (cnt > 0) {
+                            tv.setText("已有 " + cnt + " 位用户举报该号码");
+                            tv.setTextColor(0xFFB42318);
+                            tv.setTypeface(null, android.graphics.Typeface.BOLD);
+                        } else if (cnt == 0) {
+                            tv.setText("暂无该号码的举报记录");
+                        } else {
+                            tv.setText("暂时无法查询，请按陌生来电谨慎处理");
+                        }
+                    }
+                });
+            }
+        }).start();
     }
 
     // ==========================================================
@@ -443,7 +526,7 @@ public class Acquaint {
                 LinearLayout.LayoutParams.WRAP_CONTENT, dp(ctx, 24)));
 
         TextView vibHint = new TextView(ctx);
-        vibHint.setText("📳 手机在振 · 点按钮才停");
+        vibHint.setText("振动提醒中 · 请选择后停止");
         vibHint.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
         vibHint.setTextColor(0xFFD92D20);
         vibHint.setIncludeFontPadding(false);
@@ -458,7 +541,7 @@ public class Acquaint {
 
         // ---------- 标题 ----------
         TextView title = new TextView(ctx);
-        title.setText("这通电话已经聊了 5 分钟");
+        title.setText("本次通话已超过 5 分钟");
         title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 23);
         title.setTextColor(0xFF101828);
         title.setTypeface(null, android.graphics.Typeface.BOLD);
@@ -471,7 +554,7 @@ public class Acquaint {
 
         // ---------- 问题 ----------
         TextView ask = new TextView(ctx);
-        ask.setText("电话那头，是您认识的人吗？");
+        ask.setText("您是否认识对方？");
         ask.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
         ask.setTextColor(0xFF101828);
         ask.setIncludeFontPadding(false);
@@ -518,7 +601,7 @@ public class Acquaint {
         warn.addView(bar, new LinearLayout.LayoutParams(dp(ctx, 3), dp(ctx, 58)));
 
         TextView warnText = new TextView(ctx);
-        warnText.setText("不管是否认识，请警惕手机交易金钱");
+        warnText.setText("无论是否认识，涉及转账汇款请先与家人核实");
         // 【2026-11-08 实测调小】设计稿 19sp 在真机上正好多出一个字：
         // "…交易金" / "钱" 折成两行，第二行只有孤零零一个字，比不写还难看。
         // 17sp 一行放得下，视觉上仍是全屏第二大的字。
@@ -584,27 +667,20 @@ public class Acquaint {
         return v;
     }
 
-    /** 响铃卡的按钮：认识是主按钮（青色实心），不认识是描边 */
-    private static Button mkRingBtn(Context ctx, String text, boolean primary) {
+    /** 响铃卡的按钮：两个长得一模一样（深蓝描边），不诱导老人点「认识」 */
+    private static Button mkRingBtn(Context ctx, String text, boolean unused) {
         Button b = new Button(ctx);
         b.setText(text);
-        b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17);
+        b.setAllCaps(false);
+        b.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
         b.setTypeface(null, android.graphics.Typeface.BOLD);
-        b.setLayoutParams(new LinearLayout.LayoutParams(dp(ctx, 118), dp(ctx, 50)));
-        if (primary) {
-            b.setTextColor(0xFF04121C);
-            GradientDrawable d = new GradientDrawable();
-            d.setColor(0xFF22D3EE);
-            d.setCornerRadius(dp(ctx, 10));
-            b.setBackground(d);
-        } else {
-            b.setTextColor(0xFFE6EDF6);
-            GradientDrawable d = new GradientDrawable();
-            d.setColor(0x00000000);
-            d.setCornerRadius(dp(ctx, 10));
-            d.setStroke(dp(ctx, 1), 0xFF33415A);
-            b.setBackground(d);
-        }
+        b.setTextColor(0xFF0A1A33);
+        b.setStateListAnimator(null);
+        GradientDrawable d = new GradientDrawable();
+        d.setColor(0xFFFFFFFF);
+        d.setCornerRadius(dp(ctx, 18));
+        d.setStroke(dp(ctx, 2), 0xFF0A1A33);
+        b.setBackground(d);
         return b;
     }
 

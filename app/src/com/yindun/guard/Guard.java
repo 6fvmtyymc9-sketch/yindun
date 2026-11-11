@@ -211,6 +211,18 @@ public class Guard {
             // 被当成"已经报过"，子女端再也收不到那一通的通知。
             rangAlerted = false;
 
+            // 【2026-11-11 修·码道审查第 3 条】告诉 CallSession 这一通已经挂了。
+            //
+            // 为什么必须说这一声：CallSession 里"号码为空就复用上一场"这条规则，
+            // 是为了接住"响铃时号码还没送到、接通才送"这种同一通电话的连续回调。
+            // 但挂断之后再来一通、号码又恰好没拿到时，这条规则会把它错误地
+            // 接到上一场的时间轴上 —— 子女端就会看到"同一个事件里有两个号码"。
+            // 说了这一声，CallSession 就知道"已经挂了，号码不明就别硬接"。
+            //
+            // 注意它只改状态、不删 id：挂断后老人去开手机银行那一步，
+            // 仍然要归到这一场里（骗子的标准话术就是"您先挂了去转账"）。
+            CallSession.end();
+
             // 骗子的电话挂了 —— 这一场风险窗口就结束了。
             // 盖屏不能一直架在那儿：老人会以为手机坏了，甚至以为被锁死不敢用。
             // 留 3 秒（够她看清"刚才被拦了一次"），然后自动撤屏。
@@ -396,9 +408,26 @@ public class Guard {
      * 一排长得一模一样的"风险升级"。按触发源分开标，子女端才能一眼看出
      * "她是去转账了"，而不是"她又聊了五分钟"。
      */
+    /**
+     * 触发源 → 时间轴事件类型。
+     *
+     * 【为什么要一张显式的表】（2026-11-11 码道审查第 5 条）
+     *   trigger 是个裸字符串，调用处写错了（比如 "bnak"）编译器不会管，
+     *   运行时会静默落进默认分支 —— 子女端的时间轴上，那条本该是"打开银行被拦"
+     *   的事会被画成"组合判据升级"，图标和颜色全错，而且没有任何报错可查。
+     *   所以把"已知走通用判定"的几个显式列出来，没登记过的打一条警告。
+     */
+    private static final String[] JUDGE_TRIGGERS = { "call", "install", "a11y", "tick" };
+
     private static String kindOf(String trigger) {
         if ("bank".equals(trigger)) return Notifier.K_BANK;
         if ("code".equals(trigger)) return Notifier.K_CODE;
+        for (int i = 0; i < JUDGE_TRIGGERS.length; i++) {
+            if (JUDGE_TRIGGERS[i].equals(trigger)) return Notifier.K_JUDGE;
+        }
+        // 没登记过的触发源：仍然按通用判定上报，但要留痕。
+        // 新增触发源时如果忘了登记，这条日志就是唯一的线索。
+        Log.w(TAG, "kindOf：未登记的触发源「" + trigger + "」，暂按通用判定上报");
         return Notifier.K_JUDGE;
     }
 

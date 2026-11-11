@@ -671,15 +671,37 @@ app.get('/api/reports', async (req, res) => {
  * 老人端在通话开始时生成 callId，这一场里的每条上报都带上它，
  * 这里按 id 正序返回，子女端就能按发生顺序画一条时间轴。
  *
- * 为什么不传 elderId 也能查：演示环境和子女端默认都是 demo；
- * 传了就更精确。限定 elderId 是为了防止拿别人的 callId 翻到别家的事。
+ * 【谁能查】不再相信调用方传的 elderId。带凭证的只能查自己配对的那位，
+ * 匿名的只能查 demo。细节见下面实现处的注释。
  */
 app.get('/api/call/events', async (req, res) => {
   const callId = String(req.query.callId || '').trim();
-  const elderId = String(req.query.elderId || 'demo').trim();
   if (!/^[A-Za-z0-9_-]{4,40}$/.test(callId)) {
     return res.status(400).json({ ok: false, msg: 'callId 格式不对' });
   }
+
+  // 【2026-11-11 修·码道审查第 1 条：越权】
+  //
+  // 原来这里直接用 req.query.elderId，默认 'demo'。配合上 callId 的
+  // "36 进制时间戳 + 3 位随机"格式，攻击成本低到不合理：
+  // 时间戳可以猜（误差几分钟内），随机段只有 46656 种，
+  // 填个任意 elderId 就能把别人家一整通电话的过程拉走 ——
+  // 里面有什么？几时接到陌生来电、聊了多久、收了几条验证码、
+  // 挂断后打开过哪个银行、子女的称呼和号码。
+  //
+  // 现在分两种情况：
+  //   · 已认证（带 X-Yd-Child / X-Yd-Elder）：中间件已经把
+  //     req.query.elderId 强制覆写成"凭证所属的那位老人"，
+  //     调用方在 URL 里写什么都不作数。子女端 App 走的就是这条。
+  //   · 匿名：只认 demo。demo 是本机演示数据，公开可读没有风险；
+  //     真实家庭的数据匿名一律查不到（返回空列表，不返回 403，
+  //     免得这个接口变成"某个 callId 是否存在"的探针）。
+  //
+  // 为什么不干脆要求必须认证：子女端网页（public/index.html）是纯静态页，
+  // 演示现场不配对也要能点开时间轴，堵死了会让答辩时那段最直观的演示做不出来。
+  const authed = req.yd && (req.yd.role === 'child' || req.yd.role === 'elder');
+  const elderId = authed ? req.yd.elderId : 'demo';
+
   const list = await db.listEvent(elderId, callId).catch(() => []);
   // 这一场里最高的级别，子女端用来决定时间轴的主题色
   const ORDER = { watch: 1, warn: 2, high: 3, block: 4 };

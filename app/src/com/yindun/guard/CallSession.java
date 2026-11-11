@@ -1,5 +1,7 @@
 package com.yindun.guard;
 
+import java.security.SecureRandom;
+
 /**
  * ============================================================================
  *  CallSession —— 一通电话的身份
@@ -31,9 +33,19 @@ class CallSession {
     /** 一次事件的有效归组窗口：30 分钟。见类注释"为什么通话结束后不清空" */
     private static final long TTL_MS = 30L * 60 * 1000;
 
+    /** 这一场目前处在哪个阶段 */
+    private static final int RINGING = 0;
+    private static final int OFFHOOK = 1;
+    /** 已挂断。id 还留着（挂断后去转账才是骗子真正要的那一步），但不再接受空号码续接 */
+    private static final int IDLE = 2;
+
     private static volatile String id = null;
     private static volatile String number = null;
     private static volatile long beganAt = 0;
+    private static volatile int phase = IDLE;
+
+    /** 生成 callId 的随机源。见 newId() 注释：Math.random 的序列可预测 */
+    private static final SecureRandom RND = new SecureRandom();
 
     /**
      * 开一场新通话。由 Guard.startNewCall() 调用。
@@ -46,6 +58,7 @@ class CallSession {
         // 空串一律存成 null：系统有时送 ""，直接存进去会让"号码是否相同"永远判不中
         CallSession.number = blank(number) ? null : number;
         beganAt = System.currentTimeMillis();
+        phase = RINGING;
         return id;
     }
 
@@ -56,7 +69,7 @@ class CallSession {
      * 调用方（Notifier）拿到 null 只是"这次不带 id"，
      * 下一次 begin() 会整个换掉。不需要额外的清理线程。
      */
-    static String id() {
+    static synchronized String id() {
         String v = id;
         if (v == null) return null;
         if (System.currentTimeMillis() - beganAt > TTL_MS) return null;
@@ -82,13 +95,54 @@ class CallSession {
         // 【空串和 null 一样要当"不知道号码"】实测系统送来的不是 null 而是 ""：
         //   日志里出现过 `来号=13900009999 存号=` —— 存的是空串，
         //   于是 equals 判不中，一次通话被劈成两个 id。必须用 blank 判，不能只判 null。
-        boolean reuse = id() != null && (blank(number) || blank(CallSession.number)
+        boolean blankNum = blank(number);
+
+        // 【2026-11-11 修·码道审查第 3 条】挂断之后又来了一通、但号码没拿到：
+        //   空号码的意思是"不知道是谁"，不是"和谁都一样"。
+        //   原来这种情况会沿用上一场（30 分钟内一直有效），下一通电话的内容就被
+        //   混进上一场的时间轴里 —— 子女端会看到"一次事件里出现了两个号码"，
+        //   这与类注释里"下一通电话来了要换新 id"的设计直接矛盾。
+        //   已挂断又拿不到号码，没有任何办法证明是同一通，只能开新场。
+        if (phase == IDLE && blankNum) return beginOffhook(number);
+
+        boolean reuse = id() != null && (blankNum || blank(CallSession.number)
                 || number.equals(CallSession.number));
         if (reuse) {
-            if (!blank(number)) CallSession.number = number;   // 补上后到的号码
+            if (!blankNum) CallSession.number = number;   // 补上后到的号码
+            phase = OFFHOOK;
             return id;
         }
-        return begin(number);
+        return beginOffhook(number);
+    }
+
+    /**
+     * 开一场新通话并立刻标记为"已接通"。
+     *
+     * 能走到这里的分两种情况：接通时号码和上一场对不上（换了一通电话），
+     * 或者已挂断后又拿不到号码。两种都是"新的一场"，但已经不是在响铃阶段了。
+     */
+    private static String beginOffhook(String number) {
+        String nid = begin(number);
+        phase = OFFHOOK;
+        return nid;
+    }
+
+    /**
+     * 通话挂断。由 Guard 的挂断分支调用。
+     *
+     * 【只改状态，不清 id】这是整个类最要紧的一条：骗子最爱说"您先挂了，
+     * 去银行 App 里操作"，真正转账那一步发生在挂断之后。清掉 id 就等于
+     * 把时间轴最关键的最后一格切掉了。
+     * 所以挂断只是"不再接受空号码续接"，id 本身仍然对银行、短信等上报生效，
+     * 直到 30 分钟有效期自然到期。
+     */
+    static synchronized void end() {
+        if (id == null) return;
+        phase = IDLE;
+        // 这条日志是给排查用的：事后若发现"两条不相干的事进了同一条时间轴"，
+        // 先看这里有没有"已挂断"——有的话说明问题出在别处，没有就是这个方法没被调到。
+        android.util.Log.i("YinDun", "会话=" + id + " 已挂断，id 保留 "
+                + (TTL_MS / 60000) + " 分钟（挂断后去转账才是骗子真正要的那一步）");
     }
 
     private static boolean blank(String s) {
@@ -108,15 +162,24 @@ class CallSession {
     }
 
     /**
-     * 生成 id：c + 36 进制时间戳 + 3 位 36 进制随机。
+     * 生成 id：c + 36 进制时间戳 + 6 位 36 进制随机。
      *
      * 为什么不用 UUID：埋点日志里一行几十个字符读不动。
-     * 36 进制时间戳 8~9 位 + 随机 3 位，同一台手机、同一毫秒也不会撞，
-     * 而且排序即时间顺序，排查时一眼能看出先后。
+     * 36 进制时间戳 8~9 位 + 随机 6 位，同一台手机、同一毫秒也不会撞，
+     * 而且前缀排序即时间顺序，排查时一眼能看出先后。
+     *
+     * 【随机段为什么是 6 位】（2026-11-11 码道审查第 1 条）
+     *   原来是 3 位：36^3 = 46656 种。而时间戳部分是可猜的 —— 攻击者只要大致
+     *   知道事情发生在哪几分钟，枚举几万次就能撞上别人家的 callId。
+     *   6 位是 36^6 ≈ 21.7 亿种，撞不动了。
+     *   用 SecureRandom 而不是 Math.random：后者是线性同余，序列可预测。
+     *   但这只是"加固"，不是防线本身 —— 真正的兜底在服务端：
+     *   callId 必须连同凭证一起用，且只能查到凭证所属的那一位老人。
      */
     private static String newId() {
-        String r = Integer.toString((int) (Math.random() * 46656), 36);
-        while (r.length() < 3) r = "0" + r;    // 补齐三位，长度固定才好肉眼比对
+        long v = RND.nextLong() & Long.MAX_VALUE;          // 取非负，避免负数带出 "-"
+        String r = Long.toString(v % 2176782336L, 36);     // 2176782336 = 36^6
+        while (r.length() < 6) r = "0" + r;                // 补齐六位，长度固定才好比对
         return "c" + Long.toString(System.currentTimeMillis(), 36) + r;
     }
 }

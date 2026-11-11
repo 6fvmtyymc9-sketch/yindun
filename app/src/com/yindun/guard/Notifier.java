@@ -209,8 +209,10 @@ public class Notifier {
         return childBound(ctx) || Guard.isEmulator();
     }
 
-    public static void callChild(Context ctx) {
-        if (!canDial(ctx)) {
+    /** 上一次"已自动呼叫家人"上报的时刻。见 callChild 里的 60 秒去重 */
+    private static volatile long lastCallChildAt = 0;
+
+    public static void callChild(Context ctx) {        if (!canDial(ctx)) {
             // 真机未设置紧急联系人：打开拨号盘，让老人自己拨，并提示去设置
             Log.w(TAG, "未设置紧急联系人，不自动拨号，改为打开拨号盘");
             try {
@@ -233,8 +235,17 @@ public class Notifier {
             // 时间轴的最后一步。必须在 startActivity 之后发——
             // 拨号被系统拒了（没权限/没号码）就走不到这里，
             // 子女端也就不会看到一句"已自动呼叫女儿"的假消息。
-            pushToBackend(ctx, K_CALL_CHILD, "high", "银盾已自动呼叫家人",
-                    (childBound(ctx) ? "已自动拨出" : "未绑定家人号码，演示号码拨出") + "：" + num);
+            //
+            // 【60 秒内只记一次】拨号有两条路：判定为阻断级时立即拨，
+            // 盖屏 6 秒无人操作时 Shield 还会兜底再拨一次。真的拨两次是有意的
+            // （第一次可能被系统拦掉），但时间轴上连着两条"已自动呼叫家人"
+            // 会让人以为打了好几通。记录去重，拨号不动。
+            long now = System.currentTimeMillis();
+            if (now - lastCallChildAt > 60000) {
+                lastCallChildAt = now;
+                pushToBackend(ctx, K_CALL_CHILD, "high", "银盾已自动呼叫家人",
+                        (childBound(ctx) ? "已自动拨出" : "未绑定家人号码，演示号码拨出") + "：" + num);
+            }
         } catch (Exception e) {
             Log.e(TAG, "自动拨号失败（缺 CALL_PHONE 权限？）", e);
         }

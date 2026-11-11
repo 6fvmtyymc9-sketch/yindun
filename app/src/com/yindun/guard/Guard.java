@@ -388,6 +388,20 @@ public class Guard {
      *
      * @param trigger 谁触发的（只用于日志，方便排查）
      */
+    /**
+     * 这次判级是被什么触发的 —— 决定子女端时间轴上的图标。
+     *
+     * 【为什么要区分】"妈妈正在进行高风险操作"这句话，可能是"打开了手机银行"、
+     * 也可能是"通话中收到验证码"或"聊得太久"。文本上看不出来，时间轴上就只剩
+     * 一排长得一模一样的"风险升级"。按触发源分开标，子女端才能一眼看出
+     * "她是去转账了"，而不是"她又聊了五分钟"。
+     */
+    private static String kindOf(String trigger) {
+        if ("bank".equals(trigger)) return Notifier.K_BANK;
+        if ("code".equals(trigger)) return Notifier.K_CODE;
+        return Notifier.K_JUDGE;
+    }
+
     private void evaluate(String trigger) {
         Judge.Result r = Judge.get(ctx).judgeState(st);
         int rank = rank(r.level);
@@ -410,7 +424,7 @@ public class Guard {
         // 阻断级走"打电话"，其余走通知。因为推送能不能看到取决于子女在不在看手机，
         // 铃声只取决于手机有没有电。
         if ("block".equals(r.level)) {
-            Notifier.alertChild(ctx, Notifier.K_JUDGE, r.level, buildTitle(r), buildBody(r));
+            Notifier.alertChild(ctx, kindOf(trigger), r.level, buildTitle(r), buildBody(r));
 
             Log.i(TAG, "阻断判定，屏幕" + (screenOff
                     ? "是黑的（她贴着耳朵，看不见盖屏）→ 全靠振动叫"
@@ -430,7 +444,7 @@ public class Guard {
             // 到了就贴在子女端那张卡上。没到也不影响什么。
             aiExplain(r);
         } else if ("high".equals(r.level) || "warn".equals(r.level)) {
-            Notifier.alertChild(ctx, Notifier.K_JUDGE, r.level, buildTitle(r), buildBody(r));
+            Notifier.alertChild(ctx, kindOf(trigger), r.level, buildTitle(r), buildBody(r));
             // 通话超时这类恰好发生在"正贴着耳朵听"的时候，屏幕多半是黑的
             Vibrate.remind(ctx, screenOff);
             // 【2026-11-05 补】老人端也得看得见。
@@ -449,7 +463,7 @@ public class Guard {
             // （否则同一通电话，子女端会收到两张标题一模一样的卡）
             // 但老人端的浮条照弹：她接通后需要知道"这个号码不认识"。
             if (!rangAlerted) {
-                Notifier.alertChild(ctx, Notifier.K_JUDGE, r.level, buildTitle(r), buildBody(r));
+                Notifier.alertChild(ctx, kindOf(trigger), r.level, buildTitle(r), buildBody(r));
             }
             if (!Acquaint.inCallShowing()) {
                 TipBar.show(ctx, r.level, tipTitle(r), tipSub(r));

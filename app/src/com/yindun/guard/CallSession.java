@@ -43,7 +43,8 @@ class CallSession {
      */
     static synchronized String begin(String number) {
         id = newId();
-        CallSession.number = number;
+        // 空串一律存成 null：系统有时送 ""，直接存进去会让"号码是否相同"永远判不中
+        CallSession.number = blank(number) ? null : number;
         beganAt = System.currentTimeMillis();
         return id;
     }
@@ -69,12 +70,29 @@ class CallSession {
      * 时间轴的第一格是"陌生号码正在响铃"，那一格在界面上显示时还没有 callId
      * 可带——如果接通时换一个 id，响铃那条就永远孤立在时间轴外面，
      * 子女端看到的第一个事件是"接通"，恰好丢掉了最重要的"是陌生号打来的"。
+     *
+     * 【号码为空时也必须复用】
+     * 系统在接通那一瞬间常常还没把号码送过来（实测日志里出现过
+     * `通话开始 who=stranger num=` 后面是空的）。原来这里要求"号码相同才复用"，
+     * 于是空号码直接新建一场，等真实号码到了再新建一场——一次通话被劈成两个 id，
+     * 时间轴断成两截。号码拿不到时无法判断是不是另一通电话，只能沿用当前的；
+     * 号码后到就补上。
      */
     static synchronized String reuseOrBegin(String number) {
-        if (id() != null && number != null && number.equals(CallSession.number)) {
+        // 【空串和 null 一样要当"不知道号码"】实测系统送来的不是 null 而是 ""：
+        //   日志里出现过 `来号=13900009999 存号=` —— 存的是空串，
+        //   于是 equals 判不中，一次通话被劈成两个 id。必须用 blank 判，不能只判 null。
+        boolean reuse = id() != null && (blank(number) || blank(CallSession.number)
+                || number.equals(CallSession.number));
+        if (reuse) {
+            if (!blank(number)) CallSession.number = number;   // 补上后到的号码
             return id;
         }
         return begin(number);
+    }
+
+    private static boolean blank(String s) {
+        return s == null || s.trim().length() == 0;
     }
 
     /** 当前这场通话的对方号码，同样受有效期约束 */

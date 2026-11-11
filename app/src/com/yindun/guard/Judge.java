@@ -79,7 +79,14 @@ public class Judge {
     private static final String[] BANK_WORDS = {
             "icbc", "ccb", "abc", "boc", "cmb", "bocom", "psbc", "ceb", "cib",
             "spdb", "cmbc", "citic", "pingan", "unionpay", "bank", "pay",
-            "alipay", "tenpay", "wallet", "手机银行", "银行", "支付", "钱包"
+            "alipay", "tenpay", "wallet", "手机银行", "银行", "支付", "钱包",
+            // 【2026-11-11 补】下面这些是"名字里不带 bank/银行、但一样能转钱"的：
+            // 互联网银行（微众/网商）、信用卡独立 App（"招行信用卡"这种）、
+            // 京东金融这类钱包，以及村镇银行/农信社（应用名常写"XX农商""XX农信"）。
+            // 少一个词，老人在那家银行里转钱时就没人拦——漏判的代价是钱，
+            // 多判的代价只是多看一眼。
+            "webank", "mybank", "jrapp", "信用卡", "农商", "农信", "信用社",
+            "直销银行", "数字人民币", "云闪付"
     };
 
     // ==========================================================

@@ -48,6 +48,11 @@ class Asr {
       domain: env.HW_IAM_DOMAIN || '',
       // 通话录音一般是 8k 采样。属性名以华为云控制台文档为准，可用环境变量改
       property: env.SIS_PROPERTY || 'chinese_8k_common',
+      // 接入点。留空则用公网 sis-ext.{region}.myhuaweicloud.com。
+      // 部署在华为云 ECS 上时要注意：VPC 内 DNS 会把 sis-ext 解析到 100.125.x.x
+      // 的 APIG 内网地址，SIS 后端判定"内网客户端"并以 SIS.0035 拒绝。
+      // 处置办法见 docs/SIS接入记录.md §部署到 ECS。
+      endpoint: env.SIS_ENDPOINT || '',
       tokenAt: 0,
     };
     this.openai = {
@@ -186,7 +191,8 @@ class Asr {
 
   async viaSis(audio, name) {
     const s = this.sis;
-    const url = `https://sis-ext.${s.region}.myhuaweicloud.com/v1/${s.projectId}/asr/short-audio`;
+    const host = s.endpoint || `sis-ext.${s.region}.myhuaweicloud.com`;
+    const url = `https://${host}/v1/${s.projectId}/asr/short-audio`;
     // 先序列化成字符串再发：AK/SK 签名必须签在"真正发出去的那串字节"上，
     // 若签名时用对象、发送时再 JSON.stringify，两次结果可能不同导致 401。
     const payload = JSON.stringify({
@@ -207,7 +213,14 @@ class Asr {
       body: payload,
     }, this.timeout);
     const txt = await resp.text().catch(() => '');
-    if (!resp.ok) throw httpError('SIS 识别', resp.status, txt);
+    if (!resp.ok) {
+      // SIS.0035 是新部署到 ECS 时最容易踩的坑，报错原文看不出怎么修，这里补一句
+      const hint = txt.includes('SIS.0035')
+        ? '（ECS 内网访问 SIS：VPC 内 DNS 把 ' + host + ' 解析成了 100.125.x.x 的 APIG 内网地址，'
+          + 'SIS 后端判定为"内网客户端"而拒绝。处置办法见 docs/SIS接入记录.md 的「部署到 ECS」）'
+        : '';
+      throw httpError('SIS 识别', resp.status, txt + hint);
+    }
     const data = JSON.parse(txt);
     const text = data && data.result && data.result.text;
     if (!text) throw new Error('SIS 没有返回识别结果：' + txt.slice(0, 200));

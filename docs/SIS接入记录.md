@@ -14,8 +14,9 @@
 | 接口 | `POST https://sis-ext.cn-north-4.myhuaweicloud.com/v1/{project_id}/asr/short-audio` |
 | 鉴权 | **AK/SK 签名（SDK-HMAC-SHA256）**，自己实现，`cloud/src/HwSign.js` |
 | 参数 | `property = chinese_8k_common`（电话 8k 场景） |
-| 实测延迟 | 42 秒录音 1.4~2.2 秒；128 秒切 3 段共产 7.0 秒 |
+| 实测延迟 | 42.8 秒录音转写 **2.2 秒**；85.5 秒切 2 段，整次复盘 5.7 秒（含大模型判定） |
 | 实测质量 | 与人工写的演示转写稿基本逐字吻合 |
+| **部署注意** | 放华为云 ECS 上必须改 hosts，否则报 `SIS.0035` —— 见第四节 |
 
 ---
 
@@ -123,11 +124,73 @@ if (urlpath[urlpath.length - 1] !== '/') {
 
 ---
 
-## 四、怎么验证（换环境时照着跑）
+## 四、部署到 ECS 时多一个坑：SIS.0035
+
+本地跑通 ≠ 线上跑通。2026-11-11 把代码部署到 ECS（`123.249.25.139`）后，
+第一次调 `/api/callaudio` 直接失败：
+
+```
+SIS 识别失败：HTTP 401 {"error_code":"SIS.0035",
+  "error_msg":"inner network client should use VPC endpoint to call SIS."}
+```
+
+### 原因：同一个域名在内网解析到了内网地址
+
+| 在哪解析 | `sis-ext.cn-north-4.myhuaweicloud.com` |
+|---|---|
+| 本机（公网 DNS） | `119.3.251.87` —— APIC 公网接入点 |
+| ECS（VPC 内 DNS） | `100.125.9.88` / `100.125.9.99` —— APIG **内网**接入点 |
+
+SIS 后端拿到请求会看来源网络。来自内网就必须走 VPC 端点
+（`sis.cn-north-4.myhuaweicloud.com`，得先在 VPC 控制台创建终端节点才会解析）。
+没建终端节点、却用内网地址打公网域名，它一眼认出来，直接 SIS.0035 顶回来。
+
+> 这个错**排在签名之后**，别再去折腾密钥：同一个 SK 在本机能过。佐证是
+> `curl` 不带任何 token 打同一个地址返回 `APIG.0301 x-auth-token not found`，
+> 说明网络通、网关在正常工作，问题出在服务端的来源判定。
+
+### 处置：把域名指回公网接入点
+
+ECS 上给 `/etc/hosts` 加一行，让 `sis-ext` 走公网 APIC：
+
+```bash
+echo '119.3.251.87 sis-ext.cn-north-4.myhuaweicloud.com' >> /etc/hosts
+node -e "require('dns').lookup('sis-ext.cn-north-4.myhuaweicloud.com',(e,a)=>console.log(a))"
+# 必须打印 119.3.251.87，再重启
+systemctl restart yindun
+```
+
+走 EIP 出公网，源 IP 是公网地址，SIS 按公网客户端处理，不再报 0035。
+
+**为什么不用 VPC 端点**：终端节点要单独开通、按小时计费，还要在 VPC 控制台
+建一次，为一个演示项目不值当。走公网只有两个代价：
+1. `119.3.251.87` 是区域 APIC 的公网地址，理论上可能变——变了的表现是
+   连接被拒或证书错，改 hosts 一行即可；
+2. 录音要出 EIP，占公网带宽（单段 100~300 KB，可忽略）。
+
+代码里预留了 `SIS_ENDPOINT` 环境变量，将来真要切 VPC 端点直接改配置，不用动代码。
+
+### 部署后实测（全部走真实 SIS，`basis=ai`）
+
+| 录音 | 时长 | 切段 | 耗时 | 结果 |
+|---|---|---|---|---|
+| `136...160530` | 20.4s | 1 段 | 2.9s | S0 / none / 正常物业通知 |
+| `137...141020` | 29.0s | 1 段 | 2.8s | S4 / block / 冒充熟人 |
+| `139...103015` | 42.8s | 1 段 | 3.9s | S4 / block / 冒充公检法 |
+| 上一条拼两遍 | 85.5s | **2 段** | 5.7s | S4 / block / 冒充公检法 |
+
+拼接那段是为了验切段：仓库里最长的演示录音只有 42.8 秒，够不到 55 秒阈值。
+拼的时候必须去掉第二段的 ID3 头（`splitMp3` 遇到非帧字节就 `break`，中间的 ID3 会截断）。
+脚本 `cloud/test/ecs-callaudio.js` 就是干这个的，换环境时直接复用。
+
+---
+
+## 五、怎么验证（换环境时照着跑）
 
 ```bash
 cd cloud
-node test/sis-ping.js        # 配置自检 + 三段真实录音识别对比
+node test/sis-ping.js                          # 配置自检 + 三段真实录音识别对比
+node test/ecs-callaudio.js <录音.mp3> <地址>    # 打线上接口，看 source/parts/stage
 ```
 
 脚本会分两层报错，能直接定位是"认证没过"还是"业务参数不对"：
@@ -138,7 +201,7 @@ node test/sis-ping.js        # 配置自检 + 三段真实录音识别对比
 
 ---
 
-## 五、成本
+## 六、成本
 
 一句话识别按次计费（按音频时长），本项用量极小：一段 2 分钟通话 = 3 次调用。
 账户余额 ¥4.73 时实测几十次调用无明显消耗，够演示和答辩用。

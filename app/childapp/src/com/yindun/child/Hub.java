@@ -40,6 +40,15 @@ public final class Hub {
     private static final int READ_TIMEOUT_MS = 45000;
     private static final int RECONNECT_MS = 3000;
 
+    /**
+     * 上一次配对的结果，给界面用。
+     * pair() 的返回值只表达"成功还是失败原因"，但界面还需要知道
+     * "这是新老人还是原有老人换了凭证"——新增时应该问一句怎么称呼。
+     * 不想为这个把 pair() 的返回值改成对象，就放在这两个字段里。
+     */
+    public static String lastPairElderId = "";
+    public static boolean lastPairIsNew = false;
+
     private static final Hub I = new Hub();
 
     public static Hub get() { return I; }
@@ -59,6 +68,11 @@ public final class Hub {
     private volatile String state = "connecting";
     private volatile boolean started = false;
     private Context app;
+
+    /** 当前这条 SSE 连接，restart 时用来掐断 */
+    private volatile HttpURLConnection live;
+    /** 连接代次：每次切换/重连 +1，老线程看到不一致就自己退出 */
+    private volatile int gen = 0;
 
     // ==========================================================================
     //  对外
@@ -107,8 +121,16 @@ public final class Hub {
             while ((line = r.readLine()) != null) sb.append(line);
             JSONObject res = new JSONObject(sb.toString());
             if (!res.optBoolean("ok")) return res.optString("msg", "配对失败，请重试");
-            Conf.get().elderId(res.optString("elderId"));
-            Conf.get().childToken(res.optString("token"));
+            String eid = res.optString("elderId", "");
+            String tk = res.optString("token", "");
+            if (eid.length() == 0 || tk.length() == 0) return "配对信息不完整，请重试";
+            // 【2026-11-11 改：追加而不是覆盖】
+            //   原来这里是 elderId(...) + childToken(...) 两个覆盖写，配第二位老人
+            //   会把第一位整个顶掉，而子女端偏偏是最常要同时看两位老人的地方。
+            //   云端每次 claim 都发一个新 token 且只对应一位老人，所以只要把
+            //   多个 token 一起存住就够了，云端不用动。
+            lastPairElderId = eid;
+            lastPairIsNew = Conf.get().upsert(eid, tk);
             return null;
         } catch (Exception e) {
             return "无法连接服务器，请检查网络或服务器地址";
@@ -117,11 +139,24 @@ public final class Hub {
         }
     }
 
-    /** 手动重连：用户点界面上的「重试」，或者改完服务器地址 */
+    /**
+     * 重连：换了一位老人、用户点「重试」、或者改完服务器地址。
+     *
+     * 【2026-11-11 修：重连必须掐断老连接】
+     *   原来这里只是把 started 置 false 再起一条新线程。
+     *   但老线程这时正阻塞在 readLine() 上，没人关它 —— 它永远不会自己退出，
+     *   于是同时存在两条 SSE：一条订阅上一位老人、一条订阅这一位。
+     *   切到妈妈之后，另一位老人的预警照样会跳进妈妈的列表里。
+     *   加了代次 generation：restart 时 gen++，老线程看到代次变了就退出；
+     *   并且主动 disconnect 老连接，把它从 readLine 里叫醒。
+     */
     public void restart() {
         final Context c = app;
         if (c == null) return;
+        gen++;
         started = false;
+        closeLive();
+        setState("connecting");
         new Thread(new Runnable() {
             @Override public void run() {
                 try { Thread.sleep(200); } catch (InterruptedException ignored) { }
@@ -141,36 +176,49 @@ public final class Hub {
             if (started) return;
             started = true;
         }
+        final int my = gen;
         Thread t = new Thread(new Runnable() {
-            @Override public void run() { loop(); }
+            @Override public void run() { loop(my); }
         }, "yindun-sse");
         t.setDaemon(true);
         t.start();
+    }
+
+    /** 掐断当前这条 SSE，让阻塞在 readLine 上的线程立刻抛出来 */
+    private void closeLive() {
+        HttpURLConnection c = live;
+        live = null;
+        if (c != null) {
+            try { c.disconnect(); } catch (Exception ignored) { }
+        }
     }
 
     // ==========================================================================
     //  连接循环
     // ==========================================================================
 
-    private void loop() {
-        while (true) {
+    private void loop(int my) {
+        while (my == gen) {           // 代次变了说明用户切换/重连了，这条线程该退场
             try {
                 setState("connecting");
                 // 每次（重）连都先拉一次历史：
                 //   App 刚打开时列表是空的，只靠增量推送会漏掉之前发生的事。
                 //   已经有的按 id 去重，不会重复。
                 loadHistory();
-                stream();                 // 正常情况下这里不会返回
+                if (my != gen) break;
+                stream(my);               // 正常情况下这里不会返回
             } catch (Throwable e) {
                 Log.w(TAG, "连接中断：" + e);
             }
+            if (my != gen) break;
             setState("down");
             sleep(RECONNECT_MS);
         }
+        Log.i(TAG, "订阅线程退出（代次 " + my + " → " + gen + "）");
     }
 
     /** 订阅实时流，阻塞读取，直到连接断掉 */
-    private void stream() throws Exception {
+    private void stream(int my) throws Exception {
         String url = Conf.get().server() + "/api/stream?elderId="
                 + URLEncoder.encode(Conf.get().elderId(), "UTF-8");
         Log.i(TAG, "订阅 " + url);
@@ -182,6 +230,7 @@ public final class Hub {
         sign(c);
         c.setRequestProperty("Cache-Control", "no-cache");
         c.connect();
+        live = c;                    // 记下来，restart 时要把这条掐掉
 
         int code = c.getResponseCode();
         if (code != 200) {
@@ -195,6 +244,7 @@ public final class Hub {
         StringBuilder buf = new StringBuilder();
         String line;
         while ((line = r.readLine()) != null) {
+            if (my != gen) break;                     // 已经切走了，这条连接上的数据一律不算
             if (line.length() == 0) {                 // 空行 = 一帧结束
                 if (buf.length() > 0) {
                     onFrame(buf.toString());
@@ -208,6 +258,7 @@ public final class Hub {
         }
         r.close();
         c.disconnect();
+        if (live == c) live = null;
     }
 
     private void onFrame(String json) {

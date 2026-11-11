@@ -152,13 +152,26 @@ public class MainActivity extends Activity implements Hub.Listener {
         av.addView(dotState, dlp);
         head.addView(av, new LinearLayout.LayoutParams(dp(44), dp(44)));
         LinearLayout who = vbox();
+        LinearLayout nameRow = hbox();
+        nameRow.setGravity(Gravity.CENTER_VERTICAL);
         tvName = text("妈妈", 19, INK, true);
+        nameRow.addView(tvName);
+        TextView caret = text("▾", 13, INK3, true);
+        caret.setPadding(dp(6), dp(5), 0, 0);
+        nameRow.addView(caret);
+        who.addView(nameRow);
         tvState = text("连接中", 13, INK3, false);
-        who.addView(tvName);
         who.addView(tvState);
         LinearLayout.LayoutParams wlp = new LinearLayout.LayoutParams(0, -2, 1f);
         wlp.leftMargin = dp(12);
         head.addView(who, wlp);
+        // 点称呼 = 换一位老人看。子女端常常要同时照看爸妈两边，
+        // 所以这个入口必须一眼能找到，不能藏在设置里。
+        View.OnClickListener pick = new View.OnClickListener() {
+            @Override public void onClick(View v) { showElders(); }
+        };
+        who.setOnClickListener(pick);
+        av.setOnClickListener(pick);
         TextView set = text("设置", 15, INK, true);
         set.setGravity(Gravity.CENTER);
         GradientDrawable sb = round(CARD, 22);
@@ -834,7 +847,7 @@ public class MainActivity extends Activity implements Hub.Listener {
         final EditText edName = field(box, "老人称呼（如：妈妈、爸爸）", Conf.get().elderName(), InputType.TYPE_CLASS_TEXT);
         final EditText edPhone = field(box, "老人手机号码（用于一键致电）", Conf.get().elderPhone(), InputType.TYPE_CLASS_PHONE);
         final EditText edServer = field(box, "服务器地址（如 http://1.2.3.4:8080）", Conf.get().server(), InputType.TYPE_TEXT_VARIATION_URI);
-        TextView pairState = text(Conf.get().paired() ? "配对状态：已配对（编号 " + Conf.get().elderId() + "）" : "配对状态：未配对（当前显示演示数据）", 13, Conf.get().paired() ? OK : AMB, true);
+        TextView pairState = text(pairedText(), 13, Conf.get().paired() ? OK : AMB, true);
         LinearLayout.LayoutParams psl = new LinearLayout.LayoutParams(-2, -2);
         psl.topMargin = dp(14);
         box.addView(pairState, psl);
@@ -908,9 +921,18 @@ public class MainActivity extends Activity implements Hub.Listener {
                                 runOnUiThread(new Runnable() {
                                     @Override public void run() {
                                         if (err == null) {
-                                            Toast.makeText(MainActivity.this, "配对成功，正在同步预警记录", Toast.LENGTH_SHORT).show();
+                                            final boolean isNew = Hub.lastPairIsNew;
+                                            final String eid = Hub.lastPairElderId;
                                             Hub.get().restart();
                                             refreshName();
+                                            if (isNew) {
+                                                // 新绑定的老人云端只回 elderId 和 token，不知道该怎么称呼，
+                                                // 所以立刻问一句 —— 界面上到处是称呼，先问清楚比事后去设置里改体面。
+                                                Toast.makeText(MainActivity.this, "配对成功，正在同步预警记录", Toast.LENGTH_SHORT).show();
+                                                askName(eid, Conf.get().elderName());
+                                            } else {
+                                                Toast.makeText(MainActivity.this, "已更新「" + Conf.get().elderName() + "」的配对凭证", Toast.LENGTH_SHORT).show();
+                                            }
                                         } else {
                                             Toast.makeText(MainActivity.this, err, Toast.LENGTH_LONG).show();
                                         }
@@ -922,6 +944,173 @@ public class MainActivity extends Activity implements Hub.Listener {
                 })
                 .setNegativeButton("取消", null)
                 .show();
+    }
+
+    // ==========================================================================
+    //  老人切换（一个子女照看两位老人）
+    // ==========================================================================
+
+    /** 面板：看哪位老人。点一行切过去，长按可以改名或解除绑定 */
+    private void showElders() {
+        final List<Conf.Elder> all = Conf.get().elders();
+        final String cur = Conf.get().elderId();
+
+        LinearLayout box = vbox();
+        box.setPadding(dp(12), dp(4), dp(12), dp(4));
+
+        final AlertDialog[] holder = new AlertDialog[1];
+
+        for (int i = 0; i < all.size(); i++) {
+            final Conf.Elder e = all.get(i);
+            final boolean on = e.id.equals(cur);
+
+            LinearLayout row = hbox();
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            row.setPadding(dp(10), dp(11), dp(10), dp(11));
+            if (on) row.setBackground(round(SKY_BG, 14));
+
+            TextView av = text(first(e.name), 16, Color.WHITE, true);
+            av.setGravity(Gravity.CENTER);
+            av.setBackground(round(on ? NAVY : 0xFF98A2B3, 20));
+            LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(dp(40), dp(40));
+            row.addView(av, alp);
+
+            LinearLayout mid = vbox();
+            mid.addView(text(e.name, 16, INK, on));
+            String sub = e.isDemo()
+                    ? "演示数据 · 还没和老人手机配对"
+                    : "编号 " + e.shortId() + (e.token.length() > 0 ? " · 已配对" : " · 未配对");
+            TextView sv = text(sub, 12, INK3, false);
+            LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(-2, -2);
+            slp.topMargin = dp(2);
+            mid.addView(sv, slp);
+            LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(0, -2, 1f);
+            mlp.leftMargin = dp(12);
+            row.addView(mid, mlp);
+            row.addView(text(on ? "当前" : "切换", 13, on ? SKY : INK3, true));
+
+            if (!on) {
+                row.setOnClickListener(new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        if (holder[0] != null) holder[0].dismiss();
+                        switchElder(e.id);
+                    }
+                });
+            }
+            row.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override public boolean onLongClick(View v) {
+                    if (holder[0] != null) holder[0].dismiss();
+                    manageElder(e.id, e.name, all.size() > 1);
+                    return true;
+                }
+            });
+
+            LinearLayout.LayoutParams rlp = new LinearLayout.LayoutParams(-1, -2);
+            if (i > 0) rlp.topMargin = dp(4);
+            box.addView(row, rlp);
+        }
+
+        TextView tip = text("点一下就换成看这位老人；长按可以改称呼或解除绑定。", 12, INK3, false);
+        tip.setLineSpacing(dp(2), 1f);
+        LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(-1, -2);
+        tlp.topMargin = dp(12);
+        tlp.leftMargin = dp(10);
+        box.addView(tip, tlp);
+
+        holder[0] = new AlertDialog.Builder(this)
+                .setTitle("看哪位老人")
+                .setView(box)
+                .setPositiveButton("添加另一位", new android.content.DialogInterface.OnClickListener() {
+                    @Override public void onClick(android.content.DialogInterface d, int w) { showPair(); }
+                })
+                .setNegativeButton("关闭", null)
+                .show();
+    }
+
+    /** 切过去：换凭证 → 断开重连 → 清空列表 → 重新拉这一位的预警 */
+    private void switchElder(String id) {
+        if (!Conf.get().switchTo(id)) return;
+        last = new ArrayList<>();
+        renderList(last);
+        refreshName();
+        Hub.get().restart();
+        Toast.makeText(this, "已切换到 " + Conf.get().elderName(), Toast.LENGTH_SHORT).show();
+    }
+
+    /** 长按管理：改名 / 解除绑定 */
+    private void manageElder(final String id, final String name, final boolean canRemove) {
+        final List<String> items = new ArrayList<>();
+        items.add("改称呼");
+        if (canRemove) items.add("解除绑定");
+        new AlertDialog.Builder(this)
+                .setTitle(name)
+                .setItems(items.toArray(new String[0]), new android.content.DialogInterface.OnClickListener() {
+                    @Override public void onClick(android.content.DialogInterface d, int which) {
+                        if (which == 0) askName(id, name);
+                        else confirmRemove(id, name);
+                    }
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    private void askName(final String id, String old) {
+        final EditText ed = new EditText(this);
+        ed.setText(old);
+        ed.setSingleLine(true);
+        ed.setInputType(InputType.TYPE_CLASS_TEXT);
+        ed.setSelection(ed.getText().length());
+        new AlertDialog.Builder(this)
+                .setTitle("怎么称呼这位老人")
+                .setView(ed)
+                .setPositiveButton("保存", new android.content.DialogInterface.OnClickListener() {
+                    @Override public void onClick(android.content.DialogInterface d, int w) {
+                        String v = ed.getText().toString().trim();
+                        if (v.length() == 0) return;
+                        Conf.get().name(id, v);
+                        refreshName();
+                        Toast.makeText(MainActivity.this, "以后就显示「" + v + "」", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    private void confirmRemove(final String id, final String name) {
+        new AlertDialog.Builder(this)
+                .setTitle("解除与「" + name + "」的绑定？")
+                .setMessage("解除后这位老人的预警就看不到了。想再看需要重新拿配对码。")
+                .setPositiveButton("解除绑定", new android.content.DialogInterface.OnClickListener() {
+                    @Override public void onClick(android.content.DialogInterface d, int w) {
+                        boolean wasCurrent = id.equals(Conf.get().elderId());
+                        if (!Conf.get().remove(id)) {
+                            Toast.makeText(MainActivity.this, "至少要留一位老人", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        if (wasCurrent) {
+                            last = new ArrayList<>();
+                            renderList(last);
+                            refreshName();
+                            Hub.get().restart();
+                        }
+                        Toast.makeText(MainActivity.this, "已解除「" + name + "」", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    private static String first(String s) {
+        return s == null || s.length() == 0 ? "老" : s.substring(0, 1);
+    }
+
+    /** 设置里那行配对状态：说清"正在看谁、一共绑了几位" */
+    private String pairedText() {
+        if (!Conf.get().paired()) return "正在看：演示数据（还没和老人手机配对）";
+        String s = "正在看：" + Conf.get().elderName() + "（编号 " + Conf.get().elderId() + "）";
+        int n = Conf.get().elderCount();
+        if (n > 1) s += "\n共绑定 " + n + " 位老人，点顶部称呼可切换";
+        return s;
     }
 
     private EditText field(LinearLayout box, String label, String value, int type) {

@@ -139,7 +139,7 @@ public class SmsReceiver extends BroadcastReceiver {
         // 分数够高就当成一条预警推给子女端
         if (!"none".equals(r.level) && !"watch".equals(r.level)) {
             EventBus.pushAlert(r.level, r.why, r.stage, r.score);
-            Notifier.alertChild(ctx, r.level,
+            Notifier.alertChild(ctx, isCode ? Notifier.K_CODE : Notifier.K_SMS, r.level,
                     isCode ? "妈妈收到一条验证码短信" : "妈妈收到可疑短信",
                     "来自 " + from + "：" + r.why);
         }
@@ -301,7 +301,7 @@ public class SmsReceiver extends BroadcastReceiver {
 
                     EventBus.pushAI("review", "AI 确认可疑：" + reason, true);
                     EventBus.pushAlert("warn", "AI 复审：" + reason, stage, score + 20);
-                    Notifier.alertChild(ctx, "warn",
+                    Notifier.alertChild(ctx, Notifier.K_SMS, "warn",
                             "妈妈收到一条可疑短信",
                             "AI 复核判定为可疑：" + reason
                                     + "。原文：" + brief(body));

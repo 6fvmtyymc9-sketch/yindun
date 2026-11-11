@@ -183,6 +183,9 @@ function registerCallAudio(app, deps) {
     let alert = null;
     if (rank(level) >= rank('warn')) {
       const quotes = result.evidence.map(s => `「${s}」`).join(' ');
+      // 挂断后复盘是同一场事件里的最后一格：老人端上传录音时带着本次通话的 id，
+      // 不带的话这条会变成一张孤立卡片，子女端看不到"它是那通电话的结论"。
+      const rawCid = String(b.callId || '');
       alert = {
         elderId,
         level,
@@ -193,6 +196,8 @@ function registerCallAudio(app, deps) {
           + (basis.startsWith('rule') ? ' · 仅规则判定' : '')
           + (sftOut ? ` · 专用模型 ${sftOut.p.toFixed(2)}` : ` · 专用模型${sftState}`),
         channel: 'callaudio',
+        callId: /^[A-Za-z0-9_-]{4,40}$/.test(rawCid) ? rawCid : null,
+        kind: 'review',
       };
       try {
         alert.id = await db.addAlert(alert);
@@ -207,6 +212,8 @@ function registerCallAudio(app, deps) {
           channel: alert.channel,
           summary: null,
           time: String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'),
+          callId: alert.callId,
+          kind: alert.kind,
         });
       } catch (e) {
         console.warn('[CallAudio] 推预警失败：', e.message);

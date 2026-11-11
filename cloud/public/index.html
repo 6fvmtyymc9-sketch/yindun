@@ -1094,6 +1094,10 @@ function renderAlert(a, opt){
   const card = addNoti(cls, a.title, a.body,
       a.channel==='push+call'?'已自动回拨，接通中':'', alertId, src, a.why);
   if(a.summary) attachSummary(card, a.summary);   // 历史卡片自带摘要，直接贴上
+  /* ⑤ 事件回放：这条属于某次通话时，给一个入口把整场串起来看。
+     实时推来的用 callId（驼峰），历史接口给的是 call_id（下划线），两个都认。 */
+  const callId = a.callId || a.call_id || null;
+  if(callId) attachEventLink(card, callId);
   if(!opt.silent){
     if(a.why) hitJ(hitByWhy(a.why));
     if(a.level==='block'){
@@ -1159,6 +1163,172 @@ function attachSummary(card, text){
       bigLineEl.scrollTop=bigLineEl.scrollHeight;
     }
   }
+}
+
+/* ==========================================================================
+   ⑤ 事件回放：把一通电话里的七八件事串成一条时间轴
+   ==========================================================================
+   为什么按 callId 拉，而不是"用这张卡附近的时间猜"：
+     一场事件中间可能插进来一条无关短信或另一通电话，按时间猜会把别人的事
+     混进来。callId 是老人端在响铃那一刻生成的，这一场的每条上报都带着它。
+
+   为什么这比一张张卡片有用：
+     单看「妈妈收到一条验证码短信」只是一条提醒；串起来才能看出
+     "陌生号打进来 → 聊了 5 分钟 → 她要验证码 → 她要转账 → 被拦住 → 女儿电话响了"
+     这是一条完整的作案链，也是评委唯一能一眼看懂的叙事。
+
+   注意：历史接口给的是 call_id（下划线），实时推送给的是 callId（驼峰）。
+   这里只认调用方传进来的字符串，兼容由 renderAlert 处理。 */
+const EV_META = {
+  ring:       { ic: '🚨', t: '陌生号码打进来' },
+  offhook:    { ic: '📞', t: '接通' },
+  ask5:       { ic: '❓', t: '通话满 5 分钟，再次确认' },
+  code:       { ic: '🔑', t: '收到验证码短信' },
+  bank:       { ic: '🏦', t: '打开手机银行' },
+  judge:      { ic: '⚖️', t: '银盾判定风险升级' },
+  shield:     { ic: '🛡️', t: '红屏拦截' },
+  call_child: { ic: '☎️', t: '自动呼叫家人' },
+  review:     { ic: '🎧', t: '通话录音复盘' },
+  sms:        { ic: '💬', t: '收到可疑短信' },
+  install:    { ic: '📦', t: '装了非官方应用' },
+};
+let evMask = null;
+
+function evInjectCss(){
+  if(document.getElementById('ev-css')) return;
+  const s = document.createElement('style');
+  s.id = 'ev-css';
+  s.textContent = `
+.ev-mask{position:fixed;inset:0;background:rgba(3,6,14,.74);display:none;align-items:center;
+  justify-content:center;z-index:9999;padding:24px}
+.ev-mask.show{display:flex}
+.ev-panel{width:min(680px,94vw);max-height:84vh;display:flex;flex-direction:column;
+  background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  box-shadow:0 24px 64px rgba(0,0,0,.65)}
+.ev-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;
+  padding:14px 16px;border-bottom:1px solid var(--line);background:var(--panel2)}
+.ev-hd .ev-title{font-size:14px;font-weight:800;color:var(--txt);letter-spacing:.3px}
+.ev-x{background:none;border:1px solid var(--line);color:var(--txt2);font-size:11px;
+  padding:5px 11px;border-radius:8px;cursor:pointer;font-family:inherit}
+.ev-x:hover{color:var(--txt);border-color:var(--accent)}
+.ev-sub{padding:10px 16px;font-size:11px;color:var(--txt3);border-bottom:1px solid var(--line);flex-shrink:0}
+.ev-body{padding:14px 16px 4px;overflow:auto;flex:1}
+.ev-row{display:flex;gap:10px;padding-bottom:14px;position:relative}
+.ev-rail{width:14px;display:flex;justify-content:center;position:relative;flex-shrink:0}
+.ev-rail:before{content:'';position:absolute;top:15px;bottom:-14px;width:1px;background:var(--line)}
+.ev-row:last-child .ev-rail:before{display:none}
+.ev-dot{width:9px;height:9px;border-radius:50%;background:var(--txt3);margin-top:5px;flex-shrink:0}
+.ev-row.lv-l5 .ev-dot{background:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,.20)}
+.ev-row.lv-l4 .ev-dot{background:#f97316;box-shadow:0 0 0 4px rgba(249,115,22,.18)}
+.ev-row.lv-l2 .ev-dot{background:#22d3ee}
+.ev-time{font-size:10px;color:var(--txt3);width:40px;flex-shrink:0;padding-top:2px;
+  font-variant-numeric:tabular-nums}
+.ev-ic{font-size:14px;line-height:1.5;flex-shrink:0}
+.ev-tx{flex:1;min-width:0}
+.ev-t{font-size:12px;font-weight:700;color:var(--txt);line-height:1.5}
+.ev-d{font-size:10.5px;color:var(--txt2);line-height:1.55;margin-top:2px;white-space:pre-wrap;
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.ev-w{font-size:10px;color:var(--txt3);line-height:1.5;margin-top:3px;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.ev-empty{padding:30px 0;text-align:center;font-size:12px;color:var(--txt3)}
+.ev-foot{padding:10px 16px 14px;font-size:10px;color:var(--txt3);line-height:1.65;
+  border-top:1px solid var(--line);flex-shrink:0}
+.ev-link{margin-top:6px}
+.ev-btn{background:rgba(34,211,238,.10);border:1px solid rgba(34,211,238,.35);color:#67e8f9;
+  font-size:10px;padding:4px 9px;border-radius:7px;cursor:pointer;font-family:inherit}
+.ev-btn:hover{background:rgba(34,211,238,.18)}`;
+  document.head.appendChild(s);
+}
+
+/* 在卡片里放一个入口。不加就直接拼进 .noti —— 它是 flex row，多一个子元素会被挤扁 */
+function attachEventLink(card, callId){
+  if(!card || !callId) return;
+  if(card.querySelector('.ev-link')) return;
+  card.dataset.callId = callId;
+  const d = document.createElement('div');
+  d.className = 'ev-link';
+  d.innerHTML = '<button class="ev-btn" type="button">🔗 这一次的完整过程</button>';
+  d.querySelector('button').addEventListener('click', function(e){
+    e.stopPropagation();
+    openEventTimeline(callId);
+  });
+  (card.querySelector('.ct') || card).appendChild(d);
+}
+
+function buildEvMask(){
+  evInjectCss();
+  evMask = document.createElement('div');
+  evMask.className = 'ev-mask';
+  evMask.innerHTML = `
+    <div class="ev-panel" role="dialog" aria-modal="true" aria-label="这一次的完整过程">
+      <div class="ev-hd">
+        <span class="ev-title">这一次的完整过程</span>
+        <button class="ev-x" type="button">关闭</button>
+      </div>
+      <div class="ev-sub"></div>
+      <div class="ev-body"></div>
+      <div class="ev-foot">按发生顺序回放，数据全部来自老人手机的真实上报。
+        断网期间发生的事会补发上来，显示的时间是它真正发生的时刻。</div>
+    </div>`;
+  evMask.addEventListener('click', function(e){ if(e.target === evMask) evMask.classList.remove('show'); });
+  evMask.querySelector('.ev-x').addEventListener('click', function(){ evMask.classList.remove('show'); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && evMask) evMask.classList.remove('show');
+  });
+  document.body.appendChild(evMask);
+}
+
+function evHM(s){
+  if(!s) return '';
+  const d = new Date(s);
+  if(isNaN(d.getTime())) return '';
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+
+/* 断网补发的记录，正文末尾会被服务端补一句"（断网补发，实际发生于 18:42）"。
+   那句话是给"单张卡片"看的——卡片只显示 HH:MM，读者需要知道时间对不上。
+   时间轴左边已经是真实发生时间，再重复一遍就成了干扰，这里抹掉。 */
+function evStripLate(s){
+  return String(s == null ? '' : s).replace(/（断网补发，实际发生于[^）]*）/g, '').trim();
+}
+
+async function openEventTimeline(callId){
+  if(!evMask) buildEvMask();
+  const body = evMask.querySelector('.ev-body');
+  const sub  = evMask.querySelector('.ev-sub');
+  body.innerHTML = '<div class="ev-empty">正在读取这一场的过程…</div>';
+  sub.textContent = '';
+  evMask.classList.add('show');
+
+  const r = await api('/api/call/events?elderId=demo&callId=' + encodeURIComponent(callId));
+  if(!r || !r.ok || !Array.isArray(r.list) || !r.list.length){
+    body.innerHTML = '<div class="ev-empty">这一场暂时读不到记录。<br>可能上报时断了网，或者记录已被清理。</div>';
+    return;
+  }
+  sub.textContent = r.list.length + ' 步 · 最高级别：' + (LV_TXT[r.level] || '提醒');
+  body.innerHTML = r.list.map(function(a){
+    const m  = EV_META[a.kind] || { ic: '📌', t: '' };
+    const hm = evHM(a.created_at);
+    const cls = LV_CLS[a.level] || 'l1';
+    /* kind 认得出来就用固定标题（"陌生号码打进来"），认不出来退回服务端给的原标题 ——
+       老版本 App 不带 kind，也能正常显示。
+       服务端标题只在没有正文时补一句：标题和正文本来就是一件事的两种说法，
+       两条都摆出来会读成"重复播报"。 */
+    const head = m.t || a.title || '';
+    // 有正文时不再重复服务端标题；没有正文才用它兜一句，否则这一步会空着
+    const detail = m.t ? (a.body ? '' : (a.title || '')) : '';
+    return '<div class="ev-row ' + cls + '">'
+      +   '<div class="ev-rail"><span class="ev-dot"></span></div>'
+      +   '<div class="ev-time">' + escH(hm) + '</div>'
+      +   '<div class="ev-ic">' + m.ic + '</div>'
+      +   '<div class="ev-tx">'
+      +     '<div class="ev-t">' + escH(head) + '</div>'
+      +     (detail ? '<div class="ev-d">' + escH(detail) + '</div>' : '')
+      +     (a.body  ? '<div class="ev-d">' + escH(evStripLate(a.body)) + '</div>' : '')
+      +     (a.why   ? '<div class="ev-w">' + escH(evStripLate(a.why)) + '</div>' : '')
+      +   '</div>'
+      + '</div>';
+  }).join('');
 }
 
 /* 拉历史预警。

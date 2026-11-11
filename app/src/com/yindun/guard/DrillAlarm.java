@@ -30,6 +30,7 @@ class DrillAlarm {
 
     private static final String TAG = "DrillAlarm";
     static final int REQ = 9527;                 // PendingIntent 请求码，固定值才能覆盖旧闹钟
+    static final int REQ_TOMORROW = 9526;        // 复盘之后的"次日提醒"，单独一个，不覆盖每周那个
     static final int WEEKDAY = Calendar.MONDAY;  // 周一
     static final int HOUR = 10;                  // 上午 10 点
 
@@ -55,6 +56,45 @@ class DrillAlarm {
     static void cancel(Context c) {
         AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
         if (am != null) am.cancel(pending(c));
+    }
+
+    /**
+     * ④ 复盘判为诈骗之后，次日同一个时间点单独提醒一次。
+     *
+     * 【为什么不等到下周一】交接文档要求的是"次日推送"。被骗的第二天是
+     * 记性最热的时候，那套话术还在脑子里，这时候练一遍才记得住；等到周一，
+     * 她连对方自称什么单位都想不起来了。
+     *
+     * 【为什么单独一个请求码】不能覆盖每周那个闹钟 —— 否则这周的例行提醒
+     * 就被这次复盘顶掉了，下周开始就不再提醒（老人不会自己去点演练页）。
+     */
+    static void scheduleTomorrow(Context c) {
+        AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
+        if (am == null) return;
+        Calendar t = Calendar.getInstance();
+        t.add(Calendar.DAY_OF_YEAR, 1);
+        t.set(Calendar.HOUR_OF_DAY, HOUR);
+        t.set(Calendar.MINUTE, 0);
+        t.set(Calendar.SECOND, 0);
+        t.set(Calendar.MILLISECOND, 0);
+        try {
+            if (Build.VERSION.SDK_INT >= 23) {
+                am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, t.getTimeInMillis(), pendingTomorrow(c));
+            } else {
+                am.set(AlarmManager.RTC_WAKEUP, t.getTimeInMillis(), pendingTomorrow(c));
+            }
+            Log.i(TAG, "复盘后次日提醒已排：" + t.getTime());
+        } catch (Exception e) {
+            Log.w(TAG, "排次日提醒失败：" + e.getMessage());
+        }
+    }
+
+    private static PendingIntent pendingTomorrow(Context c) {
+        Intent i = new Intent(c, DrillReceiver.class);
+        i.setAction("com.yindun.guard.DRILL_REMIND");
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= 23) flags |= PendingIntent.FLAG_IMMUTABLE;
+        return PendingIntent.getBroadcast(c, REQ_TOMORROW, i, flags);
     }
 
     private static PendingIntent pending(Context c) {

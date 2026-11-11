@@ -78,6 +78,10 @@ class Db {
       why: a.why || '',
       summary: a.summary || null,
       channel: a.channel || 'push',
+      // call_id / kind：一次通话里的多件事要能归组并按顺序回放，
+      // 见 sql/migrate_20261111_event.sql。老版本 App 不传，落 NULL，不影响。
+      call_id: a.callId || null,
+      kind: a.kind || null,
       // at：手机补发的旧预警要按"事情真正发生的时刻"入库，否则子女端时间线会错位。
       // 不传则用服务器当前时间（正常实时上报就是这条路径）。
       created_at: a.at ? new Date(a.at) : new Date(),
@@ -85,9 +89,10 @@ class Db {
     if (this.online) {
       try {
         const [r] = await this.pool.execute(
-          `INSERT INTO yd_alert (elder_id,level,title,body,why,summary,channel,created_at)
-           VALUES (?,?,?,?,?,?,?,?)`,
-          [row.elder_id, row.level, row.title, row.body, row.why, row.summary, row.channel, row.created_at]
+          `INSERT INTO yd_alert (elder_id,level,title,body,why,summary,channel,call_id,kind,created_at)
+           VALUES (?,?,?,?,?,?,?,?,?,?)`,
+          [row.elder_id, row.level, row.title, row.body, row.why, row.summary,
+           row.channel, row.call_id, row.kind, row.created_at]
         );
         return r.insertId;
       } catch (e2) {
@@ -132,7 +137,9 @@ class Db {
         const [rows] = await this.pool.execute(
           // channel 必须一起查：子女端靠它分「通话 / 短信」两个视图，
           // 不返回的话历史回填的卡片全部落到默认视图，刷新一下就串栏
-          `SELECT id,level,title,body,why,summary,channel,created_at
+          // call_id 同理：刷新后卡片要还原成"这是一次事件里的第几步"，
+          // 不查这一列，页面一刷新时间轴入口就没了。
+          `SELECT id,level,title,body,why,summary,channel,call_id,kind,created_at
              FROM yd_alert WHERE elder_id=? ORDER BY id DESC LIMIT ?`,
           [elderId, Number(limit) || 20]
         );
@@ -145,6 +152,41 @@ class Db {
       .filter(a => a.elder_id === elderId)
       .slice(-limit)
       .reverse();
+  }
+
+  /**
+   * 一次事件的完整过程：同一通电话里发生的所有上报，按发生顺序正序返回。
+   *
+   * 为什么按 created_at 排而不是按 id：断网补发时，一批事件可能在网络恢复后
+   * 才涌上来，id 反映的是"入库顺序"，不一定是"发生顺序"；而 created_at
+   * 用的就是手机上报的真实发生时间（/api/alert 的 at 字段）。
+   * id 作为次级排序，解决同一秒内两条事件的先后。
+   */
+  async listEvent(elderId, callId, limit = 40) {
+    if (!callId) return [];
+    if (this.online) {
+      try {
+        const [rows] = await this.pool.execute(
+          `SELECT id,level,title,body,why,summary,channel,call_id,kind,created_at
+             FROM yd_alert
+            WHERE elder_id=? AND call_id=?
+            ORDER BY created_at ASC, id ASC LIMIT ?`,
+          [elderId, callId, Number(limit) || 40]
+        );
+        return rows;
+      } catch (e) {
+        console.warn('[Db] listEvent 失败：', e.message);
+      }
+    }
+    return mem.alert
+      .filter(a => a.elder_id === elderId && a.call_id === callId)
+      .slice()
+      .sort((a, b) => {
+        const ta = new Date(a.created_at).getTime() || 0;
+        const tb = new Date(b.created_at).getTime() || 0;
+        return ta - tb || a.id - b.id;
+      })
+      .slice(0, limit);
   }
 
   // ---------- 规则版本 ----------

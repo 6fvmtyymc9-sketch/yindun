@@ -301,6 +301,16 @@ app.post('/api/alert', async (req, res) => {
   const why = String(b.why || '').slice(0, 500);
   const channel = b.channel === 'push+call' ? 'push+call' : 'push';
 
+  // ---------- 事件归组（功能⑤ 事件回放）----------
+  // callId：老人端在通话开始时生成，这一场里的每条上报都带着它。
+  // kind：事件类型，子女端据此决定时间轴上的图标和顺序。
+  // 两个都做白名单校验：这是会被渲染到页面上的字段，不接受任意字符串。
+  const rawCallId = String(b.callId || '');
+  const callId = /^[A-Za-z0-9_-]{4,40}$/.test(rawCallId) ? rawCallId : null;
+  const KINDS = ['ring', 'offhook', 'ask5', 'code', 'bank', 'shield',
+                 'call_child', 'review', 'judge', 'sms', 'install'];
+  const kind = KINDS.indexOf(String(b.kind)) >= 0 ? String(b.kind) : null;
+
   // ---------- 断网补发 ----------
   // 手机上报失败会存本地队列，联网后重发，并带上事件真正发生的时间戳 at。
   // 【为什么必须标出来】补发到达时，子女端如果不加说明，看起来就是
@@ -321,7 +331,7 @@ app.post('/api/alert', async (req, res) => {
 
   try {
     // 补发的旧消息按真实发生时间入库，子女端时间线才不会把 18:42 的事排到 21:00
-    const id = await db.addAlert({ elderId, level, title, body, why, channel, at });
+    const id = await db.addAlert({ elderId, level, title, body, why, channel, at, callId, kind });
     const d = new Date();
     const hhmm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
 
@@ -329,6 +339,9 @@ app.post('/api/alert', async (req, res) => {
     pushTo(elderId, {
       type: 'alert', alertId: id, level, title, body,
       summary: null, why, channel, time: hhmm,
+      // 带上归组信息，子女端才能立刻给"正在发生"的这场显示时间轴，
+      // 不用等用户刷新页面
+      callId, kind,
     });
 
     // ---------- 阻断/高危：补一句 AI 人话 ----------
@@ -643,6 +656,43 @@ app.get('/api/report/stats', async (req, res) => {
 app.get('/api/reports', async (req, res) => {
   const limit = Number(req.query.limit || 20);
   res.json({ ok: true, list: await db.listReports(limit) });
+});
+
+/**
+ * 一次事件的完整过程（功能⑤ 事件回放）。
+ *
+ *   GET /api/call/events?callId=c1a2b3c4x7z
+ *
+ * 【为什么路径不叫 /api/event】同名的 POST /api/event 是"老人端事件推流"，
+ * 两个语义完全不同，路径撞在一起以后排查会因为看错方法而走冤枉路。
+ *
+ * 一次诈骗不是一条预警，是七八件事：陌生号响铃 → 接通 → 满 5 分钟复问
+ * → 通话中收到验证码 → 挂断后打开手机银行 → 红屏拦住 → 自动打给女儿。
+ * 老人端在通话开始时生成 callId，这一场里的每条上报都带上它，
+ * 这里按 id 正序返回，子女端就能按发生顺序画一条时间轴。
+ *
+ * 为什么不传 elderId 也能查：演示环境和子女端默认都是 demo；
+ * 传了就更精确。限定 elderId 是为了防止拿别人的 callId 翻到别家的事。
+ */
+app.get('/api/call/events', async (req, res) => {
+  const callId = String(req.query.callId || '').trim();
+  const elderId = String(req.query.elderId || 'demo').trim();
+  if (!/^[A-Za-z0-9_-]{4,40}$/.test(callId)) {
+    return res.status(400).json({ ok: false, msg: 'callId 格式不对' });
+  }
+  const list = await db.listEvent(elderId, callId).catch(() => []);
+  // 这一场里最高的级别，子女端用来决定时间轴的主题色
+  const ORDER = { watch: 1, warn: 2, high: 3, block: 4 };
+  const peak = list.reduce((m, a) => Math.max(m, ORDER[a.level] || 0), 0);
+  const level = ['', 'watch', 'warn', 'high', 'block'][peak] || 'watch';
+  res.json({
+    ok: true,
+    callId,
+    elderId,
+    level,
+    count: list.length,
+    list,
+  });
 });
 
 // ============================================================================

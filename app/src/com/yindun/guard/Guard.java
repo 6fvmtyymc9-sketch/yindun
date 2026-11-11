@@ -193,7 +193,10 @@ public class Guard {
                 if (!rangAlerted && NumberInfo.STRANGER.equals(who)) {
                     rangAlerted = true;
                     Log.i(TAG, "陌生号码响铃 → 立刻通知子女 " + number);
-                    Notifier.alertChild(ctx, "watch",
+                    // 时间轴从这里开始算。响铃就开一场新的：这是"陌生号打进来"这个事实本身，
+                    // 之后接通时 startNewCall 会复用同一个 id（见 CallSession.reuseOrBegin）。
+                    CallSession.begin(number);
+                    Notifier.alertChild(ctx, Notifier.K_RING, "watch",
                             "妈妈收到陌生号码来电",
                             "来电号码不在通讯录中，正在响铃。接听后银盾将持续监测。");
                 }
@@ -260,7 +263,10 @@ public class Guard {
         reported8min = false;
         askedInCall = false;
         lastRank = 0;   // 新的一通电话就是新的风险窗口，判级重新开始
-        Log.i(TAG, "通话开始 who=" + who + " num=" + number);
+        // 给这一场开个 id：本次通话期间的上报都带上，子女端才能把
+        // 「响铃→复问→验证码→打开银行→红屏→呼叫女儿」串成一条时间轴。
+        String cid = CallSession.reuseOrBegin(number);
+        Log.i(TAG, "通话开始 who=" + who + " num=" + number + " 会话=" + cid);
         EventBus.push(event("call", "state", "offhook", who, number, 0, null));
     }
 
@@ -283,14 +289,14 @@ public class Guard {
                 // 子女远程锁的转账：别跟老人说"刚才那通电话有诈"，她可能根本没在外地那一通里。
                 // 只说事实：家里人不让她这会儿动钱。
                 Log.i(TAG, "子女远程锁定的窗口内打开银行 → 盖屏");
-                Notifier.alertChild(ctx, "high", "妈妈在转账保护期内打开了手机银行",
+                Notifier.alertChild(ctx, Notifier.K_BANK, "high", "妈妈在转账保护期内打开了手机银行",
                         from + " 刚才开启了转账保护，现在老人打开了「" + label
                                 + "」。屏幕已拦截，建议立刻致电确认。");
                 Shield.show(ctx, "先别转账", null, "家人暂时锁定了转账");
             } else {
                 Log.i(TAG, "挂断可疑电话后打开了银行 → 盖屏");
                 // 用 high 推子女（不在这里拨号）：盖屏 6 秒无人操作会自己拨，避免拨两次
-                Notifier.alertChild(ctx, "high", "妈妈在可疑通话结束后打开了手机银行",
+                Notifier.alertChild(ctx, Notifier.K_BANK, "high", "妈妈在可疑通话结束后打开了手机银行",
                         "刚才的陌生来电经通话复盘判定为疑似诈骗，目前已打开「" + label
                                 + "」。屏幕已拦截，请立即致电。");
                 Shield.show(ctx, "暂停转账", num);
@@ -404,7 +410,7 @@ public class Guard {
         // 阻断级走"打电话"，其余走通知。因为推送能不能看到取决于子女在不在看手机，
         // 铃声只取决于手机有没有电。
         if ("block".equals(r.level)) {
-            Notifier.alertChild(ctx, r.level, buildTitle(r), buildBody(r));
+            Notifier.alertChild(ctx, Notifier.K_JUDGE, r.level, buildTitle(r), buildBody(r));
 
             Log.i(TAG, "阻断判定，屏幕" + (screenOff
                     ? "是黑的（她贴着耳朵，看不见盖屏）→ 全靠振动叫"
@@ -424,7 +430,7 @@ public class Guard {
             // 到了就贴在子女端那张卡上。没到也不影响什么。
             aiExplain(r);
         } else if ("high".equals(r.level) || "warn".equals(r.level)) {
-            Notifier.alertChild(ctx, r.level, buildTitle(r), buildBody(r));
+            Notifier.alertChild(ctx, Notifier.K_JUDGE, r.level, buildTitle(r), buildBody(r));
             // 通话超时这类恰好发生在"正贴着耳朵听"的时候，屏幕多半是黑的
             Vibrate.remind(ctx, screenOff);
             // 【2026-11-05 补】老人端也得看得见。
@@ -443,7 +449,7 @@ public class Guard {
             // （否则同一通电话，子女端会收到两张标题一模一样的卡）
             // 但老人端的浮条照弹：她接通后需要知道"这个号码不认识"。
             if (!rangAlerted) {
-                Notifier.alertChild(ctx, r.level, buildTitle(r), buildBody(r));
+                Notifier.alertChild(ctx, Notifier.K_JUDGE, r.level, buildTitle(r), buildBody(r));
             }
             if (!Acquaint.inCallShowing()) {
                 TipBar.show(ctx, r.level, tipTitle(r), tipSub(r));

@@ -106,6 +106,22 @@ public class Notifier {
      */
     public static void alertChild(final Context ctx, final String level,
                                   final String title, final String body) {
+        alertChild(ctx, null, level, title, body);
+    }
+
+    /**
+     * 带"事件类型"的版本。
+     *
+     * 【为什么需要 kind】
+     * 子女端要把一通电话里发生的事串成时间轴（陌生来电→复问→验证码→
+     * 打开银行→红屏→呼叫女儿）。光有标题和正文只能靠字符串猜步骤，
+     * 改一句文案就断；所以这里显式带上一个稳定的英文标识，
+     * 顺序、图标、文案全由子女端决定，老人端只负责"什么时候发生了什么事"。
+     *
+     * @param kind 见 K_ 常量；null = 普通预警，不进时间轴的特殊标注
+     */
+    public static void alertChild(final Context ctx, final String kind, final String level,
+                                  final String title, final String body) {
         ensureChannel(ctx);
 
         // 阻断级用小图标 + 不让用户轻易划掉（秒级可能就要用）
@@ -139,7 +155,7 @@ public class Notifier {
         if (nm != null && !isElderPhone(ctx)) nm.notify(NOTIFY_ALERT, n);
 
         // 同时推给后端，让它转给子女的手机
-        pushToBackend(ctx, level, title, body);
+        pushToBackend(ctx, kind, level, title, body);
 
         // 阻断级：直接拨号（这才是真正能叫醒人的那一招）
         if ("block".equals(level)) {
@@ -214,6 +230,11 @@ public class Notifier {
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             ctx.startActivity(i);
             Log.i(TAG, "已自动拨给子女 " + num);
+            // 时间轴的最后一步。必须在 startActivity 之后发——
+            // 拨号被系统拒了（没权限/没号码）就走不到这里，
+            // 子女端也就不会看到一句"已自动呼叫女儿"的假消息。
+            pushToBackend(ctx, K_CALL_CHILD, "high", "银盾已自动呼叫家人",
+                    (childBound(ctx) ? "已自动拨出" : "未绑定家人号码，演示号码拨出") + "：" + num);
         } catch (Exception e) {
             Log.e(TAG, "自动拨号失败（缺 CALL_PHONE 权限？）", e);
         }
@@ -254,6 +275,32 @@ public class Notifier {
     // ==========================================================
     //  六、推给后端（子女机从这里收）
     // ==========================================================
+    // ==========================================================
+    //  三·一、事件类型（子女端时间轴用）
+    // ==========================================================
+    /** 陌生号码正在响铃 */
+    static final String K_RING = "ring";
+    /** 接通了 */
+    static final String K_OFFHOOK = "offhook";
+    /** 通话满 5 分钟的复问及回答 */
+    static final String K_ASK5 = "ask5";
+    /** 通话中 / 刚挂断时收到验证码 */
+    static final String K_CODE = "code";
+    /** 打开了银行或支付类 App */
+    static final String K_BANK = "bank";
+    /** 红屏拦截已盖上 */
+    static final String K_SHIELD = "shield";
+    /** 自动拨给子女 */
+    static final String K_CALL_CHILD = "call_child";
+    /** 挂断后的录音复盘结论 */
+    static final String K_REVIEW = "review";
+    /** 可疑短信 */
+    static final String K_SMS = "sms";
+    /** 装了非应用商店的 App */
+    static final String K_INSTALL = "install";
+    /** 组合判据升级（陌生号 + 时长 + 验证码 + 银行 App 等） */
+    static final String K_JUDGE = "judge";
+
     /**
      * 一次 HTTP POST，把预警发给电脑上跑着的 server.py。
      *
@@ -267,6 +314,14 @@ public class Notifier {
      */
     private static void pushToBackend(Context ctx, String level,
                                       String title, String body) {
+        pushToBackend(ctx, null, level, title, body);
+    }
+
+    /**
+     * @param kind 事件类型，见 K_ 常量；null = 普通预警
+     */
+    private static void pushToBackend(Context ctx, String kind, String level,
+                                      String title, String body) {
         try {
             org.json.JSONObject o = new org.json.JSONObject();
             o.put("level", level);
@@ -274,6 +329,19 @@ public class Notifier {
             o.put("body", body);
             o.put("device", Build.MODEL);
             o.put("time", System.currentTimeMillis());
+
+            // 【2026-11-11 补】原来这里既没带 elderId 也没带 callId：
+            //   · elderId 缺失时云端一律按 'demo' 落库，多老人场景会全部串到一个桶里；
+            //   · callId 缺失时子女端只能按时间猜"这几条是不是一回事"，猜不准。
+            // 两件都补上。elderId 取配对里登记的那一个，没绑定时 Pair.id 会退回 demo。
+            o.put("elderId", Pair.id(ctx));
+
+            String cid = CallSession.id();
+            if (cid != null) o.put("callId", cid);
+            String num = CallSession.number();
+            if (num != null) o.put("number", num);
+            if (kind != null) o.put("kind", kind);
+
             postJson(ctx, "/api/alert", o);
         } catch (Exception e) {
             Log.w(TAG, "组包失败：" + e.getMessage());
@@ -312,11 +380,11 @@ public class Notifier {
      */
     public static void pushInCallAnswer(Context ctx, boolean known, String number) {
         if (known) {
-            pushToBackend(ctx, "watch", "妈妈确认通话对方为熟人（通话已超过 5 分钟）",
+            pushToBackend(ctx, K_ASK5, "watch", "妈妈确认通话对方为熟人（通话已超过 5 分钟）",
                     "通话超过 5 分钟时再次确认，妈妈选择了「认识」。\n"
                             + "熟人提出钱款要求同样需要核实，建议您致电确认。");
         } else {
-            pushToBackend(ctx, "warn", "妈妈表示不认识通话对方",
+            pushToBackend(ctx, K_ASK5, "warn", "妈妈表示不认识通话对方",
                     "与陌生号码通话已超过 5 分钟，再次确认时妈妈选择了「不认识」。\n"
                             + "此类情况风险较高，建议立即致电。");
         }

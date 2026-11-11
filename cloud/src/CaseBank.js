@@ -524,6 +524,10 @@ function buildBlueprint(opts = {}, reports = []) {
       icon: '📮',
       skeleton: sk,
       caseRef: sk.caseRef,
+      // 这条案例是"老人自己传上来的"还是"挂断后录音复盘自动记下的"，文案不一样。
+      // 自动上报那种情况里她没有做过"上传"这个动作，说成"你上传的那条"就是在编事实；
+      // 老人听不出来，但子女端和答辩时被问一句就穿帮。
+      byCall: caseA.reporter === 'callaudio',
     };
   } else if (hotA) {
     seedA = { origin: 'hot', name: hotA.name, icon: hotA.icon, skeleton: hotA.skeleton, hotRef: { id: hotA.id, name: hotA.name } };
@@ -616,7 +620,9 @@ function compose(seedA, seedB, bridge, mode) {
     from: seedB
       ? `${seedB.name}（热点）叠加 ${seedA.name}`
       : seedA.origin === 'case'
-        ? `你上传的那条「${seedA.name}」`
+        ? (seedA.byCall
+            ? `上次那通电话的套路「${seedA.name}」`
+            : `你上传的那条「${seedA.name}」`)
         : `${seedA.name}（本周热点）`,
   };
 }

@@ -259,6 +259,10 @@ public class CallRecord {
             o.put("durSec", durSec);
             o.put("name", f.getName());
             o.put("audio", Base64.encodeToString(readAll(f), Base64.NO_WRAP));
+            // 复盘结论要挂回同一场事件：子女端时间轴上「挂断后复盘判定为诈骗」
+            // 是这条链的最后一格，不带 id 的话它会变成一条孤立的卡片。
+            String cid = CallSession.id();
+            if (cid != null) o.put("callId", cid);
             // 演示转写稿：录音旁边的同名 .txt。云端只在没配语音识别时才用它，并会标明来源
             String demo = demoText(f);
             if (demo != null) o.put("demoText", demo);
@@ -311,6 +315,11 @@ public class CallRecord {
             riskNumber = number;
             riskFrom = null;    // 录音复盘开的窗口，不是子女远程锁的
             Log.i(TAG, "录音复盘判为 " + level + "，30 分钟内打开银行将直接盖屏");
+            // ④：把这套套路记下来，下次演练提醒就从它开始。
+            // 只记类型（"冒充公检法"），不记原话 —— 台词云端会重编，原话留着是多余的隐私风险。
+            DrillPending.remember(ctx, type, stage);
+            // 次日单独提醒一次（交接文档 ④ 的"次日推送"）。和每周那个闹钟并存，互相不覆盖。
+            DrillAlarm.scheduleTomorrow(ctx);
         }
 
         final StringBuilder why = new StringBuilder("通话录音复盘：");

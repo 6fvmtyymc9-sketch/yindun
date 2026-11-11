@@ -42,6 +42,9 @@ import org.json.JSONObject;
  */
 public class DrillActivity extends Activity {
 
+    /** 从提醒进来时带的开局方式（hot / case / mix）。见 DrillReceiver */
+    static final String EXTRA_MODE = "drill_mode";
+
     // ---------- 配色（和主界面一套） ----------
     private static final int C_BG      = Color.parseColor("#070b16");
     private static final int C_PANEL   = Color.parseColor("#0f1524");
@@ -86,6 +89,20 @@ public class DrillActivity extends Activity {
         super.onCreate(b);
         buildShell();
         showHome();
+
+        /* ④ 从「上次那通电话」的提醒点进来：直接开局，不让老人再点一次。
+           她刚接到一条"上次那通冒充公检法，陪您练一遍"，进来却要自己再找
+           一张卡片点，中间任何一次犹豫都可能让她退出去。
+           用过就清标记：同一次复盘反复提，会变成骚扰。 */
+        final String auto = getIntent() == null ? null : getIntent().getStringExtra(EXTRA_MODE);
+        if (auto != null && auto.length() > 0) {
+            body.post(new Runnable() {
+                public void run() {
+                    DrillPending.clear(DrillActivity.this);
+                    startDrill("", auto);
+                }
+            });
+        }
     }
 
     @Override

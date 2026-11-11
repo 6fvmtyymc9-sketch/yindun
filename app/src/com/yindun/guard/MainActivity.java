@@ -422,7 +422,7 @@ public class MainActivity extends Activity {
             Notifier.alertChild(MainActivity.this, level, "银盾预警", why);
         }
 
-        /** 跳到系统设置页。name: sms/overlay/battery/usage/notify/app */
+        /** 跳到系统设置页。name: sms/overlay/battery/usage/notify/autostart/app */
         @JavascriptInterface
         public void openSetting(String name) {
             try {
@@ -436,8 +436,11 @@ public class MainActivity extends Activity {
                     i = new Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS);
                 } else if ("notify".equals(name)) {
                     i = new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
+                } else if ("autostart".equals(name) && openAutostart()) {
+                    // 厂商的自启动页已经打开了，后面不用再走应用详情页
+                    return;
                 } else {
-                    // sms / autostart 都跳到应用详情页（各厂商的自启动页没法通用）
+                    // sms 跳到应用详情页
                     i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                             Uri.parse("package:" + getPackageName()));
                 }
@@ -446,6 +449,76 @@ public class MainActivity extends Activity {
             } catch (Exception e) {
                 toast("无法打开该设置页，请在系统设置中手动开启");
             }
+        }
+
+        /**
+         * 各厂商的「自启动 / 后台运行」管理页。
+         *
+         * 【为什么要列这么多个候选】
+         *   这些组件名都不是公开 API，同一个厂商不同 ROM 版本改过好几次。
+         *   写死一个的结果是：在 A 机上点得开，在 B 机上点了没反应 ——
+         *   老人只会觉得"这个按钮是坏的"，然后放弃。
+         *   所以按顺序试，第一个真的能启动的就是它。
+         *
+         * 【打不开怎么办】
+         *   全部失败就开应用详情页，并 toast 告诉用户具体路径。
+         *   宁可让人自己找，也不能点了什么都不发生。
+         */
+        private final String[][] AUTOSTART = {
+            // 厂商    包名                                   Activity
+            {"华为 / 荣耀", "com.huawei.systemmanager", "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity"},
+            {"华为 / 荣耀", "com.huawei.systemmanager", "com.huawei.systemmanager.optimize.process.ProtectActivity"},
+            {"小米 / 红米", "com.miui.securitycenter", "com.miui.permcenter.autostart.AutoStartManagementActivity"},
+            {"OPPO / 一加", "com.coloros.safecenter", "com.coloros.safecenter.permission.startup.StartupAppListActivity"},
+            {"OPPO", "com.oppo.safe", "com.oppo.safe.permission.startup.StartupAppListActivity"},
+            {"vivo / iQOO", "com.vivo.permissionmanager", "com.vivo.permissionmanager.activity.BgStartUpManagerActivity"},
+            {"vivo", "com.iqoo.secure", "com.iqoo.secure.ui.phoneoptimize.AddWhiteListActivity"},
+            {"三星", "com.samsung.android.lool", "com.samsung.android.sm.ui.battery.BatteryActivity"},
+            {"魅族", "com.meizu.safe", "com.meizu.safe.permission.SmartBGActivity"},
+        };
+
+        /** 尝试打开本机的自启动管理页；成功返回 true */
+        private boolean openAutostart() {
+            for (String[] row : AUTOSTART) {
+                try {
+                    Intent i = new Intent();
+                    i.setComponent(new android.content.ComponentName(row[1], row[2]));
+                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(i);
+                    Log.i("YinDun", "已打开自启动管理页：" + row[0] + " / " + row[2]);
+                    return true;
+                } catch (Exception ignore) {
+                    // 这台机器上没有这个页面，试下一个
+                }
+            }
+            toast(autostartHint());
+            return false;
+        }
+
+        /** 本机该去哪开自启动。前端设置项的描述用这个 */
+        @JavascriptInterface
+        public String autostartHint() {
+            String v = Build.MANUFACTURER == null ? "" : Build.MANUFACTURER.toLowerCase();
+            if (v.contains("huawei") || v.contains("honor")) {
+                return "华为 / 荣耀：手机管家 → 应用启动管理 → 把银盾设为「手动管理」，三个开关全开";
+            }
+            if (v.contains("xiaomi") || v.contains("redmi")) {
+                return "小米：设置 → 应用设置 → 应用管理 → 银盾 → 自启动，并允许后台弹出界面";
+            }
+            if (v.contains("oppo") || v.contains("realme") || v.contains("oneplus")) {
+                return "OPPO / 一加：设置 → 电池 → 应用耗电管理 → 银盾 → 允许后台运行、允许自启动";
+            }
+            if (v.contains("vivo") || v.contains("iqoo")) {
+                return "vivo：i管家 → 应用管理 → 权限管理 → 自启动 → 银盾";
+            }
+            return "在系统设置里找到「应用启动管理 / 自启动」，允许银盾自启动并允许后台运行";
+        }
+
+        /** 本机厂商名，用于设置页显示。取不到就返回"本机" */
+        @JavascriptInterface
+        public String deviceBrand() {
+            String m = Build.MANUFACTURER == null ? "" : Build.MANUFACTURER.trim();
+            return m.length() == 0 ? "本机" : m;
         }
 
         /** 首页数字：守护天数、今天检查了多少、最近一次提醒（JSON） */

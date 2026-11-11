@@ -257,6 +257,10 @@ svg{display:block}
     <span class="tx"><b>电池优化白名单</b><span>防止银盾在后台被系统关闭</span></span>
     <span class="go">前往设置</span>
   </button>
+  <button class="item" onclick="fixPerm('autostart')">
+    <span class="tx"><b>自启动管理</b><span id="autoSet">防止系统在后台把银盾清掉</span></span>
+    <span class="go">前往设置</span>
+  </button>
 </div>
 
 <!-- 首次设置向导：第一次打开自动出现，之后可在「设置」里重新进入 -->
@@ -364,6 +368,23 @@ function toggleRec(){ call('recToggle'); }
 function startDrill(){ call('openDrill'); }
 function callChild(){ call('callChild'); }
 function fixPerm(name){ call('openSetting', name || 'app'); }
+
+/* 自启动这一项没法通过系统 API 判断开没开（各家 ROM 都不给查询接口），
+   所以不放进设置向导的完成度里——放进去的结果是"8/9 永远差一个"，
+   老人会以为是自己没弄好。这里只把本机品牌写进描述，点进去按提示操作。 */
+(function autoStartHint(){
+  function apply(){
+    var el = document.getElementById('autoSet');
+    if (!el) return;
+    var brand = call('deviceBrand');
+    if (brand) el.textContent = brand + ' 需要在系统设置里允许银盾自启动';
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', apply);
+  } else {
+    apply();
+  }
+})();
 
 function openSheet(){
   document.getElementById('childNum').value = call('childNumber') || '';

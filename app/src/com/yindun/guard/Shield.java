@@ -211,6 +211,19 @@ public class Shield {
      * @param number 骗子号码（只用于显示，让她知道是这通电话有问题）
      */
     public static void show(Context ctx, String title, String number) {
+        show(ctx, title, number, null);
+    }
+
+    /**
+     * 同上，但可以换掉副标题。
+     *
+     * 【为什么需要这个】红屏上原来写死一句"当前通话疑似诈骗"。子女远程锁转账的时候，
+     * 老人可能根本没接到任何电话 —— 那句话就是假的。宁可少一层戏剧性，
+     * 也不能让产品在用户面前说不存在的事。
+     *
+     * @param sub 副标题；null = 用默认的"当前通话疑似诈骗"
+     */
+    public static void show(Context ctx, String title, String number, String sub) {
         if (view != null) {
             // 已经盖着了。不重复盖，也不动文字（避免把"已拨出"刷回"打给女儿"）
             return;
@@ -231,7 +244,7 @@ public class Shield {
         }
 
         try {
-            view = build(ctx, title, number);
+            view = build(ctx, title, number, sub);
 
             int type = (Build.VERSION.SDK_INT >= 26)
                     ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
@@ -381,7 +394,7 @@ public class Shield {
      * 【设计】深红底 + 防护罩（雷达扫描、冲击波、HUD 角标），和首页的盾牌圆环同一图形。
      * "打给女儿"是全屏唯一的白色实心块 —— 一眼就知道该按哪里。
      */
-    private static View build(final Context ctx, String title, String number) {
+    private static View build(final Context ctx, String title, String number, String sub) {
         final FrameLayout outer = new FrameLayout(ctx);
         AlarmView.addBackground(ctx, outer);     // 全屏警报底层（静态图 + 图层动画）
 
@@ -412,7 +425,7 @@ public class Shield {
         LinearLayout.LayoutParams pBrand = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
         pBrand.leftMargin = dp(ctx, 8);
         top.addView(brand, pBrand);
-        TextView lv = text(ctx, "风险等级 4 / 4", 12, 0xD9FFD6D0, true);
+        TextView lv = text(ctx, sub == null ? "风险等级 4 / 4" : "家人远程锁定", 12, 0xD9FFD6D0, true);
         lv.setLetterSpacing(0.12f);
         GradientDrawable lvBg = new GradientDrawable();
         lvBg.setCornerRadius(dp(ctx, 6));
@@ -449,7 +462,7 @@ public class Shield {
         glow.start();
 
         // ---------- 原因 + 号码 ----------
-        TextView t2 = text(ctx, "当前通话疑似诈骗", 23, 0xFFFFFFFF, true);
+        TextView t2 = text(ctx, sub == null ? "当前通话疑似诈骗" : sub, 23, 0xFFFFFFFF, true);
         t2.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams p2 = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         p2.topMargin = dp(ctx, 12);
@@ -555,7 +568,14 @@ public class Shield {
         });
 
         // ---------- 底部：告诉她这块红屏怎么消失（安心）----------
-        TextView foot = text(ctx, "此界面由银盾安全防护触发\n通话结束后将自动关闭", 16, 0xBFFFE1DC, false);
+        // 两种来路，消失的方式不一样，不能混着说：
+        //   有通话（sub 为空，是通话中拦下的）→ 通话结束会自动关
+        //   没通话（sub 有值，是家人远程锁的）→ 只能点上面那个按钮关
+        // 之前两种情况都写"通话结束后自动关闭"，远程锁定时就成了一句假话。
+        String footText = (sub == null)
+                ? "此界面由银盾安全防护触发\n通话结束后将自动关闭"
+                : "此界面由银盾安全防护触发\n2 分钟后自动关闭";
+        TextView foot = text(ctx, footText, 16, 0xBFFFE1DC, false);
         foot.setGravity(Gravity.CENTER);
         foot.setLineSpacing(dp(ctx, 4), 1f);
         LinearLayout.LayoutParams pf = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);

@@ -128,7 +128,13 @@ public class Speak {
         } catch (Exception ignored) {
         }
 
-        // ---------- 1. 预录音优先（产品的正式形态）----------
+        // ---------- 0. 家人自己录的那一句，优先级最高 ----------
+        // 这是产品真正想让人听到的声音：不是任何录好的模板，是女儿本人。
+        // 她在子女端录一次，云端存一份，老人手机提前缓存（见 FamilyVoice）。
+        // 没有就往下走——预录音 → TTS，三级兜底，绝不哑火。
+        if (FamilyVoice.play(ctx)) return;
+
+        // ---------- 1. 预录音次之（产品的正式形态）----------
         if (playAsset(ctx, key)) return;
 
         // ---------- 2. 没录音就用 TTS 顶上 ----------
@@ -186,6 +192,7 @@ public class Speak {
     }
 
     public static void stop() {
+        FamilyVoice.stop();   // 家人录音用的是另一个播放器，得一起掐
         if (tts != null && ttsReady) {
             try { tts.stop(); } catch (Exception ignored) {}
         }

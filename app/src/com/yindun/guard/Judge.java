@@ -402,6 +402,54 @@ public class Judge {
         }
         r.why = hits.length() == 0 ? "没命中任何可疑词" : hits.toString();
         r.hint = hintOf(r.stage);
+
+        // ---------- 5. 端侧小模型并联 ----------
+        // 放在官方宣传豁免之后：运营商的反诈宣传短信本身就是满屏高危词，
+        // 先让 noticeOf 把它摘出去，模型才不会每周来打扰一次。
+        return withTinyBert(r, body, who, isCode);
+    }
+
+    // ==========================================================
+    //  六之二、端侧小模型并联（docs/模型选型.md 4.1「部署」）
+    // ==========================================================
+    /**
+     * 规则和小模型并联：<b>任一判为可疑即提醒</b>。
+     *
+     * <p>为什么要并联：规则在留出集上漏报 60%，骗子换个说法关键词就一个都不中；
+     * 小模型看整句语义，能补这一块。但小模型也会误报（留出集 6.7%），
+     * 所以它<b>只能往上抬，不能往下压</b> —— 模型说"不像"，不能推翻规则已经抓到的证据。
+     *
+     * <p>模型缺席（架构不支持 / 加载失败 / 推理出错）时返回 -1，这里原样保留规则结论，
+     * 不假装模型判过。宁可退回纯规则，也不给一个编出来的分数。
+     *
+     * @param isCode 服务号发来的验证码是正常业务，不让模型参与，否则银行每天几条全被误伤
+     */
+    private Result withTinyBert(Result r, String body, String who, boolean isCode) {
+        if (body == null || body.length() == 0) return r;
+        if (isCode && "service".equals(who)) return r;
+
+        float p = TinyBert.score(body);
+        r.modelScore = p;
+        if (p < 0) return r;                       // 模型缺席：保持规则结论
+        if (p < TinyBert.threshold()) return r;    // 模型也认为不可疑，什么都不改
+
+        // 规则已经判到 warn 及以上，说明证据更硬，保留原判（不重复抬高、也不降级）
+        if (levelRank(r.level) >= levelRank("warn")) return r;
+
+        r.level = "warn";
+        if (r.score < lvWarn) r.score = lvWarn;
+        // 模型只给"这句话不对劲"的可疑度，说不出"骗子走到第几步"。
+        // 规则停在 S0/S1 时保守记为 S1（可疑接触），不往 S2 以上编。
+        if ("S0".equals(r.stage) || "S1".equals(r.stage)) {
+            r.stage = "S1";
+            r.hint = hintOf(r.stage);
+        }
+        r.byModel = true;
+
+        String head = (r.why == null || r.why.length() == 0 || "没命中任何可疑词".equals(r.why))
+                ? "规则没命中关键词" : r.why;
+        // 用向下取整而不是四舍五入：0.998 显示成 99% 而不是 100%，不把概率说满
+        r.why = head + "；端侧小模型判为可疑（" + (int) (p * 100) + "%）";
         return r;
     }
 
@@ -703,6 +751,8 @@ public class Judge {
         public String why = "";       // 命中了什么（内部用 + 子女端展示）
         public String hint = "";      // 给老人看的一句话
         public String exempt = null;  // 非空表示被豁免，值为 "publicity"（官方宣传短信）
+        public float modelScore = -1f; // 端侧小模型的诈骗概率；-1 表示模型缺席（不是"判了0"）
+        public boolean byModel = false; // 这一条是不是模型把等级抬上去的
 
         /** 拼成推给网页的 JSON 片段 */
         public String toJson() {
@@ -713,6 +763,8 @@ public class Judge {
                 o.put("score", score);
                 o.put("why", why);
                 o.put("hint", hint);
+                // -1 表示端侧模型这次没参与（架构不支持/加载失败），界面据此显示「未启用」而不是「判了0分」
+                o.put("modelScore", modelScore);
                 return o.toString();
             } catch (Exception e) {
                 return "{}";

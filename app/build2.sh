@@ -40,21 +40,32 @@ echo "[3/6] 编译 Java ..."
 find src $OUT/gen -name "*.java" > $OUT/sources.txt
 "$JDK/javac.exe" -encoding UTF-8 -source 8 -target 8 \
   -bootclasspath "$PLATFORM" \
+  -classpath "libs/mindspore-lite-java.jar" \
   -d $OUT/classes \
   @$OUT/sources.txt
 
 echo "[4/6] 转 dex ..."
 find $OUT/classes -name "*.class" > $OUT/classlist.txt
-"$BT/d8.bat" --lib "$PLATFORM" --min-api 24 --output $OUT/dex @$OUT/classlist.txt
+# MindSpore Lite 的 Java 接口也要一起转进 dex，否则运行期找不到 com.mindspore.Model
+"$BT/d8.bat" --lib "$PLATFORM" --min-api 24 --output $OUT/dex \
+  @$OUT/classlist.txt libs/mindspore-lite-java.jar
 
-echo "[5/6] 打包 dex 进 APK ..."
+echo "[5/6] 打包 dex 与原生库进 APK ..."
 OUT=$OUT PYTHONPATH= python - <<'PY'
 import os, zipfile, shutil
 out = os.environ['OUT']
 shutil.copy(out + '/base.apk', out + '/app-unsigned.apk')
 with zipfile.ZipFile(out + '/app-unsigned.apk', 'a', zipfile.ZIP_DEFLATED) as z:
     z.write(out + '/dex/classes.dex', 'classes.dex')
-print('    dex 已写入')
+    # 端侧模型的原生库（MindSpore Lite）。必须放在 lib/<abi>/ 下，系统才知道按 ABI 解压。
+    for abi in ('arm64-v8a', 'armeabi-v7a'):
+        d = os.path.join('jniLibs', abi)
+        if not os.path.isdir(d):
+            continue
+        for f in sorted(os.listdir(d)):
+            z.write(os.path.join(d, f), 'lib/%s/%s' % (abi, f))
+            print('   打包 lib/%s/%s' % (abi, f))
+print('   完成')
 PY
 
 "$BT/zipalign.exe" -f 4 $OUT/app-unsigned.apk $OUT/app-aligned.apk

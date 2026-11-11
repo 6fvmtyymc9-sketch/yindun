@@ -43,6 +43,8 @@ android {
             java.srcDirs = ['src']
             assets.srcDirs = ['assets']
             res.srcDirs = ['res']
+            // 端侧模型的原生库（MindSpore Lite 2.11，只放推理用的 .so，训练库不需要）
+            jniLibs.srcDirs = ['jniLibs']
         }
     }
 
@@ -78,4 +80,10 @@ android {
     lint {
         abortOnError false
     }
+}
+
+dependencies {
+    // MindSpore Lite 的 Java 接口（com.mindspore.Model / MSTensor / MSContext…）。
+    // 它不在 libs 之外的地方，原生库在 jniLibs/ 下，两者版本必须对应同一个 Lite 版本。
+    implementation files('libs/mindspore-lite-java.jar')
 }

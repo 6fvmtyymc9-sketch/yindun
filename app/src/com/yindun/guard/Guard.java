@@ -276,14 +276,25 @@ public class Guard {
         // 通话中打开银行由上面的组合判据处理，这里只管"挂断之后"这一段。
         if (!st.inCall() && CallRecord.riskActive() && !Shield.showing()) {
             String num = CallRecord.riskNumber();
-            Log.i(TAG, "挂断可疑电话后打开了银行 → 盖屏");
-            // 用 high 推子女（不在这里拨号）：盖屏 6 秒无人操作会自己拨，避免拨两次
-            Notifier.alertChild(ctx, "high", "妈妈在可疑通话结束后打开了手机银行",
-                    "刚才的陌生来电经通话复盘判定为疑似诈骗，目前已打开「" + label
-                            + "」。屏幕已拦截，请立即致电。");
+            String from = CallRecord.riskFrom();     // 非空 = 这条风险窗口是子女远程开的
             Acquaint.dismiss();
             TipBar.hide();
-            Shield.show(ctx, "暂停转账", num);
+            if (from != null) {
+                // 子女远程锁的转账：别跟老人说"刚才那通电话有诈"，她可能根本没在外地那一通里。
+                // 只说事实：家里人不让她这会儿动钱。
+                Log.i(TAG, "子女远程锁定的窗口内打开银行 → 盖屏");
+                Notifier.alertChild(ctx, "high", "妈妈在转账保护期内打开了手机银行",
+                        from + " 刚才开启了转账保护，现在老人打开了「" + label
+                                + "」。屏幕已拦截，建议立刻致电确认。");
+                Shield.show(ctx, "先别转账", null, "家人暂时锁定了转账");
+            } else {
+                Log.i(TAG, "挂断可疑电话后打开了银行 → 盖屏");
+                // 用 high 推子女（不在这里拨号）：盖屏 6 秒无人操作会自己拨，避免拨两次
+                Notifier.alertChild(ctx, "high", "妈妈在可疑通话结束后打开了手机银行",
+                        "刚才的陌生来电经通话复盘判定为疑似诈骗，目前已打开「" + label
+                                + "」。屏幕已拦截，请立即致电。");
+                Shield.show(ctx, "暂停转账", num);
+            }
         }
     }
 

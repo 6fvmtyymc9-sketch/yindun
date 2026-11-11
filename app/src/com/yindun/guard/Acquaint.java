@@ -448,7 +448,15 @@ public class Acquaint {
         return wrap;
     }
 
-    /** 去云端查这个号码被几个人举报过（号码信誉库），查到了改那一行字；查不到就说没有 */
+    /**
+     * 去云端查这个号码的信誉（号码网），查到了改那一行字；查不到就说查不到。
+     *
+     * 【2026-11-10 改：把"人举报"和"银盾判定"分开说】
+     *   以前这里只有 count 一个数，文案是"已有 N 位用户举报该号码"。
+     *   现在云端还会返回 shield（录音复盘判定为诈骗的次数），如果还沿用旧文案，
+     *   就等于把机器的结论说成是别人举报的 —— 那是编造事实。
+     *   所以分三种情况说：只有人举报、只有银盾判定、两者都有。
+     */
     private static void lookupReports(final Context ctx, final String number, final TextView tv) {
         if (number == null || number.length() < 5) {
             tv.setText("来电号码已隐藏，请谨慎接听");
@@ -457,26 +465,40 @@ public class Acquaint {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                int n = -1;
+                final int[] r = {-1, 0, 0};   // [是否查到, 用户举报数, 银盾判定数]
                 try {
                     org.json.JSONObject o = DrillNet.get(ctx, "/api/report/stats?number="
                             + java.net.URLEncoder.encode(number, "UTF-8"));
-                    if (o != null && o.optBoolean("ok")) n = o.optInt("count", 0);
+                    if (o != null && o.optBoolean("ok")) {
+                        r[0] = 1;
+                        r[1] = o.optInt("user", o.optInt("count", 0));
+                        r[2] = o.optInt("shield", 0);
+                    }
                 } catch (Exception ignored) {
                 }
-                final int cnt = n;
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        if (cnt > 0) {
-                            tv.setText("已有 " + cnt + " 位用户举报该号码");
-                            tv.setTextColor(0xFFB42318);
-                            tv.setTypeface(null, android.graphics.Typeface.BOLD);
-                        } else if (cnt == 0) {
-                            tv.setText("暂无该号码的举报记录");
-                        } else {
+                        if (r[0] < 0) {
                             tv.setText("暂时无法查询，请按陌生来电谨慎处理");
+                            return;
                         }
+                        int user = r[1], shield = r[2];
+                        if (shield > 0 && user > 0) {
+                            tv.setText("银盾判定该号码诈骗 " + shield + " 次 · " + user + " 位用户举报");
+                        } else if (shield > 0) {
+                            tv.setText("银盾已判定该号码诈骗 " + shield + " 次");
+                        } else if (user > 0) {
+                            tv.setText("已有 " + user + " 位用户举报该号码");
+                        } else {
+                            tv.setText("暂无该号码的记录");
+                            return;
+                        }
+                        // 判定 ≥3 次：已经不是"疑似"，一律加粗标红
+                        tv.setTextColor(0xFFB42318);
+                        tv.setTypeface(null, shield >= 3
+                                ? android.graphics.Typeface.BOLD
+                                : android.graphics.Typeface.NORMAL);
                     }
                 });
             }

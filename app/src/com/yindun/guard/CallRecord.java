@@ -78,6 +78,14 @@ public class CallRecord {
     /** 风险窗口：截止时间和那通电话的号码 */
     private static volatile long riskUntil = 0;
     private static volatile String riskNumber = null;
+    /**
+     * 这条风险窗口是谁开的。
+     *   null    = 录音复盘判出来的（"那通电话有问题"）
+     *   非 null = 子女远程锁的转账（"家里人不让你这会儿动钱"）
+     * 两种来源要说两种话：远程锁定时老人可能压根没接到诈骗电话，
+     * 跟她说"刚才那通电话有诈"就是编造。
+     */
+    private static volatile String riskFrom = null;
     /** 上一个处理过的文件，防止同一份录音传两次 */
     private static volatile String lastFile = null;
 
@@ -120,6 +128,26 @@ public class CallRecord {
 
     public static String riskNumber() {
         return riskNumber;
+    }
+
+    public static String riskFrom() {
+        return riskFrom;
+    }
+
+    /**
+     * 子女远程开一段转账保护窗口。
+     *
+     * 不录音、不读内容、也不需要那通电话存在 —— 就是"这 N 分钟里，
+     * 老人一打开手机银行就先盖一层屏，同时通知子女"。
+     *
+     * @param minutes 时长（分钟），调用方已经夹在 5~120 之间
+     * @param from    谁开的，用于界面文案（"女儿"）
+     */
+    public static void remoteLock(Context c, int minutes, String from) {
+        riskUntil = System.currentTimeMillis() + Math.max(1, minutes) * 60 * 1000L;
+        riskNumber = null;
+        riskFrom = (from == null || from.trim().length() == 0) ? "家人" : from.trim();
+        Log.i(TAG, "子女远程锁定转账 " + minutes + " 分钟（" + riskFrom + "）");
     }
 
     // ==========================================================
@@ -281,6 +309,7 @@ public class CallRecord {
         if (rk >= rank("high")) {
             riskUntil = System.currentTimeMillis() + RISK_WINDOW_MS;
             riskNumber = number;
+            riskFrom = null;    // 录音复盘开的窗口，不是子女远程锁的
             Log.i(TAG, "录音复盘判为 " + level + "，30 分钟内打开银行将直接盖屏");
         }
 

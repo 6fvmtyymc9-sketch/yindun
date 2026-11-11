@@ -333,7 +333,6 @@ public class Notifier {
                     String base = getBackend(ctx);
                     URL url = new URL(base + path);
                     conn = (HttpURLConnection) url.openConnection();
-            Pair.sign(ctx, conn);
                     Pair.sign(ctx, conn);
                     conn.setRequestMethod("POST");
                     conn.setConnectTimeout(3000);
@@ -347,8 +346,21 @@ public class Notifier {
 
                     int code = conn.getResponseCode();
                     Log.i(TAG, "推给后端 " + path + " 结果 " + code);
+
+                    // 服务端收了但拒了（参数错、签名错、路由不存在）也算没送到。
+                    // 2026-11 修过一版：当时 /api/alert 根本没注册，
+                    // 每次上报都是 404，却被 catch 之外这话路静默放过，
+                    // 表现就是"手机上弹了预警，子女端一条收不到"。
+                    if (code < 200 || code >= 300) {
+                        Outbox.add(ctx, path, o);
+                    } else {
+                        // 网通了，顺手把之前积压的也发走
+                        Outbox.flush(ctx);
+                    }
                 } catch (Exception e) {
                     Log.w(TAG, "后端推不出去（断网或没开服务）：" + path + " " + e.getMessage());
+                    // 不再丢弃。存起来，等网络回来再补发。
+                    Outbox.add(ctx, path, o);
                 } finally {
                     if (conn != null) conn.disconnect();
                 }

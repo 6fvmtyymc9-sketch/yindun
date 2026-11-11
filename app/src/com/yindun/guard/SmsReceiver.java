@@ -3,6 +3,7 @@ package com.yindun.guard;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.util.Log;
@@ -50,6 +51,12 @@ public class SmsReceiver extends BroadcastReceiver {
 
     /** 连续 4~8 位数字。验证码一般是这个长度 */
     private static final Pattern DIGITS = Pattern.compile("(?<!\\d)(\\d{4,8})(?!\\d)");
+
+    /**
+     * 每天最多送多少条短信去大模型复核。
+     * 正常老人一天到不了这个数；这道的用途是挡住短信轰炸，不是省钱省到抠门。
+     */
+    private static final int AI_REVIEW_PER_DAY = 120;
 
     @Override
     public void onReceive(Context ctx, Intent intent) {
@@ -106,7 +113,10 @@ public class SmsReceiver extends BroadcastReceiver {
         Judge.Result r = Judge.get(ctx).judgeSms(text, who, isCode);
         Stats.sms(ctx);
         Log.i(TAG, "短信 from=" + from + " who=" + who + " 验证码=" + isCode
-                + " 分数=" + r.score + " 阶段=" + r.stage + " 级别=" + r.level);
+                + " 分数=" + r.score + " 阶段=" + r.stage + " 级别=" + r.level
+                // 端侧模型分：-1 表示这台机器上模型缺席（架构不支持/加载失败），不是"判了0分"
+                + " 模型分=" + (r.modelScore < 0 ? "缺席" : String.format(java.util.Locale.CHINA, "%.4f", r.modelScore))
+                + " 命中=" + r.why);
 
         // ---------- 4. 推给界面（判据看板 + 子女端卡片） ----------
         try {
@@ -158,27 +168,86 @@ public class SmsReceiver extends BroadcastReceiver {
             alert(ctx, r.level, "疑似诈骗短信", "请勿点击短信中的链接");
         }
 
-        // ---------- 7. 灰区复审：本地拿不准的，交给华为云盘古判一次 ----------
+        // ---------- 7. 大模型复核：本地拿不准的，交给华为云 MaaS 判一次 ----------
         //
-        // 【什么是灰区】本地分数 30~45 之间。
-        //   低于 30 明显没事，高于 45 明显有事，只有中间这一小段谁都说不准。
+        // 【2026-11-10 改：门限从"30~45 分灰区"放宽到"本地没到 warn"】
         //
-        // 【为什么正好是这一段最需要模型】
-        //   因为"营销短信"和"钓鱼短信"在这一段长得最像。
-        //   比如"您有一笔退款待领取，请点击链接"——本地规则只能看词，
-        //   模型能看出"这话是在骗你点链接"。
+        // 起因：留出集 20 条诈骗漏报 12 条（60%），分数几乎清一色 15 分——
+        //   只命中"陌生号码"这一个特征。按原来的 30~45 门限，它们连复核的门都进不去。
+        //   也就是说：规则在"换一种说法"的诈骗面前是瞎的，模型不该跟着一起瞎。
         //
-        // 【为什么服务号例外】
-        //   银行、运营商的正常短信全在这一段，送模型纯属浪费钱，
-        //   而且模型的偶尔误判会把正常短信搞成警报。
+        // 放宽之前先量过一遍（cloud/test/ai-review.js，同一份 prompt、同一批样本）：
+        //   诈骗 12 条 → 模型抓回 12 条（100%）
+        //   正常  9 条 → 误判  1 条（11.1%）
+        //   误判的是「奶奶好，我是您孙女的同学，她让我跟您说今晚晚点回家」——
+        //   这条本身也是"陌生号码 + 冒充熟人"，提醒一句不算冤枉。
+        //   没有这组数就放宽门限，唯一的确定结果是 MaaS 账单变大。
+        //
+        // 【现在的门限】非服务号 + 本地未到 warn + （陌生号码 或 正文 ≥15 字）
+        //   · 排除服务号：银行、运营商、快递的正常短信全在低分段，送模型纯烧钱，
+        //     而且模型偶尔误判会把正常短信变成警报。
+        //   · 加"正文够长"：冒充亲友、投资理财不一定用陌生号，但一定啰嗦；
+        //     15 字以内多是验证码、取件码、问候。
+        //
+        // 【费用】单条约 0.0006 元。按每天 30 条进复核算，一天 2 分钱。
+        //   上方还有一道每日次数闸（AI_REVIEW_PER_DAY），防的是短信轰炸把账单打爆。
         //
         // 【关键：只升级，不降级】
         //   模型说"是诈骗" → 升级推给子女
         //   模型说"不是"   → 什么都不做
         //   绝不能因为模型一句"不是"，就把本地已经报出去的警报撤回来。
         //   这是安全产品的铁律：宁可多报，不可错放。
-        if (r.score >= 30 && r.score < 45 && !NumberInfo.SERVICE.equals(who)) {
+        if (shouldReview(ctx, who, r, text)) {
             aiReview(ctx.getApplicationContext(), text, who, r.score);
+        }
+    }
+
+    /**
+     * 这条短信要不要送大模型复核。
+     *
+     * 门限是量出来的，不是拍的 —— 见上面第 7 步注释里那组数字。
+     * 改这里之前先跑 `node cloud/test/ai-review.js holdout.json`，
+     * 拿新的抓回率/误报率说话。
+     */
+    private boolean shouldReview(Context ctx, String who, Judge.Result r, String text) {
+        // 服务号：银行/运营商/快递的正常短信都在这儿，送了纯烧钱
+        if (NumberInfo.SERVICE.equals(who)) return false;
+
+        // 本地已经判到 warn 及以上：警报早发出去了，模型再判一次也不会改变什么
+        boolean belowWarn = "none".equals(r.level) || "watch".equals(r.level);
+        if (!belowWarn) return false;
+
+        boolean stranger   = NumberInfo.STRANGER.equals(who);
+        boolean longEnough = text != null && text.length() >= 15;
+        if (!stranger && !longEnough) return false;
+
+        return aiQuota(ctx);
+    }
+
+    /**
+     * 每日复核次数闸。
+     *
+     * 【为什么需要】复核是手机直接连 MaaS，云端那套 IP 限流管不到它。
+     *   万一遇到短信轰炸（一条一条灌进来），账单就会跟着短信一起涨。
+     *   120 次远高于正常老人一天的量，但足以挡住异常。
+     *
+     * 【为什么计数器坏了要放行】宁可多花几毛钱，也不能因为读不到 SharedPreferences
+     *   就把整条 AI 复核悄悄关掉 —— 那等于功能没了还看不出来。
+     */
+    private boolean aiQuota(Context ctx) {
+        try {
+            SharedPreferences sp = ctx.getSharedPreferences("yindun", Context.MODE_PRIVATE);
+            String today = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA).format(new Date());
+            String day = sp.getString("aiReviewDay", "");
+            int n = today.equals(day) ? sp.getInt("aiReviewCount", 0) : 0;
+            if (n >= AI_REVIEW_PER_DAY) {
+                Log.w(TAG, "今日 AI 复核次数已用完（" + n + "），本条只走本地规则");
+                return false;
+            }
+            sp.edit().putString("aiReviewDay", today).putInt("aiReviewCount", n + 1).apply();
+            return true;
+        } catch (Exception e) {
+            return true;
         }
     }
 

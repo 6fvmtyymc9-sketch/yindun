@@ -7,6 +7,9 @@ node_modules/
 *.class
 *.dex
 *.log
+# 打出来的安装包（48MB，每个人本地 build2.sh 自己出）
+*.apk
+*.apk.idsig
 
 # ===== 本地环境配置（路径与本机绑定）=====
 local.properties

@@ -1,0 +1,352 @@
+[
+ {
+  "i": 0,
+  "expect": "fraud",
+  "type": "冒充公检法",
+  "text": "这里是派出所，你的银行账户被用于电信诈骗，现在要冻结，配合我们做资金核查",
+  "isFraud": true,
+  "reason": "冒充派出所要求资金核查",
+  "ms": 1790,
+  "hit": "ok"
+ },
+ {
+  "i": 1,
+  "expect": "fraud",
+  "type": "冒充反诈中心",
+  "text": "我是反诈中心的，你的资金不安全，需要转移到国家指定账户保管",
+  "isFraud": true,
+  "reason": "要求转账到指定账户是诈骗",
+  "ms": 1163,
+  "hit": "ok"
+ },
+ {
+  "i": 2,
+  "expect": "fraud",
+  "type": "冒充亲友",
+  "text": "爷爷，我是你孙子，我在外地出了点麻烦，需要一万块钱，你别跟我爸妈讲",
+  "isFraud": true,
+  "reason": "冒充孙子要钱，不让告诉父母",
+  "ms": 2017,
+  "hit": "ok"
+ },
+ {
+  "i": 3,
+  "expect": "fraud",
+  "type": "冒充熟人诈骗",
+  "text": "阿姨，我是你侄子，刚换了号码，最近资金周转不开，能不能先借点钱给我",
+  "isFraud": true,
+  "reason": "换号冒充侄子借钱",
+  "ms": 1823,
+  "hit": "ok"
+ },
+ {
+  "i": 4,
+  "expect": "fraud",
+  "type": "冒充熟人诈骗",
+  "text": "老哥，我是老李啊，换了个号，手头有个急事需要用钱，你方便吗",
+  "isFraud": true,
+  "reason": "冒充老李换号借钱",
+  "ms": 826,
+  "hit": "ok"
+ },
+ {
+  "i": 5,
+  "expect": "fraud",
+  "type": "兼职刷单诈骗",
+  "text": "宝妈兼职，手机就能做，一单一结，每天轻松赚两三百",
+  "isFraud": true,
+  "reason": "轻松高薪兼职多为骗局",
+  "ms": 1691,
+  "hit": "ok"
+ },
+ {
+  "i": 6,
+  "expect": "fraud",
+  "type": "刷单返利",
+  "text": "帮商家刷好评，先垫资购买，确认收货后本金加提成一起返还",
+  "isFraud": true,
+  "reason": "先垫资后返利，典型刷单诈骗",
+  "ms": 1616,
+  "hit": "ok"
+ },
+ {
+  "i": 7,
+  "expect": "fraud",
+  "type": "贷款诈骗",
+  "text": "您的征信有问题导致贷款无法到账，需要先缴纳一笔验证金证明还款能力",
+  "isFraud": true,
+  "reason": "以征信问题为由要求缴纳验证金",
+  "ms": 1806,
+  "hit": "ok"
+ },
+ {
+  "i": 8,
+  "expect": "fraud",
+  "type": "冒充客服诈骗",
+  "text": "我是京东金融客服，您开通的金条服务需要关闭，否则会影响您的征信",
+  "isFraud": true,
+  "reason": "假客服以影响征信诱导关闭服务",
+  "ms": 1774,
+  "hit": "ok"
+ },
+ {
+  "i": 9,
+  "expect": "fraud",
+  "type": "假冒客服理赔",
+  "text": "您好，您在我们平台购买的商品存在质量问题，我们会给您办理理赔，请配合操作",
+  "isFraud": true,
+  "reason": "以质量问题理赔为名诱导操作，谨防诈骗",
+  "ms": 1559,
+  "hit": "ok"
+ },
+ {
+  "i": 10,
+  "expect": "fraud",
+  "type": "理财诈骗",
+  "text": "老年人专属理财产品，保本保息，每月分红，比存银行划算多了",
+  "isFraud": true,
+  "reason": "承诺保本保息，诱骗老年人投资",
+  "ms": 3101,
+  "hit": "ok"
+ },
+ {
+  "i": 11,
+  "expect": "fraud",
+  "type": "虚假投资理财",
+  "text": "数字人民币内测名额，现在投入一万，三个月翻三倍",
+  "isFraud": true,
+  "reason": "数字人民币内测为名，承诺高额回报",
+  "ms": 2180,
+  "hit": "ok"
+ },
+ {
+  "i": 12,
+  "expect": "fraud",
+  "type": "中奖缴税诈骗",
+  "text": "恭喜您成为本台幸运观众，获得现金大奖八万元，请先缴纳个人所得税",
+  "isFraud": true,
+  "reason": "谎称中奖，要求先交税",
+  "ms": 1373,
+  "hit": "ok"
+ },
+ {
+  "i": 13,
+  "expect": "fraud",
+  "type": "假冒补贴诈骗",
+  "text": "国家给老年人发放高龄补贴，请回复您的姓名身份证号和银行卡号登记",
+  "isFraud": true,
+  "reason": "索要身份证银行卡，属诈骗",
+  "ms": 1817,
+  "hit": "ok"
+ },
+ {
+  "i": 14,
+  "expect": "fraud",
+  "type": "冒充医保诈骗",
+  "text": "您的医保账户异常，即将停用，请按语音提示进行身份核验",
+  "isFraud": true,
+  "reason": "医保异常停用，诱导语音核验",
+  "ms": 1230,
+  "hit": "ok"
+ },
+ {
+  "i": 15,
+  "expect": "fraud",
+  "type": "钓鱼诈骗",
+  "text": "【中国邮政】您的包裹因地址错误被退回，请于24小时内登录 https://ems-cn.top 更新",
+  "isFraud": true,
+  "reason": "假冒邮政，链接非官方",
+  "ms": 2309,
+  "hit": "ok"
+ },
+ {
+  "i": 16,
+  "expect": "fraud",
+  "type": "冒充社保",
+  "text": "尊敬的用户，您的电子社保卡已失效，请点击 http://sbk-gov.cc 重新激活",
+  "isFraud": true,
+  "reason": "诱导点击虚假链接，冒充社保诈骗",
+  "ms": 1443,
+  "hit": "ok"
+ },
+ {
+  "i": 17,
+  "expect": "fraud",
+  "type": "冒充超市骗验证码",
+  "text": "阿姨，我是您家附近超市的，刚才帮您领优惠券，您手机收到的数字告诉我一下",
+  "isFraud": true,
+  "reason": "冒充超市索要验证码，千万别给",
+  "ms": 1456,
+  "hit": "ok"
+ },
+ {
+  "i": 18,
+  "expect": "fraud",
+  "type": "冒充客服退款",
+  "text": "您打开手机设置里的屏幕录制，我这边帮您把多扣的钱退回去",
+  "isFraud": true,
+  "reason": "要求开屏幕录制退款是诈骗",
+  "ms": 1114,
+  "hit": "ok"
+ },
+ {
+  "i": 19,
+  "expect": "fraud",
+  "type": "慈善名义诈骗",
+  "text": "我们是慈善基金会，为困难老人发放慰问金，需先交500元手续费",
+  "isFraud": true,
+  "reason": "领慰问金先交手续费是骗局",
+  "ms": 1331,
+  "hit": "ok"
+ },
+ {
+  "i": 20,
+  "expect": "normal",
+  "type": "无",
+  "text": "【建设银行】您尾号5678的储蓄卡11月9日支出200.00元，余额3850.00元",
+  "isFraud": false,
+  "reason": "正常银行交易提醒",
+  "ms": 2281,
+  "hit": "ok"
+ },
+ {
+  "i": 21,
+  "expect": "normal",
+  "type": "无",
+  "text": "【滴滴出行】您的行程已结束，费用23.5元，感谢使用",
+  "isFraud": false,
+  "reason": "正常行程通知",
+  "ms": 1327,
+  "hit": "ok"
+ },
+ {
+  "i": 22,
+  "expect": "normal",
+  "type": "冒充燃气安检",
+  "text": "【燃气公司】您家燃气表将于11月20日入户安检，请家中留人",
+  "isFraud": true,
+  "reason": "冒称燃气公司入户，勿轻信",
+  "ms": 7685,
+  "hit": "wrong"
+ },
+ {
+  "i": 23,
+  "expect": "normal",
+  "type": "无",
+  "text": "【民政局】高龄津贴已按月发放至本人社保卡，无需办理任何手续",
+  "isFraud": false,
+  "reason": "正常通知，无诈骗特征",
+  "ms": 6017,
+  "hit": "ok"
+ },
+ {
+  "i": 24,
+  "expect": "normal",
+  "type": "",
+  "text": "【派出所】温馨提示：凡是让您下载会议软件共享屏幕的都是诈骗，请相互转告",
+  "isFraud": false,
+  "reason": "",
+  "ms": 1655,
+  "hit": "ok"
+ },
+ {
+  "i": 25,
+  "expect": "normal",
+  "type": "非诈骗",
+  "text": "【微信】验证码 908712，用于登录验证，请勿转发",
+  "isFraud": false,
+  "reason": "正常验证码短信",
+  "ms": 3593,
+  "hit": "ok"
+ },
+ {
+  "i": 26,
+  "expect": "normal",
+  "type": "正常短信",
+  "text": "妈，我下个月发工资了，给你买个新手机",
+  "isFraud": false,
+  "reason": "无诈骗特征",
+  "ms": 1932,
+  "hit": "ok"
+ },
+ {
+  "i": 27,
+  "expect": "normal",
+  "type": "冒充子女骗卡",
+  "text": "爸，你那个医保卡放哪了，我帮你去药店买药",
+  "isFraud": true,
+  "reason": "索要医保卡位置，勿回复",
+  "ms": 3704,
+  "hit": "wrong"
+ },
+ {
+  "i": 28,
+  "expect": "normal",
+  "type": "无",
+  "text": "您好，我是社区网格员，明天上门登记人口信息，请家里留人",
+  "isFraud": false,
+  "reason": "无诈骗特征",
+  "ms": 7776,
+  "hit": "ok"
+ },
+ {
+  "i": 29,
+  "expect": "normal",
+  "type": "非诈骗",
+  "text": "李阿姨，我是小区菜市场的，您订的排骨到了，有空来拿",
+  "isFraud": false,
+  "reason": "正常取货通知，无诈骗特征",
+  "ms": 2447,
+  "hit": "ok"
+ },
+ {
+  "i": 30,
+  "expect": "normal",
+  "type": "正常",
+  "text": "您好，您预约的上门维修师傅大约下午三点到",
+  "isFraud": false,
+  "reason": "预约维修通知，无诈骗特征",
+  "ms": 3041,
+  "hit": "ok"
+ },
+ {
+  "i": 31,
+  "expect": "normal",
+  "type": "正常",
+  "text": "老张，下周老年大学书法班开课，记得带毛笔",
+  "isFraud": false,
+  "reason": "课程通知类短信",
+  "ms": 1427,
+  "hit": "ok"
+ },
+ {
+  "i": 32,
+  "expect": "normal",
+  "type": "无",
+  "text": "您好，我是银行大堂经理，您的存单下周到期，有空可以来网点办理续存",
+  "isFraud": false,
+  "reason": "正常银行业务提醒",
+  "ms": 3743,
+  "hit": "ok"
+ },
+ {
+  "i": 33,
+  "expect": "normal",
+  "type": "无",
+  "text": "奶奶好，我是您孙女的同学，她让我跟您说今晚晚点回家",
+  "isFraud": false,
+  "reason": "仅告知晚归，无诈骗特征",
+  "ms": 16342,
+  "hit": "ok"
+ },
+ {
+  "i": 34,
+  "expect": "normal",
+  "type": "",
+  "text": "您的报纸订阅明年续订价格不变，有需要可以到邮局办理",
+  "isFraud": false,
+  "reason": "正常订阅通知",
+  "ms": 2423,
+  "hit": "ok"
+ }
+]

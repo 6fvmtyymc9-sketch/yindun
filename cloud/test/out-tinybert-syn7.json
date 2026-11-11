@@ -1,0 +1,282 @@
+[
+ {
+  "type": "冒充公检法",
+  "text": "这里是派出所，你的银行账户被用于电信诈骗，现在要冻结，配合我们做资金核查",
+  "expect": "fraud",
+  "p": 0.9999,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "冒充公检法",
+  "text": "我是反诈中心的，你的资金不安全，需要转移到国家指定账户保管",
+  "expect": "fraud",
+  "p": 0.9998,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "冒充亲友",
+  "text": "爷爷，我是你孙子，我在外地出了点麻烦，需要一万块钱，你别跟我爸妈讲",
+  "expect": "fraud",
+  "p": 0.9998,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "冒充亲友",
+  "text": "阿姨，我是你侄子，刚换了号码，最近资金周转不开，能不能先借点钱给我",
+  "expect": "fraud",
+  "p": 0.9999,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "冒充亲友",
+  "text": "老哥，我是老李啊，换了个号，手头有个急事需要用钱，你方便吗",
+  "expect": "fraud",
+  "p": 0.9998,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "刷单兼职",
+  "text": "宝妈兼职，手机就能做，一单一结，每天轻松赚两三百",
+  "expect": "fraud",
+  "p": 0.9998,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "刷单兼职",
+  "text": "帮商家刷好评，先垫资购买，确认收货后本金加提成一起返还",
+  "expect": "fraud",
+  "p": 0.9998,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "贷款",
+  "text": "您的征信有问题导致贷款无法到账，需要先缴纳一笔验证金证明还款能力",
+  "expect": "fraud",
+  "p": 0.9998,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "客服退款",
+  "text": "我是京东金融客服，您开通的金条服务需要关闭，否则会影响您的征信",
+  "expect": "fraud",
+  "p": 0.9998,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "客服退款",
+  "text": "您好，您在我们平台购买的商品存在质量问题，我们会给您办理理赔，请配合操作",
+  "expect": "fraud",
+  "p": 0.9998,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "投资理财",
+  "text": "老年人专属理财产品，保本保息，每月分红，比存银行划算多了",
+  "expect": "fraud",
+  "p": 0.9996,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "投资理财",
+  "text": "数字人民币内测名额，现在投入一万，三个月翻三倍",
+  "expect": "fraud",
+  "p": 0.9988,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "中奖",
+  "text": "恭喜您成为本台幸运观众，获得现金大奖八万元，请先缴纳个人所得税",
+  "expect": "fraud",
+  "p": 0.9998,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "养老医保",
+  "text": "国家给老年人发放高龄补贴，请回复您的姓名身份证号和银行卡号登记",
+  "expect": "fraud",
+  "p": 0.9998,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "养老医保",
+  "text": "您的医保账户异常，即将停用，请按语音提示进行身份核验",
+  "expect": "fraud",
+  "p": 0.9998,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "钓鱼链接",
+  "text": "【中国邮政】您的包裹因地址错误被退回，请于24小时内登录 https://ems-cn.top 更新",
+  "expect": "fraud",
+  "p": 0.9787,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "钓鱼链接",
+  "text": "尊敬的用户，您的电子社保卡已失效，请点击 http://sbk-gov.cc 重新激活",
+  "expect": "fraud",
+  "p": 0.9998,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "索要验证码",
+  "text": "阿姨，我是您家附近超市的，刚才帮您领优惠券，您手机收到的数字告诉我一下",
+  "expect": "fraud",
+  "p": 0.9998,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "屏幕共享",
+  "text": "您打开手机设置里的屏幕录制，我这边帮您把多扣的钱退回去",
+  "expect": "fraud",
+  "p": 0.9998,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "其他",
+  "text": "我们是慈善基金会，为困难老人发放慰问金，需先交500元手续费",
+  "expect": "fraud",
+  "p": 0.9999,
+  "pred": "fraud",
+  "hit": true
+ },
+ {
+  "type": "银行通知",
+  "text": "【建设银行】您尾号5678的储蓄卡11月9日支出200.00元，余额3850.00元",
+  "expect": "normal",
+  "p": 0.0002,
+  "pred": "normal",
+  "hit": true
+ },
+ {
+  "type": "生活服务",
+  "text": "【滴滴出行】您的行程已结束，费用23.5元，感谢使用",
+  "expect": "normal",
+  "p": 0.0003,
+  "pred": "normal",
+  "hit": true
+ },
+ {
+  "type": "生活服务",
+  "text": "【燃气公司】您家燃气表将于11月20日入户安检，请家中留人",
+  "expect": "normal",
+  "p": 0.0002,
+  "pred": "normal",
+  "hit": true
+ },
+ {
+  "type": "政务通知",
+  "text": "【民政局】高龄津贴已按月发放至本人社保卡，无需办理任何手续",
+  "expect": "normal",
+  "p": 0.0003,
+  "pred": "normal",
+  "hit": true
+ },
+ {
+  "type": "反诈宣传",
+  "text": "【派出所】温馨提示：凡是让您下载会议软件共享屏幕的都是诈骗，请相互转告",
+  "expect": "normal",
+  "p": 0.0003,
+  "pred": "normal",
+  "hit": true
+ },
+ {
+  "type": "验证码",
+  "text": "【微信】验证码 908712，用于登录验证，请勿转发",
+  "expect": "normal",
+  "p": 0.0003,
+  "pred": "normal",
+  "hit": true
+ },
+ {
+  "type": "家人",
+  "text": "妈，我下个月发工资了，给你买个新手机",
+  "expect": "normal",
+  "p": 0.0013,
+  "pred": "normal",
+  "hit": true
+ },
+ {
+  "type": "家人",
+  "text": "爸，你那个医保卡放哪了，我帮你去药店买药",
+  "expect": "normal",
+  "p": 0.0005,
+  "pred": "normal",
+  "hit": true
+ },
+ {
+  "type": "陌生正常",
+  "text": "您好，我是社区网格员，明天上门登记人口信息，请家里留人",
+  "expect": "normal",
+  "p": 0.9393,
+  "pred": "fraud",
+  "hit": false
+ },
+ {
+  "type": "陌生正常",
+  "text": "李阿姨，我是小区菜市场的，您订的排骨到了，有空来拿",
+  "expect": "normal",
+  "p": 0.0013,
+  "pred": "normal",
+  "hit": true
+ },
+ {
+  "type": "陌生正常",
+  "text": "您好，您预约的上门维修师傅大约下午三点到",
+  "expect": "normal",
+  "p": 0.0003,
+  "pred": "normal",
+  "hit": true
+ },
+ {
+  "type": "陌生正常",
+  "text": "老张，下周老年大学书法班开课，记得带毛笔",
+  "expect": "normal",
+  "p": 0.9881,
+  "pred": "fraud",
+  "hit": false
+ },
+ {
+  "type": "陌生正常",
+  "text": "您好，我是银行大堂经理，您的存单下周到期，有空可以来网点办理续存",
+  "expect": "normal",
+  "p": 0.9997,
+  "pred": "fraud",
+  "hit": false
+ },
+ {
+  "type": "陌生正常",
+  "text": "奶奶好，我是您孙女的同学，她让我跟您说今晚晚点回家",
+  "expect": "normal",
+  "p": 0.001,
+  "pred": "normal",
+  "hit": true
+ },
+ {
+  "type": "陌生正常",
+  "text": "您的报纸订阅明年续订价格不变，有需要可以到邮局办理",
+  "expect": "normal",
+  "p": 0.9783,
+  "pred": "fraud",
+  "hit": false
+ }
+]

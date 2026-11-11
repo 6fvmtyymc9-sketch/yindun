@@ -78,7 +78,9 @@ class Db {
       why: a.why || '',
       summary: a.summary || null,
       channel: a.channel || 'push',
-      created_at: new Date(),
+      // at：手机补发的旧预警要按"事情真正发生的时刻"入库，否则子女端时间线会错位。
+      // 不传则用服务器当前时间（正常实时上报就是这条路径）。
+      created_at: a.at ? new Date(a.at) : new Date(),
     };
     if (this.online) {
       try {
@@ -191,11 +193,18 @@ class Db {
   async addReport(r) {
     const row = {
       elder_id: r.elderId || 'demo',
-      // 谁提交的：老人自己在手机上查，还是子女在微信里看到后转过来。
-      // 只认两个值，别的一律当老人自己提交 —— 宁可归错也不写脏数据。
-      reporter: r.reporter === 'child' ? 'child' : 'elder',
+      // 谁提交的：
+      //   elder     = 老人在自己手机上查的
+      //   child     = 子女在微信里看到后代传的
+      //   callaudio = 不是人提交的，是通话录音复盘判出来的
+      // 只认这三个值，别的一律归到老人自己 —— 宁可归错也不写脏数据。
+      //
+      // 【为什么要区分 callaudio】号码网要能给老人看两种不同的话：
+      //   "3 位老人举报过这个号码"（人报的） vs "银盾已判定该号码诈骗 3 次"（机器判的）,
+      //   前者是群众经验，后者是本产品的结论，混在一起说就成了含糊其辞。
+      reporter: ['child', 'callaudio'].includes(r.reporter) ? r.reporter : 'elder',
       number: r.number || '',
-      source: r.source || 'text',        // text | image
+      source: ['image', 'call'].includes(r.source) ? r.source : 'text',   // text | image | call
       excerpt: (r.excerpt || '').slice(0, 200),
       image_bytes: r.imageBytes || 0,
       is_fraud: r.isFraud ? 1 : 0,
@@ -237,6 +246,55 @@ class Db {
       } catch (e) { /* 落下去走内存 */ }
     }
     return mem.report.filter(x => x.number === number && x.is_fraud).length;
+  }
+
+  /**
+   * 号码信誉：把"人举报的"和"机器判定的"分开数。
+   *
+   * 为什么必须分开：老人看到"这个号码被举报过 3 次"和"银盾判定这个号码诈骗 3 次"，
+   * 是两种不同的信任依据。混成一个数，等于拿机器的结论冒充群众经验，
+   * 说轻了是含糊，说重了是编造。
+   */
+  async countReportsSplit(number) {
+    if (!number) return { user: 0, shield: 0, total: 0 };
+    if (this.online) {
+      try {
+        const [[r]] = await this.pool.execute(
+          `SELECT
+             SUM(CASE WHEN reporter='callaudio' THEN 0 ELSE 1 END) AS u,
+             SUM(CASE WHEN reporter='callaudio' THEN 1 ELSE 0 END) AS s
+           FROM yd_report WHERE number=? AND is_fraud=1`, [number]);
+        const user = Number(r.u) || 0;
+        const shield = Number(r.s) || 0;
+        return { user, shield, total: user + shield };
+      } catch (e) { /* 落下去走内存 */ }
+    }
+    const hit = mem.report.filter(x => x.number === number && x.is_fraud);
+    const shield = hit.filter(x => x.reporter === 'callaudio').length;
+    return { user: hit.length - shield, shield, total: hit.length };
+  }
+
+  /**
+   * 同一台手机、同一个号码，今天是不是已经记过一次了。
+   *
+   * 【为什么要有】录音复盘是老人/子女手动点的，同一条录音点三遍就变成"判定 3 次"，
+   *   号码网的数据立刻失真。次数代表的是"多少台设备独立判过它"，
+   *   不是"被人点了多少次按钮"。
+   */
+  async hasReportSince(number, elderId, sinceMs) {
+    if (!number) return false;
+    const since = new Date(Number(sinceMs) || 0);
+    if (this.online) {
+      try {
+        const [[r]] = await this.pool.execute(
+          `SELECT COUNT(*) AS n FROM yd_report
+            WHERE number=? AND elder_id=? AND reporter='callaudio' AND created_at>=?`,
+          [number, elderId || 'demo', since]);
+        return (Number(r.n) || 0) > 0;
+      } catch (e) { /* 落下去走内存 */ }
+    }
+    return mem.report.some(x => x.number === number && x.elder_id === (elderId || 'demo')
+      && x.reporter === 'callaudio' && new Date(x.created_at).getTime() >= since.getTime());
   }
 
   /** 最近的上报记录，给"查看历史"用 */

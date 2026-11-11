@@ -27,6 +27,8 @@ const { Guard } = require('./Guard');
 const { Drill } = require('./Drill');
 const { RateLimit, clientIp } = require('./RateLimit');
 const { registerCallAudio } = require('./CallAudio');
+const { Sft } = require('./Sft');
+const { registerVoice } = require('./Voice');
 const { registerPairs } = require('./Pairs');
 
 const PORT = Number(process.env.PORT || 8080);
@@ -133,6 +135,12 @@ function initPool() {
 // ============================================================================
 
 const pangu = new Pangu();
+/**
+ * 反诈专用模型（AntiFraud-SFT）：听音频的第三票。
+ * SFT_URL 留空就是不启用 —— 它 16GB、要 GPU，ECS 那台 2 核 2GB 放不下。
+ * 在能跑推理的机器上起 tools/sft_server.py，把地址填进 .env 就接上了。
+ */
+const sft = new Sft();
 const state = new State(null);   // 等 redis 连上后再注入
 const db = new Db(null);
 const drill = new Drill({ pangu, db });   // AI 模拟演练（定期）
@@ -165,10 +173,14 @@ const app = express();
 const pairing = registerPairs(app, express);
 
 // 通话录音复盘：自带 40mb 的 body 上限，必须注册在全局 express.json 之前
-registerCallAudio(app, { getJudge: () => judge, pangu, db, pushTo });
+registerCallAudio(app, { getJudge: () => judge, pangu, db, pushTo, sft });
 
 app.use(express.json({ limit: '12mb' }));
 app.use(pairing.guard);   // body 里的 elderId 不能冒充别的老人   // 要收 base64 截图，默认 256kb 不够
+
+// 亲情语音盾：子女录的那一句话。必须放在 pairing.guard 之后 ——
+// 老人端只能取自己配对的那份，elderId 由身份中间件改写，不认 query 里填的
+const voice = registerVoice(app, { dir: path.join(ROOT, 'data', 'voice') });
 app.use(express.static(path.join(ROOT, 'public'), { etag: false }));
 
 // ============================================================================
@@ -228,7 +240,9 @@ app.get('/api/health', async (req, res) => {
     rules: { version: (rulesVer && rulesVer.version) || currentRules.version || 'file', keywords: currentRules.sms_keywords.length },
     storage: { rds: db.online, redis: !!redis },
     model: { enabled: pangu.enabled, model: pangu.model },
+    sft: await sft.ping(),   // 专用模型的真实状态：没配就说没配，不要装作有
     limits: { reportPerDay: REPORT_PER_DAY, drillTurnPerDay: DRILL_TURN_PER_DAY, trustProxy: TRUST_PROXY },
+    voice: { families: voice.stats() },   // 有多少位老人的家人录过提醒语音
     stats,
   });
 });
@@ -268,22 +282,46 @@ app.post('/api/event', async (req, res) => {
  *   手机端每次上报都是 404，又被 catch 静默吞掉 —— 表现就是
  *   "手机上明明弹了预警，电脑上的子女端一条也收不到"。
  */
+/** 时间戳 → HH:MM；不是今天就带上月-日。用于"补发"标注。 */
+function stampOf(ts) {
+  const d = new Date(ts);
+  const now = new Date();
+  const hm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  const sameDay = d.getFullYear() === now.getFullYear()
+    && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+  return sameDay ? hm : `${d.getMonth() + 1}-${d.getDate()} ${hm}`;
+}
+
 app.post('/api/alert', async (req, res) => {
   const b = req.body || {};
   const elderId = b.elderId || 'demo';
   const LEVELS = ['watch', 'warn', 'high', 'block'];
   const level = LEVELS.indexOf(String(b.level)) >= 0 ? String(b.level) : 'watch';
   const title = String(b.title || '').slice(0, 120);
-  const body = String(b.body || '').slice(0, 500);
   const why = String(b.why || '').slice(0, 500);
   const channel = b.channel === 'push+call' ? 'push+call' : 'push';
+
+  // ---------- 断网补发 ----------
+  // 手机上报失败会存本地队列，联网后重发，并带上事件真正发生的时间戳 at。
+  // 【为什么必须标出来】补发到达时，子女端如果不加说明，看起来就是
+  // "妈妈刚刚打开了手机银行"——那是没发生的事。真实情况是十几分钟前发生的。
+  // 【为什么 at 要做边界检查】手机时间可能被改过（老人机常见）。
+  // 只接受"过去 7 天内、未来 5 分钟以内"的时间戳，超出就当没传，用服务器时间。
+  const rawAt = Number(b.at) || 0;
+  const now = Date.now();
+  const at = (rawAt > now - 7 * 24 * 3600e3 && rawAt < now + 5 * 60e3) ? rawAt : 0;
+  const lagMs = at > 0 ? now - at : 0;
+  const lateNote = lagMs > 60000 ? `（断网补发，实际发生于 ${stampOf(at)}）` : '';
+  let body = String(b.body || '').slice(0, 500);
+  if (lateNote) body = body.slice(0, 460) + lateNote;
 
   if (!title && !body) {
     return res.status(400).json({ ok: false, msg: 'title 和 body 不能都为空' });
   }
 
   try {
-    const id = await db.addAlert({ elderId, level, title, body, why, channel });
+    // 补发的旧消息按真实发生时间入库，子女端时间线才不会把 18:42 的事排到 21:00
+    const id = await db.addAlert({ elderId, level, title, body, why, channel, at });
     const d = new Date();
     const hhmm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
 
@@ -348,6 +386,60 @@ app.get('/api/alerts', async (req, res) => {
   const elderId = req.query.elderId || 'demo';
   const limit = Number(req.query.limit || 20);
   res.json({ ok: true, list: await db.listAlerts(elderId, limit) });
+});
+
+// ============================================================================
+//  子女远程干预：把子女的动作变成老人手机上立刻发生的事
+// ----------------------------------------------------------------------------
+//  两个动作：
+//    nudge —— 老人手机全屏弹蓝屏「女儿正在联系您，请先不要操作」+ 持续振动
+//    lock  —— 开一个 30 分钟的风险窗口，这段时间老人打开手机银行就盖红屏
+//
+//  【为什么指令也要留一份】推送是"尽力而为"：老人手机可能刚好在电梯里、
+//    后台被国产 ROM 杀了、SSE 断着。子女按了按钮却什么都没发生，是最糟的体验 ——
+//    她会以为"我已经提醒过妈妈了"，然后放心地不再打电话。
+//    所以每条指令都存下来，老人端上线后靠 /api/command/poll 把没收到过的补齐。
+//
+//  【身份】子女端必须带配对凭证（X-Yd-Child），只能指挥自己配对的那位老人。
+// ============================================================================
+const commands = new Map();      // elderId -> [{id, action, minutes, at}]
+let cmdSeq = 1;
+
+app.post('/api/command', async (req, res) => {
+  const b = req.body || {};
+  const elderId = req.yd.elderId || b.elderId || 'demo';
+  const action = String(b.action || '').trim();
+  if (action !== 'nudge' && action !== 'lock') {
+    return res.status(400).json({ ok: false, msg: 'action 只能是 nudge（提醒）或 lock（锁定转账）' });
+  }
+  // 时间夹在 5~120 分钟：太短起不到作用，太长等于把老人的手机锁死
+  const minutes = Math.min(120, Math.max(5, Number(b.minutes) || 30));
+  // 老人屏幕上那句"X 正在联系您"里的 X。子女端不填就叫"家人" ——
+  // 我们不知道对面是女儿还是儿子，猜一个就是替用户编造。
+  const from = String(b.from || '').trim().slice(0, 12) || '家人';
+  const cmd = { id: cmdSeq++, action, minutes, at: Date.now(), from };
+  const list = commands.get(elderId) || [];
+  list.push(cmd);
+  while (list.length > 20) list.shift();   // 只留最近 20 条，内存不涨
+  commands.set(elderId, list);
+
+  const online = (streams.get(elderId) || new Set()).size;
+  pushTo(elderId, { type: 'command', id: cmd.id, action, minutes, at: cmd.at, from });
+  console.log(`[command] ${elderId} ← ${action}${action === 'lock' ? ' ' + minutes + ' 分钟' : ''}（在线端 ${online}）`);
+
+  res.json({
+    ok: true, id: cmd.id, action, minutes, online,
+    // 这句是给子女端原样显示的：不能明明没送到还说"已提醒"
+    msg: online > 0 ? '已送达老人手机' : '已下达，老人手机当前不在线，联网后会自动执行',
+  });
+});
+
+/** 老人端兜底轮询：把 after 之后没收到过的指令取走 */
+app.get('/api/command/poll', (req, res) => {
+  const elderId = req.yd.elderId || req.query.elderId || 'demo';
+  const after = Number(req.query.after || 0) || 0;
+  const list = (commands.get(elderId) || []).filter(c => c.id > after);
+  res.json({ ok: true, list, now: Date.now() });
 });
 
 // ---------- 熟人标记 ----------
@@ -533,8 +625,18 @@ app.post('/api/report', async (req, res) => {
 app.get('/api/report/stats', async (req, res) => {
   const number = String(req.query.number || '').trim();
   if (!number) return res.status(400).json({ ok: false, msg: '缺少 number' });
-  const count = await db.countReports(number).catch(() => 0);
-  res.json({ ok: true, number, count, blacklisted: count >= 3 });
+  // 分开数：user = 人举报的，shield = 银盾录音复盘判定的。
+  // count 保留成两者之和，是为了老版本 App 不用改也能用。
+  const s = await db.countReportsSplit(number).catch(() => ({ user: 0, shield: 0, total: 0 }));
+  const count = s.total || 0;
+  res.json({
+    ok: true, number, count,
+    user: s.user || 0,
+    shield: s.shield || 0,
+    blacklisted: count >= 3,
+    // 只有"银盾自己判了 ≥3 次"才升级红色：群众举报 3 次也可能是同一件事被三个人转述
+    redAlert: (s.shield || 0) >= 3,
+  });
 });
 
 /** 最近的上报记录 */

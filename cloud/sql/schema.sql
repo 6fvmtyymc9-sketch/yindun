@@ -94,9 +94,9 @@ CREATE TABLE IF NOT EXISTS yd_user (
 CREATE TABLE IF NOT EXISTS yd_report (
   id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   elder_id    VARCHAR(64)     NOT NULL DEFAULT 'demo',
-  reporter    ENUM('elder','child') NOT NULL DEFAULT 'elder' COMMENT '谁提交的：elder=老人自己，child=子女代传',
+  reporter    ENUM('elder','child','callaudio') NOT NULL DEFAULT 'elder' COMMENT '谁提交的：elder=老人自己，child=子女代传，callaudio=录音复盘判定',
   number      VARCHAR(32)     NOT NULL DEFAULT ''            COMMENT '可疑号码，用于信誉库',
-  source      ENUM('text','image') NOT NULL DEFAULT 'text',
+  source      ENUM('text','image','call') NOT NULL DEFAULT 'text',
   excerpt     VARCHAR(200)    NOT NULL DEFAULT ''            COMMENT '文字摘录，最多200字',
   image_bytes INT UNSIGNED    NOT NULL DEFAULT 0             COMMENT '原图字节数（不存图）',
   is_fraud    TINYINT(1)      NOT NULL DEFAULT 0,

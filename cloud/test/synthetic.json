@@ -1,0 +1,3141 @@
+{
+ "generatedAt": "2026-11-10T12:18:42.279Z",
+ "method": "DeepSeek 按 cases.json 已有套路换说法扩写",
+ "caution": "合成数据，不是真实收集样本；与 holdout 已做 4-gram 查重（阈值 0.3）",
+ "perType": 25,
+ "dropped": {
+  "duplicate": 0,
+  "nearHoldout": 1
+ },
+ "cases": [
+  {
+   "text": "您好，这里是通信管理局，您名下手机号被举报发送违法信息，稍后会有民警联系您，请保持电话畅通",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老人家，我是分局办案人员，您的一张银行卡涉嫌一起案件，请尽快联系我说明情况，电话138xxxx5678",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的社保卡在异地被冒用，涉及刑事案件，请拨打010-6xxxxxxx配合核查，否则将冻结您所有账户",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "中级人民法院提醒：您涉及一桩经济纠纷案件，尚未领取法律文书，请回电确认，逾期将缺席判决",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是刑侦队的，您身份信息被用于开设非法账户，案件涉密，先别跟家里人说，加我QQ配合调查",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的银行账户已被列入涉案名单，请将存款转入我们指定的审查账户，核实无误后原路退回",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "检察院通知：您涉嫌帮助他人转移资金，需配合资产清查，请把名下存款集中到一个账户备查",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我是反诈中心工作人员，您正被冒名涉案，请提供您的银行卡号和余额，以便我们帮您保护资金",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老人家，有个案子牵涉到您的身份证，需要您配合做个笔录，方便的话留个电话，我们上门找您",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "这里是公安厅专案组，您的账户涉嫌洗钱，请立即前往银行将钱取出存入安全账户，不要挂断电话",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的医保卡涉嫌骗保案件，已被立案，请按提示操作核实身份，否则将影响您领取养老金",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是负责您案子的检察官，情况对您不利，但可以争取从轻，先转五万元保证金过来表示配合",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您有一份协查通知未签收，涉及您名下账户被用于违法活动，请登录链接查询详情并尽快回复",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老爷子，我是街道派出所的，上面下来一个案子跟您有关，您先别急，把身份证号报给我核对一下",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "法院执行局：因您未履行判决，将冻结您名下资产，如有异议请回电说明，逾期不再受理",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，您的身份被他人盗用注册公司，该公司涉嫌犯罪，需您配合调查，请加微信详谈",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是办案民警，您涉嫌一起跨省诈骗案，现在需要您下载一款软件做资金核查，我发链接给您",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "通信管理局提示：您名下号码涉嫌诈骗被停用，请配合公安机关核查，回拨本号码了解情况",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的老伴名下账户有异常，涉及一起案件，请让他本人尽快联系我们，电话010-8xxxxxxx",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "检察院反贪部门：您退休金账户涉嫌接收赃款，请配合将资金转入监管账户接受审查",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是公安局的，您银行卡有问题，为了您安全，请把钱转到我们单位账户暂存，查清后归还",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您被列入涉案人员名单，需要缴纳两万元取保候审金，请于今日下午五点前汇入指定账户",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，这里是专案组，您涉嫌洗钱，考虑到您年纪大，只要配合资金核查就不追究，请联系我",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "法院通知：您被人起诉索赔，涉案金额三十万元，请尽快回电应诉，否则按缺席处理冻结财产",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是通信公司的，您的号码涉案被监控，公安马上会联系您，请别关机，也别告诉子女",
+   "expect": "fraud",
+   "type": "冒充公检法",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "外公，我手机被偷了这是临时号，跟朋友合伙进货差八千，你先转我卡上回头就还你",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "奶奶，我出车祸了人在医院，对方不让我打电话，你把5万打到这个账户别告诉我妈",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "姥姥，是我啊，这号刚办的，你先存上，回头有件大事想请你帮个忙",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "妈，我在外地钱包证件全丢了，朋友帮我垫了钱，你先打两万到我这张新卡上",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爷爷，我跟人起了争执被扣住了，对方要3万才放人，你快想办法，别声张",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爸，我换号了旧卡扔了，急事用钱，你先转一万五到这个卡号，晚点我再跟你细说",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大姨，我是小峰，手机进水了新号，手头紧了借我六千，回头我上门还你",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老同学好久不见，我是老李，号码变了，有急事想找你周转一下，你回个话",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "奶奶你猜我是谁，先别急着问，把这个号存起来，我有件为难的事只敢跟你说",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "舅，我的号被停了这是新号，出了点麻烦要五万摆平，你先打钱别告诉我爸妈",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "妈我手机摔坏了借同学的号，别打这个电话，先加我微信，有急事跟你讲",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "外婆，我在外面惹事了要赔人家钱，你现在方便的话给我转4万，事后再跟你解释",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爷爷，我朋友惹上麻烦我帮着担了，急需八千块，你就打这个账号别多问",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爸，我这边出事了要先垫钱，你先转三万到这个卡，回头见面我全跟你说清楚",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "姨妈我是小林，刚换号，最近遇上点难处想借点钱周转，你先记下我新号",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "奶奶，我手机丢了用别人的，急需钱你先给我转两万，千万别跟我爸妈提",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老同学我是张强，号码换了，最近手头紧想跟你借八千，你方便就回我一下",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "妈，我人在医院手机也没了，这是我的新号，先转五万过来救急，别告诉爸",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "姥爷，我被人讹上了要赔钱私了，你赶紧打三万到我这个卡上，回头再讲",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "姑姑，是我，我换号了，出了点事缺钱，你先借我一万，别跟家里其他人说",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爸，我把别人东西弄坏了要赔，手机也丢了，你先往这张卡打两万块钱",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "奶奶你还记得我吗，我号码换了你存一下，有件事想麻烦你，你先别告诉别人",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "二叔，我是侄子，手机坏了这是新号，急用钱你先转我一万二，我回头还你",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "妈，我现在说话不方便，你先加这个号，等会我发个卡号给你，急用钱",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "外婆，我跟人打架把人弄伤了要赔钱，你打四万到这个账户，别让我妈知道",
+   "expect": "fraud",
+   "type": "冒充亲友",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "阿姨您好，我们平台招退休人员做线上点赞，动动手指一天能挣两百多，加V：kf6688了解详情",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大爷，您被选为社区服务体验员，每天签到领红包，不用出门，详情加客服qq：33558899",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老同志，帮商家点好评一单给15元，微信秒到账，想做的加我：zp2233",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "叔叔阿姨好，招募手机操作员，看看视频点点赞，一天赚点买菜钱，加微信号：dd5582咨询",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爷爷您好，我这边有个轻松活儿，帮网店做任务，每天现结，加我微信：kf8899细说",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "退休在家也能赚钱啦，每天点点手机就有收益，加微信：gz6688领取任务",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大妈，我们这个兼职不耽误做饭带孙子，每单给20块，当天结，加qq：22889966报名",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大爷，您的手机号被抽中做试用员了，下载APP体验就给红包，加微信：sy2233领取",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老同志您好，帮平台完成简单任务，做完立返本金加奖励，加V：rw8899咨询",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "阿姨，我们招线上帮手，刷个好评就有钱，一天能做十几单，加微信：px6688",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "叔叔您好，这里有个在家做的手工活兼线上任务，先做先得，加qq：33669922了解",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爷爷奶奶们注意了，招募网络体验员，每天点几下，收益当天到账，加微信号：ty5588",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大妈您好，想赚零花钱吗，帮我们点关注，一单18元，加微信：gz2233详谈",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大爷，我给您介绍个好活儿，手机做任务，佣金日结，加微信：rw6688问问",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "阿姨您好，我们这里刷单返佣，先做几单小的试试，加qq：88992233报名",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老同志，招聘手机兼职，看看广告点一点，每天赚几十块，加微信：kf3366",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "叔叔阿姨，帮网店做数据，垫100返120，稳当，加微信：dd8899细聊",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大妈，我们平台招点赞员，每单20元，做完就结，加微信：zp6688领取任务",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大爷您好，您中奖了，成为我们的幸运体验官，做任务双倍返利，加qq：55667788",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爷爷奶奶，退休没事做，来帮我们点点赞，一天一百多，加微信：gz5588",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "阿姨，先给您发个小红包试试，加微信：kf2288，做完任务再返利",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "叔叔，我这边有个刷单群，每天都有任务，佣金日结，加微信：px3366拉您进群",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老同志您好，帮商家刷好评，一单一结，不压钱，加qq：22668899",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大妈，兼职打字、点赞、看视频，在家就能做，加微信：zp8899了解",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大爷，我们招长期线上帮手，垫付小额返本金加佣金，加微信：rw3366详谈",
+   "expect": "fraud",
+   "type": "刷单兼职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【惠民金融】您的专属养老备用金50000元已下发，点击 t.cn/A1b2C3 领取，领取前需存入2000元诚意金验证还款能力。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我是安心助贷专员小刘，针对退休人员推出低门槛借款，额度3-20万，当天到账。有意请回电13800001234详谈。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "尊贵的客户，您在我平台的借款额度已激活，因预留的退休金卡号有误资金被锁定，请缴800元解锁费后重新放款。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "叔叔您好，无担保老年专享贷款，身份证就能办，先交300元资料费即可放款，加微信 liu9988 办理。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【康养贷】您申请的8万元健康备用金已审批，需先转1500元保费到指定账户，两小时内到账，详询400-800-1234。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "阿姨，您符合我们的银龄信用额度，最高15万，不用抵押。放款前收500元验资费，联系我 13912345678 办理。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的借款已通过初审，因系统检测账户异常需缴纳1200元保证金激活放款通道，请点击 t.cn/xyz789 处理。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【夕阳红借贷】退休人员专享，无抵押秒到账。只需先付200元工本费，当天放款5万，回电咨询。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我是银行合作助贷中心，您的养老金账户可申请贴息贷款，先交600元担保金，名额有限，速联系。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【优享钱包】您有一笔6万元备用金待提现，提现需先支付800元手续费，链接 t.cn/qq1234，24小时内有效。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爷爷您好，我们帮老年人办低息贷款，不收利息，只收一次性500元服务费，办好立即到账，请回电。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的贷款额度已下放，因身份信息需二次核验，请先缴纳1000元核验金，完成后全额退回，联系电话见短信。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【安享贷】60岁以上可贷，无需抵押，先交400元保险费即可放款，加QQ 88776655 办理。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "尊敬的老年客户，您的20万授信已生成，提取前需存入1500元质押金，请按客服指引操作，电话010-66668888。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "阿姨，您之前咨询的养老贷款已批，因卡号填错钱被冻，交900元解冻费即可到账，速联系我。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【福寿金融】专为老人放款，额度高利息低，先付300元审核费当天到账，微信 fushou668。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，您是优质退休客户，可享8万免抵押借款。放款前需交700元风险金，有意回电400-123-9999。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【乐龄借】您的借款申请已通过，因需验证还款能力，请先转2000元到指定账户，到账后立即放款。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "叔叔，无抵押老人贷款，当天批当天到，只收500元押金，办完退还，联系电话 13700001111。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您有一笔老年专属贷款待领取，需先支付600元开户费，点击 t.cn/ln8888 领取，过时作废。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【银发金融】退休人员福利，凭身份证借5万，先交800元保证金，马上到账，咨询微信 yinfa2024。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "阿姨您好，我们是正规助贷机构，帮您办低息养老贷款，先交400元材料费，放款快，请回电。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的借款额度已下发，因银行卡状态异常无法放款，需缴1000元激活金，详情致电 400-555-6666。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【长寿贷】60岁也能借，无抵押秒批，先付300元验资费即可提现，加微信 csd12345。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爷爷，您的养老备用金10万已批，因账户需解冻，请先转1200元，联系我 13866668888 处理。",
+   "expect": "fraud",
+   "type": "贷款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我是拼多多售后，您上个月买的电饭煲有质量问题，现给您退款198元，请加微信188****领取",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的包裹在分拣中心弄丢了，我们全额赔付再加200元补偿，联系客服QQ123456办理",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "尊敬的用户，您那件衣服甲醛超标，为表歉意退您三倍货款，点击 t.cn/abc 填写银行卡号",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是京东客服，您买的药品有批次问题，需退款498元，请回电400-888-1234核实",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的快递被雨淋坏了，公司赔您货款和运费共88元，加我微信发收款码即可",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您前天收的蜂蜜检测不合格，商家委托我们退赔600元，请按链接 r.cn/xyz 操作",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是淘宝售后，您的订单异常我们主动退款，请报一下银行卡号和短信验证码",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老人家您好，您买的那箱牛奶出了点问题，退您120元，回拨这个电话就能办",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的包裹丢了，保险公司赔您350元，需要您先垫付50元手续费，加微信详聊",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是唯品会客服，您那件羽绒服有瑕疵，退您三倍价钱699元，点链接填卡号",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的快递在途中损坏，我们双倍赔付，请提供您的姓名、卡号和身份证号",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我是邮政客服，您的包裹丢失，理赔款要打到您卡上，请回复卡号",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您买的钙片被查出问题，商家赔您480元，加QQ 987654 办理退款",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是天猫售后，您那件大衣质量不过关，给您退款并补偿200元，点 w.cn/1 领取",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的包裹送错地方找不到了，我们赔您200元，请发一下您的银行卡信息",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我是快递公司的，您有个件丢了，理赔需要您先开通网银，回电教您操作",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您上次买的那套餐具检测不合格，我们退您三倍共360元，加微信领取",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是抖音客服，您买的商品物流异常，现退款给您，请点链接 t.cn/k 输入卡号",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老人家，您的快递出了事故，公司赔您500元，但需要您先交80元保价费",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我是淘宝的，您有笔货款要退，请提供您的银行卡号和支付密码核实",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您买的茶叶有质量问题，我们主动退款298元，请加客服微信办理",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是顺丰客服，您的包裹丢失，赔您货款160元，回电400-666-8888确认卡号",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您那件毛衣缩水是厂家责任，退您三倍价格540元，点 l.cn/9 填写信息领取",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，您有个快递一直没取，现遗失，我们赔您150元，请回复卡号办理",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是客服，您的商品有问题需要退款，加微信发个收款码，马上转您钱",
+   "expect": "fraud",
+   "type": "客服退款",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老师，您上次问的那只票今天涨停了，我发您看看记录，想跟上加我微信就行。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "咱们小区老张上个月投的那个项目，分红到账五万，我把联系人电话发您了。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "数字人民币内部认购名额还剩最后两个，您要是有意向回个电话，我帮您留位。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大爷您好，我是之前社区讲座的小刘，那个稳健型理财的资料我放门卫那了，您记得拿。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "群里李姐昨天提现到账了，截图我发您，想试试的话回复888，我拉您进群。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "叔叔，我这边有个专门给退休人员的福利渠道，每月返息，您先加我微信了解下。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "新上线的存币生息活动，放五天利息到账，您要是方便把卡号发我，我帮您开个户。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "王阿姨，我表哥在券商上班，有只票月底有动作，您想听的话晚上八点群里讲。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "今天群里老师带的单又赚了四千七，阿姨您账户还没激活吧，回复1我教您操作。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老领导，那个养老公寓项目明天截止登记，您把身份证号和手机号发我，我给您排个号。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您关注的理财师开了新直播间，每晚七点半讲盘，加此号进群还能领一份内部研报。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "张姨，上次说的境外基金我这有名额了，年息给到十八个点，方便的话打个电话聊。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我们平台新用户存一万送三千体验金，叔叔您要是感兴趣，回条短信我给您开通。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大爷，您在我这登记的意向还留着，这个月名额放出来三个，要不要先转点定金占上。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "李叔，小陈啊，那个数字钱包内测资格我帮您弄到了，您把短信验证码发我核验一下。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "群里今天好几位都晒了收益，阿姨您那五万要是早点进来，这个月就多拿两千多。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是财富顾问小周，手上有个稳的项目只跟老客户讲，您方便时回个电话，我等您。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "叔叔您眼光真准，上次问的那只已经涨了，这次老师新布局的票我提前告诉您。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "咱社区老年大学那个理财班周三开课，名额不多，想报名的回个名字和电话给我。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "阿姨，您那笔到期的钱放着也是放着，我给您对接个渠道，月月拿息，随时可取。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "这边是数字人民币推广中心，给您预留了体验额度，回复姓名即可领取，不收取费用。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老哥，跟着我做的几位退休师傅都回本了，您要试就转个三千过来，我带您走一波。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "陈姨，我帮您预约的理财经理明天上午上门，您把家庭住址发我确认一下时间。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "叔叔，内部消息不方便多说，您先加这个微信，晚上老师语音里会讲，听完再决定。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "阿姨，您投的那份合同我这边改好了，把卡里余额凑够八万打过来就能生效，抓紧点。",
+   "expect": "fraud",
+   "type": "投资理财",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "尊敬的客户，您在我商城的消费积分已达8000分，可换养生壶一个，只需到付38元，回电4006781234办理",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，您被选为本店开业十周年幸运顾客，赠保健枕一套，垫付邮费20元即可，加微信13812345678领取",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爷爷您好，我们是社区福利中心，免费送老人收音机，仅收包装费15元，请联系010-56781234",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您在我们平台抽中一等奖，奖品为按摩仪，需先垫付53元税费，确认回电4001234567",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "奶奶，您有一份重阳节礼包待领，内含奶粉和麦片，邮费自理30元，详情加QQ12345678",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "恭喜您成为我司年度幸运客户，奖品足浴盆一个，到付49元，联系李经理13567891234",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的手机号被抽中幸运奖，可得蚕丝被一条，交税费60元即寄，回电4007891234",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，您有一笔会员积分将到期，可换米面粮油，仅付运费25元，加微信wxid_lingjiang领取",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "尊敬的用户，您被选中免费体验蜂胶一盒，只需支付快递费18元，请来电010-67891234",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大爷，您中奖了，奖品是老年手机一部，先交保价费40元，联系张小姐13712345678",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的账户积分可兑换高档保温杯，到付28元，逾期清零，速回4003456789办理",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我们抽取幸运老人送羽绒服一件，只需承担邮费35元，加微信13898765432",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "恭喜您获得免费旅游名额一个，需自付保险费88元，详情咨询4005678901",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "奶奶您好，您被选中领取爱心大礼包，内含燕麦和蜂蜜，收运费22元，联系刘主任010-3456789",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的抽奖码中奖了，奖品血压计一台，先付税费32元即可发货，回电13567890123",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "尊敬的长辈，我公司免费发放助听器，名额有限，仅收邮寄费50元，请加QQ87654321",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，您是我店幸运会员，赠送金手镯一枚，需交工本费98元，留言联系4002345678",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您有一份免费鸡蛋礼盒待领，运费12元自理，回复1即可，咨询电话0104567890",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爷爷，您的积分可以换羊奶粉两罐，到付45元，过期作废，加微信LQ13900001111办理",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "恭喜您被抽为幸运观众，奖空气净化器一台，先垫运费66元，请回4009876543确认",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "奶奶，您获得我们慈善活动中奖名额，赠保暖内衣一套，付邮资26元，联系13622223333",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的手机积分即将归零，可兑足疗仪一个，只需付快递费39元，加微信jia123456领取",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我们向老年朋友免费赠送老花镜一副，收包装快递费10元，请回电010-22334455",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "尊敬的用户，您中了我司抽奖活动头奖，奖品为按摩椅，需先支付税费120元，详询4001112222",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爷爷您好，您被评选为幸运老人，赠大米一袋，支付邮费16元即可，请联系13800009999登记",
+   "expect": "fraud",
+   "type": "中奖",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大爷，今年退休金要重新算，多出的钱打您卡上，回复姓名卡号就行",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "阿姨，医保系统更新，老卡下月作废，点 t.cn/Ax2 换电子医保",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您有一笔高龄补助 2680 元没领，加微信 sbt268 办理领取",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "退休人员请注意：养老待遇调高了，登录 sm.gov-ck.cn 确认账户",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "医保卡在异地被人刷了八千多，速联系 010-8x93 处理",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "奶奶，社区发取暖补贴，把您和爷爷的银行卡号发我登记",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的社保关系需要转档，逾期影响领钱，详询 Q 群 7281xxxx",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老同志您好，工龄补贴下来了，打 1xxxx 报卡号当天到账",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "医保中心：您账户异常已停用，点 yb-sh.cn 恢复使用",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "尊敬的用户，养老金领取资格未验证，请拨 4xxxx 按提示操作",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老爷子，我是居委会小刘，上面让登记养老卡，卡号发我一下",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您本月医保返钱 315 元未到账，绑定银行卡后自动补发",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "社保局通知：您的待遇卡过期，请到 abc-95599.cn 更换卡号",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "阿姨，国家给 60 岁以上老人发补贴，加 QQ 领取，名额有限",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "养老金二次核算完成，需您配合核对身份证和银行卡信息",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "医保卡即将统一换新，未办理的会影响看病买药，速回电",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的退休金已调整为每月 4860，请点 rj-96.cn 确认到账卡",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大爷您好，社保补贴 500 元今天发放，回复 1 提供收款卡号",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "街道办：老年医疗补助开始申领，把卡号姓名发来帮您办",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "医保停用提醒：您的社保卡信息不全，登录 shb-yb.cn 补录",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "叔叔，我是养老院工作人员，帮您代办高龄津贴，先加我微信",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的账户有一笔养老补发款被退回，请核对银行卡号重新提交",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "人社局：退休人员认证未通过，点击 rl-88.cn 重新认证",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "奶奶，医保报销钱退回来了，需要您的银行卡和短信验证码",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老同志，您的养老金要换银行发放，请回电 1xxxx 登记新卡",
+   "expect": "fraud",
+   "type": "养老医保",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【社保局】您的养老金账户异常，本月补贴未到账，请登录 shb123.cn 核对，过期作废。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "尊敬的用户，您的医保卡余额即将清零，请点击 m12345.cn 激活领取，否则失效。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【移动】积分兑换最后一天，可换50元话费，请打开 jf10086.net 领取。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的手机号涉嫌违规将被停机，请速拨 13800001234 联系客服处理。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【邮政】您有一件法院专递未签收，请点 t.cn/yz66 查看详情，逾期退回。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【农业银行】您的卡在境外消费9800元，如有疑问请登录 abc-ck.cn 核实。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【老龄委】高龄补贴已发放，请点击 lnbt99.com 填写银行卡领取，过时作废。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的存款账户存在风险，请立即登录 yinhang-safe.cn 冻结保护资金。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【联通】话费积分即将清零，换现金请点 ltwap.cn/jf，仅限今日。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【税务局】您有一笔退税未领，请登录 sw-tuikuan.com 办理，过期视为放弃。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的身份证被冒用办卡，请拨 010-88886666 联系公安核查，否则影响征信。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【建设银行】您的账户需升级，请点击 ccb-up.cn 验证，否则暂停使用。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的银行卡积分可兑1000元，请登录 jfdh88.com 兑换，今日截止。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【水电局】您家欠费将停水停电，请点 shuidian.top 补缴，尽快处理。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的ETC已过期，请登录 etc-xin.cn 重新认证，否则无法上高速。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【卫健委】您的医保有补贴未领，请点击 yb-bu.cn 填写信息领取。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的退休金账户需年审，请点 lxsh66.cn 认证，逾期停发养老金。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【中移动】您的话费可领30元红包，请打开 hongbao-yd.com 领取。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的社保卡即将停用，请登录 shebao-renzheng.cn 激活，过期注销。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【法院】您有传票未领取，请登录 fayuan-chuan.cn 查询，否则强制出庭。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的手机积分将过期，可换米面油，请点 jf-huan.cn 选择兑换。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【电力公司】您的电表异常，请点击 dl-check.cn 核实用电，否则断电。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的银行预留信息过期，请登录 yh-gx.cn 更新，否则无法取款。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【社区】老年体检补贴到账，请拨 13900008888 登记银行卡领取。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您的养老金需重新认证，请点 yanglao-vip.cn 办理，否则停发。",
+   "expect": "fraud",
+   "type": "钓鱼链接",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我是刚才帮您办养老补贴的小刘，系统这边要核对老人身份，麻烦把手机收到的6位数字念一下，我给您登记上，别过期了。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爷爷您好，我是社区服务站的，您女儿让我帮您弄那个医保报销，现在要验证一下，麻烦把刚发来的验证码报给我，不然耽误打钱。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是银行客服，您这张卡要激活养老金的到账功能，我发了个验证码过去，您念给我听一下，两分钟就办好，不然下个月钱进不来。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大妈您好，我是您儿子单位的同事，他让我帮您订张火车票，就差一个验证码确认，您把收到的那串数字说一下，我这边好出票。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我是自来水公司的，您家水费有笔退款要退到卡上，刚才给您手机发了验证码，麻烦告诉我一下，我给您办退款。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老人家，我是社保局的，今年的高龄津贴要重新认证，我给您发了个六位数的码，您报给我，我帮您把认证做完，晚了今年就领不到了。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "叔叔您好，我是手机营业厅的，您的套餐有个免费升级，得用验证码确认一下，麻烦您把收到的数字念给我，升级完每月省三十块。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我是社区医生，给您预约了免费体检，要登记一下身份，刚发了验证码到您手机，麻烦您念给我，我帮您把名额占上。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大爷，我是您闺女让我找的代办，她说您不会弄，让我帮您把存折的钱转到新卡上，需要您报一下验证码，报完我就给您办。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我是快递员，您有个包裹地址不清，我这边要核对收货人，麻烦把您手机刚收到的验证码告诉我，我好给您送上门。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "奶奶好，我是志愿者，帮您申领那个老年手机补贴，就差最后一步验证码，您念给我，我这边替您提交，领到钱直接打您卡上。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是电力公司的，您家这个月电费多扣了，要退两百给您，刚才发了验证码，您报一下我好把钱退回去，不然就作废了。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好老同志，我是银行这边帮您办业务的小王，您那张卡的密码忘了要重置，得用验证码，麻烦您念给我，我给您重新设一个。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大爷您好，我是您老伴住院那边的护士，办出院结算要验证家属身份，刚发了个码到您手机上，麻烦您说一下，我好把账结了。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我是民政局的，给您办的那个困难补助要审核，我发了个数字到您手机，您念给我，审核过了这个月就能领钱。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爷爷，我是您孙子同学的爸爸，他让我帮您交话费，需要一个验证码确认，您把收到的六个数字告诉我一下，我这就给您充上。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我是保险公司的小李，您那份意外险要理赔，得核实一下本人，麻烦把刚发到您手机上的验证码报给我，理赔款马上打您账上。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大妈，我是居委会的，上面来检查老年补贴发放情况，要您配合报个验证码登记，您念一下就好，不报的话补贴可能被停。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我这边是帮老人代办业务的，您儿女托我给您办张新卡领退休金，需要您手机上的验证码确认，您报给我，卡办好给您送家去。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大爷您好，我这个号码您存着，以后有事找我。今天先帮您把那个医保卡激活，需要个验证码，您方便的话念给我，慢慢来不着急。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是您楼下小卖部老板介绍的，专门帮老人跑腿办事，您那个养老金认证我帮您弄，要个验证码，您报一下，办完我上门跟您说。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好老人家，我是银行大堂经理，您来办业务那天留的电话，现在有个账户要核实，麻烦把手机收到的六位数字告诉我，不然账户要冻结。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "奶奶您好，我是您外孙让我打的，他说给您转点钱过来，需要您报个验证码接收，您念给我，钱马上就能到您卡上。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我是供热公司的，您家暖气费有笔补贴要发，得验证一下，刚发了码过去，您告诉我一声，我这边给您登记上账。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "大爷，我是社区养老中心的小张，给您申请了个上门护理的名额，要验证码确认，您报给我，名额有限，今天不报就给别人了。",
+   "expect": "fraud",
+   "type": "索要验证码",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"您好，我是社保局的小刘，您上月的养老金有点异常，加我微信我发个软件给您连上看看，号码138开头的那位就是\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"阿姨，我是银行客服中心的，您的卡被外地消费了三千多，您下载个云视讯，我远程帮您拦住这笔钱\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"大爷，我是您闺女的同事，她让我联系您。您先装个Zoom，点屏幕共享，我教您把钱转到安全账户\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"您好，医保中心通知您有一笔八千八的报销要退回，请装好视通并打开远程协助，我这边帮您操作\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"爷爷您好，我是社区小周，您那笔养老补贴要本人确认，装个腾讯会议跟我连一下，五分钟就好\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"老同志，我是电信营业厅的，您号码被人盗用办了贷款，下个钉钉加我，开共享我帮您注销\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"我是您老同事王姐介绍的，您儿子让我帮他办点事，先下个飞书，我教您点同意远程\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"您好，我是公安局反诈中心的，您的账户涉一起案件，需装QuickSupport配合核查，别告诉别人\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"阿姨您好，邮政储蓄这边有您一万二的定期到期，装个会议软件我这边给您办续存，开下屏幕\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"大爷，我是您孙子同学的爸爸，他手机丢了让我带个话，您装个软件我们视频说，我教您点\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"喂，我是您楼下邻居小陈，您家水表要换，得用手机连一下，装个WeLink打开共享我看看\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"您好，我是退休办的，您的工龄认定要补材料，下载瞩目APP加我，开远程协助我帮您填\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"老爷子，我是供电所的，您家电费多扣了四百，装个软件连上我退给您，点一下屏幕共享就行\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"阿姨，我是理财经理小李，您那笔五万到期了，装个会议软件我教您转出来，收益更高\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"您好，我是您女儿单位的小张，她让我问您卡号，先下个APP开共享，我这边看得清楚\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"大爷，我是卫生院的小王，您体检报告有问题，装个软件我们连上细说，别急着告诉家里\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"我是您老伴的护工介绍的，您那笔慰问金要领，加我微信发个软件，开共享我帮您点\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"您好，我是保险公司的小赵，您那份保单要退保，下个APP开远程，我教您确认收款\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"老哥，我是您战友老李的朋友，他让我帮您弄养老金认证，装个会议软件共享一下就行\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"阿姨，我是您常去的超市收银员小刘，您中了个大奖，装个软件连上我帮您兑，先别声张\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"您好，我是老龄委的，您的高龄补贴要换卡，下载个软件加我，打开共享我给您改\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"大爷，我是您儿子的领导，他出差让我关照您，先下个远程软件，我教您把存单挪一下\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"我是社区网格员，您家老人补贴名单里有您，装个会议APP连上我核对，开屏幕就行\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"阿姨您好，我是您侄女同事，她说您有笔钱要取，下载个软件我教您操作，点一下共享\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "[\"老同志，我是您单位财务处的，退休金要重新核，下个远程软件，我这边帮您看看账户\"]",
+   "expect": "fraud",
+   "type": "屏幕共享",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爸，我手机掉水里了，这是借同学的号，我撞了人要赔钱，快加这个微信 wq1122帮我",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "妈，我是您女婿小李，我出事了被扣在派出所，先别告诉别人，打这个电话158开头找王警官",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爷爷，我在学校摔断腿了，老师让先交八千押金，打款到这个卡上，别跟我妈说",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "姥姥，我参加比赛要交报名费，不多就六百，加我同学微信abc998帮我转一下",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老哥，还记得我不，我是你小学同桌老周，加个微信聊聊，我这边有个事想跟你说",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "你女儿现在在我手上，想让她平安就按我说的做，打钱到6222开头这个卡",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "阿姨，我是楼上小张，我妈住院急用钱，您先借我两万，回头一定还",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "叔叔，我是您侄子，我手机换号了，存一下这个号码，改天上门看您",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "外公，我朋友急病住院，我钱包丢了，先借我五千，加微信kf3388",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "我是您儿子同事，他在工地上出事了，现在医院要先交费，把钱打到这个账号",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "奶奶，我想您了，好久没见，我换号了，这是新号码，晚上给您打视频",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "您好，我是社区志愿者小王，您上次填的信息有个补贴要发，加微信补一下资料",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "妈，公司让我去外地出差三个月，我手机号换了，有事打我同事电话找老陈",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爸，我和朋友合伙开店差点钱，您先帮我垫两万，别让我媳妇知道",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "姥姥，我对象家里要彩礼，我着急，先借我三万，我发工资就还您",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "叔叔您好，我是在您小区修水电的小刘，您家线路有点问题，方便加个微信我上门看看",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "阿姨我捡到一个包，里面有您照片，您是不是丢东西了，加微信还给您",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爷爷，我手机被偷了，这是新号，我现在急用钱，先转两千到这个卡",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老姐姐，我是你以前厂里的李姐，我儿子结婚想请你来，加我微信我把地址发你",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "阿姨您好，我是保健品公司的小孙，您上次买的药有个退款，加微信189办一下",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爸，我在外面跟人打架被拘留了，私了要赔五万，您赶紧打钱别问我妈",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "姥姥，我被骗到外地了，现在有人看着我不让走，先给我转路费到我朋友卡上",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "叔叔，您孙子在我这补课，下课晚了我送不回去，您先加我微信付一下车费",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "妈，我手机坏了，用朋友号发的，我住院了要交押金，您先转一万到这个账户",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爷爷，我是您孙女同学，她手机没电了，我们在外面吃饭钱不够，加微信帮忙付一下",
+   "expect": "fraud",
+   "type": "其他",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【顺丰速运】您好，您的快递已放在阳光小区3号楼快递柜，取件码6789，请今天内取走。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【菜鸟驿站】您有1件包裹到幸福路12号驿站了，取件码3421，营业到晚上8点。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【邮政EMS】您的快递正在派送，快递员小张电话13800001111，大概下午3点到。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【京东物流】您的包裹已到楼下，麻烦下来取一下，我在单元门口等您。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【中通快递】您的快件已放丰巢柜，取件码5566，超24小时会收保管费哦。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【圆通速递】您好，您的包裹今天上午9点已送到和平里小区门卫处，请及时领取。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【韵达快递】您的快递已到人民路菜鸟驿站，取件码7788，记得带手机来取。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【申通快递】您的包裹放在5号楼快递柜，取件码1122，晚上10点前取免超时费。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【德邦快递】您的大件包裹预计明天上午送到，请家里留人签收，谢谢。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【顺丰速运】您的快递已到小区门口，我给您送上来还是放柜子？回个话就行。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【菜鸟驿站】您有2个包裹到了，取件码9012和3456，都在青年路驿站。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【丰巢】您的包裹在A区快递柜超时1天，取件码3344，请尽快取走以免产生费用。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【中通快递】您的快递今天下午2点派送，放您家门口可以吗？方便回个短信。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【邮政EMS】您的录取通知书类邮件已到，请带身份证到建设路邮局领取。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【京东物流】您的生鲜包裹已放冷链柜，取件码6677，请尽快取，别放坏了。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【圆通速递】您的包裹已送到王庄小区快递超市，取件码2233，早8点到晚9点可取。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【韵达快递】您的快递到了，放在楼下超市代收点，报手机尾号就能拿，谢谢。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【顺丰速运】您的包裹明天上午送达，请保持电话畅通，快递员到了会联系您。",
+   "expect": "normal",
+   "type": "快递物流",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【农业银行】您的账户于10月15日收到养老金3280.00元，请注意查收",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【邮政储蓄】您尾号2468的账户10月8日取现1000.00元，余额5600.00元",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【交通银行】您尾号1357的卡10月20日消费88.50元，余额4321.00元",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【工商银行】您购买的稳健理财10万元已到期，本息共101250.00元已转入您的账户",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【建设银行】您在我行存的一年定期5万元将于11月1日到期，请留意",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【招商银行】您尾号8899的信用卡本期账单金额1560.00元，最后还款日12月5日",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【中信银行】您的信用卡10月账单已生成，应还金额680.00元，请于11月20日前还款",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【中国银行】您尾号3344的信用卡本期应还3200.00元，最低还款320.00元，到期日11月18日",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【农业银行】尊敬的客户，我行重阳节当天网点营业时间调整为9:00至15:00，请您合理安排",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【工商银行】因系统维护，我行城东支行10月22日营业时间调整为10:00至16:00，敬请谅解",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【邮储银行】春节期间我行各网点2月10日至12日暂停营业，2月13日起恢复正常，请您知悉",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【建设银行】您尾号7788的账户10月25日转入退休金4500.00元，余额23000.00元",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【交通银行】您尾号9900的账户10月18日消费支出256.80元，余额7890.50元",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【招商银行】您购买的理财产品今日到期，本金5万元及收益已于今日到账",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【中国银行】您尾号6677的卡10月28日收到转账3000.00元，余额15000.00元",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【中信银行】您尾号2233的信用卡10月消费1200.00元，账单已出，到期还款日11月30日",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【农业银行】十一假期期间，我行营业部10月1日至3日营业时间为9:00至16:00",
+   "expect": "normal",
+   "type": "银行通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【市第一医院】您好，您预约的11月12日上午9点体检，请空腹到门诊三楼体检中心，带身份证。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【社区卫生中心】65岁以上老人免费体检开始啦，本周三上午8点在中心二楼，记得空腹来。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【人民医院】王大爷您好，您的复诊时间是11月15日下午2点，心内科3诊室，请准时来。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【疾控中心】流感疫苗已到货，60岁以上老人周六上午可到社区医院接种，带医保卡。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【县医院】您的血糖复查结果已出，请于11月14日到内分泌科找李医生看报告。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【中医院】您预约的针灸理疗在11月13日上午10点，请提前10分钟到康复科报到。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【社区居委会】本周日早上8点半在小区广场有义诊，量血压测血糖，欢迎老年朋友参加。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【妇幼保健院】老年女性免费两癌筛查名额还有，周四上午带身份证来三楼登记。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【市二院】您本月慢病随访时间到了，请周五上午到全科门诊测血压，不用挂号。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【卫生院】您的体检报告已出，请周一至周五下午到一楼领取，医生可现场讲解。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【人民医院】提醒您11月20日上午8点做胃镜，前一天晚8点后不要进食。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【社区医院】肺炎疫苗本周四下午2点开打，适合60岁以上老人，来前先电话预约。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【眼科医院】老年人免费白内障筛查11月18日上午在门诊二楼，请带身份证前来。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【疾控中心】您接种的第二针疫苗时间到了，请11月16日到原接种点完成接种。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【中医院】冬病夏治三伏贴开始预约，老年朋友可到中医科登记，电话64881234。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【市三院】您预约的骨密度检查在11月19日下午3点，请到门诊四楼检查室。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【社区中心】免费口腔检查周六上午9点在中心一楼，65岁以上老人优先，欢迎参加。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【卫生院】您的家庭医生签约到期了，请本周到二楼签约处续约，带医保卡即可。",
+   "expect": "normal",
+   "type": "医院健康",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【幸福社区】各位居民，因管道维修，3号楼2单元明天上午9点到11点停水，请提前接水，给您带来不便请谅解。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【阳光物业】今晚8点至10点，小区南区将停电检修线路，请关好家电，提前做好准备。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【和谐家园物业】5号楼电梯定于本周四上午9点开始检修，预计下午3点恢复，请邻居们走楼梯，注意安全。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【桂花苑社区】明天上午10点在中心广场举办重阳节义诊活动，免费量血压、测血糖，欢迎老年朋友参加。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【翠湖社区】本月20日下午2点，在居委会二楼有免费手机使用培训，教您用微信和挂号，欢迎报名。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【和平物业】各位业主，今晚7点在南门广场放露天电影《地道战》，带小板凳来就行，免费茶水。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【玉兰社区】垃圾分类新规定：厨余垃圾请破袋投放，塑料袋扔其他垃圾桶，谢谢配合。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【长青物业】明天早上6点到8点，小区东门垃圾房清运，请勿在此时间段投放垃圾，谢谢。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【康乐社区】本周六上午9点，社区组织免费理发活动，地点在老年活动室，先到先剪。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【明月花园物业】因供电局线路检修，本周三下午1点到4点全小区停电，请提前给手机充好电。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【红梅社区】各位老人，明天下午3点在社区食堂有防诈骗讲座，讲完发小礼品，欢迎参加。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【安居物业】3号楼水管爆裂，正在抢修，预计今晚6点恢复供水，临时取水点设在物业门口。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【春晖社区】垃圾分类积分兑换开始了，本周五上午9点到11点，拿积分卡到居委会换肥皂、洗衣粉。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【锦绣物业】电梯年检通知：1号楼2单元电梯下周二上午8点到12点停运检修，请提前安排出行。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【银杏社区】明天上午9点，社区组织免费测量血压和血糖，地点在居委会一楼，不用空腹。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【万家物业】今晚11点至明早5点停水，因水箱清洗，请关好水龙头，提前储水，谢谢理解。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【朝阳社区】本周四下午2点，在社区活动中心教老年人使用智能手机挂号、打车，免费参加。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【百合物业】各位业主，小区垃圾分类点已调整到北门和西门两处，投放时间为早7点到9点、晚6点到8点，请按时投放。",
+   "expect": "normal",
+   "type": "物业社区",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "妈，我下午3点去学校接乐乐，您在家休息就行，不用跑一趟。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爸，家里鸡蛋和牛奶没了，我下班路过永辉超市买，您别自己拎重的。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "闺女，你上次说的降压药我在社区医院开好了，放你床头柜上。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老伴，我去菜市场买点排骨，中午炖汤，你记得把阳台衣服收了。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "妈，今天风大，接小宝时给他带上那件蓝色外套，别冻着。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爸，我晚上加班，您帮我去幼儿园接一下彤彤，6点前到就行。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "妈，您的钥匙放门口鞋柜上了，出门记得拿，别又锁门外。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爸，我在京东给您买了个电饭煲，明天下午送到，记得接快递电话。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "闺女，我给你留了把家里钥匙，挂在进门挂钩上，你回来自己开门。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "妈，菜我买好了放冰箱，有青菜和鱼，您晚上热一下就能吃。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爸，周六上午9点我带您去人民医院复查，别吃早饭。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "妈，幼儿园老师说今天4点半放学，您去接小果时记得带接送卡。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "老伴，我去银行取点钱，顺路买面粉，你要啥我给你带回来。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爸，家里水费我交了，您不用去物业，单子放餐桌上了。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "妈，门口超市搞活动，我买了两袋米，晚上给您送过去。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "闺女，你钥匙忘在我这了，我放小区门卫室，回来记得取。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "妈，今天降温，您接孙子时多穿点，围巾在衣柜第二层。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "爸，我中午回家吃饭，买了您爱吃的包子和豆腐脑，12点到。",
+   "expect": "normal",
+   "type": "家人日常",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【淘宝】您购买的老年保暖内衣已发货，预计11月12日送达，请注意查收",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【京东】您的订单小米电饭煲已从北京仓发出，预计后天到，快递员会提前电话联系您",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【拼多多】您买的山药已发货，圆通快递单号YT1234567，预计3天送到，请留意",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【天猫超市】您订购的食用油和大米明天上午送到，请保持电话畅通，快递小哥会联系您",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【唯品会】您的羽绒服订单已发货，申通快递，预计11月14日送达，请放心",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【苏宁易购】您买的足力健老人鞋已发出，物流显示明天下午到，记得收货",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【淘宝】您在王大爷家买的5斤核桃已发货，中通快递，大概后天上午送到",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【京东】您的订单已送达小区快递柜，取件码123456，请三天内取走",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【拼多多】您的保暖拖鞋已到您所在街道的驿站，凭手机号后四位即可领取",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【淘宝】您购买的电热毯已签收，麻烦给个好评，您的评价对我们很重要",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【美团】您上次买的饺子还满意吗？花一分钟评价一下，可以领5元优惠券，谢谢您",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【京东】您买的血压计已收到，欢迎评价使用感受，写好评价可得10个京豆",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【天猫】您的订单已确认收货，邀请您评价商品和快递服务，感谢您的支持",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【拼多多】您买的棉鞋穿得还合适吗？给个五星好评，帮我们改进，谢谢您",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【淘宝】您有一张20元优惠券明天到期，满99元可用，买米面油都能抵，记得用",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【京东】您的10元优惠券后天24点过期，下单买菜买药都能用，别浪费啦",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【肯德基】您的早餐优惠券3天后到期，满20减8元，到店出示即可使用，欢迎品尝",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【美团】您账号里有15元外卖券还剩2天有效期，点餐自动抵扣，请及时使用",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【腾讯视频】您的会员将于11月30日到期，续费25元每月，可在微信里直接续，不影响看剧",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【爱奇艺】您的黄金会员明天到期，可续费19元每月，续费后继续畅享电视剧，祝您观影愉快",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【喜马拉雅】您的会员下月5日到期，续费后还能继续听评书和戏曲，感谢您的支持",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【京东PLUS】您的会员将于12月1日自动续费，费用99元，如不需要可在京东APP里关闭",
+   "expect": "normal",
+   "type": "电商订单",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【社保局】您今年的养老金资格年审已开始，请携带身份证到社区服务站办理，12月20日前完成",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【社保局】提醒：您的养老待遇年审还未办理，可由子女在手机社保APP上帮您认证，无需跑腿",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【社保局】您的社保年审已通过，养老金将照常发放，请放心",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【公积金中心】您的公积金账户余额已更新，可携带身份证到公积金大厅查询明细",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【公积金中心】退休人员公积金提取业务已受理，款项将在3个工作日内到账",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【公积金中心】您的公积金提取申请已通过审核，请注意查收银行到账短信",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【派出所】您的居住证即将到期，请携带身份证到居住地派出所办理签注",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【社区服务中心】老年居住证年审可就近办理，本周一到周五上午9点至11点均可",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【派出所】您的居住证已办好，请本人携带身份证到派出所领取",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【人普办】全国人口普查登记开始啦，普查员将上门登记，请配合出示户口本",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【人普办】人口普查不收取任何费用，如有人收费请拨打社区电话核实",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【社区】人口普查登记本周到您家，普查员会佩戴证件，请家中留人",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【统计局】人口普查信息仅用于统计，不会泄露，请放心如实登记",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【社保局】您的社保卡已到社区，请携带身份证到社区领取并激活",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【医保局】您的医保缴费已到账，明年看病报销不受影响",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【社区】下周一开始办理老年人高龄补贴登记，请带身份证和户口本到社区",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【民政局】您的高龄津贴本月已发放，请查看银行卡到账情况",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【社区】冬季供暖补贴登记开始了，请符合条件的老人到社区办理，截止本月底",
+   "expect": "normal",
+   "type": "政务通知",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【华夏建设集团】王师傅您好，您应聘的仓库管理员岗位已通过面试，请于11月18日上午9点携带身份证到朝阳区人事部报到",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【顺达物流】李阿姨您好，您的面试安排在11月20日下午2点，地点丰台区总部一楼会议室，请提前十分钟到前台登记",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【阳光家政】张大姐，您面试通过了，请11月22日早上8点半来公司办理入职，带上身份证和健康证就行",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【康乐养老院】赵阿姨您好，您应聘的护理员岗位面试定在11月19日上午10点，地址在和平路12号，到了打我电话",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【旺旺食品厂】刘师傅，面试时间改到11月21日上午9点半，还是老地方，厂区门口找保安登记就能进",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【金秋物业】孙大姐您好，您面试的保洁岗位已通过，11月25日上午9点来公司人事部签合同，记得带身份证",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【福临门超市】陈阿姨，恭喜您面试通过，请11月23日上午9点到门店办公室办理入职手续，带两张一寸照片",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【宏兴机械】周师傅您好，您应聘的门卫岗位录用通知已发，请11月24日上午9点来厂区人事科报到，带好身份证",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【万家乐餐饮】吴大姐，您面试的洗碗工岗位通过了，11月20日中午12点来后厨找主管办入职，记得带健康证",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【安泰保安公司】郑师傅，面试定在11月18日下午3点，地点在建设路8号三楼，带上身份证和退伍证更好",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【喜盈门酒店】何阿姨您好，您面试的客房服务岗位已通过，请11月26日上午10点到酒店人事部办入职",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【惠民药店】马大姐，您应聘的营业员岗位面试安排在11月19日下午2点半，地址解放路56号二楼，别迟到",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【春晖幼儿园】杨阿姨您好，您面试的厨工岗位定在11月21日上午9点，请到园门口保安处登记后找我",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【中通快递】朱师傅，您的分拣员岗位面试通过了，11月22日早上7点半来站点报到，穿运动鞋方便干活",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【老北京饭庄】秦大姐您好，面试安排在11月20日上午10点半，地址前门大街18号，带上身份证复印件",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【瑞康医院】许阿姨，您应聘的保洁岗位已录用，请11月25日下午2点来后勤科办入职，带好身份证和体检报告",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【嘉华纺织厂】韩师傅您好，您面试的机修岗位定在11月23日上午9点，厂区大门进来左手边办公楼二楼",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  },
+  {
+   "text": "【新天地商场】冯大姐，您面试的理货员岗位通过了，11月24日上午9点来商场四楼办公室办入职手续",
+   "expect": "normal",
+   "type": "招聘求职",
+   "synthetic": true,
+   "source": "deepseek-gen"
+  }
+ ]
+}

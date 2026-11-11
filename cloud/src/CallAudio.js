@@ -41,9 +41,15 @@ const SOURCE_TXT = { sis: '华为云语音识别', openai: '语音识别', demo:
 function registerCallAudio(app, deps) {
   const { getJudge, pangu, db, pushTo } = deps;
   const asr = deps.asr || new Asr();
+  /** 第三票：反诈专用模型（听音频）。没配 SFT_URL 就是 null，链路照旧走两路。 */
+  const sft = deps.sft || null;
+  /** 第三票最多等多久。手机端读超时是 90 秒（CallRecord.java 第 271 行），这里留余量。 */
+  const sftWaitMs = Math.max(0, Number(process.env.SFT_WAIT_MS || 60000));
   const token = process.env.YD_TOKEN || '';
   if (!token) console.warn('[CallAudio] 未配置 YD_TOKEN，/api/callaudio 不校验身份（仅限演示）');
-  console.log('[CallAudio] 转写方式：', asr.mode, '｜大模型：', pangu.enabled ? pangu.model : '未配置（只用规则）');
+  console.log('[CallAudio] 转写方式：', asr.mode,
+    '｜大模型：', pangu.enabled ? pangu.model : '未配置（只用规则）',
+    '｜专用模型：', (sft && sft.enabled) ? `${sft.model}（最多等 ${Math.round(sftWaitMs / 1000)} 秒）` : '未接入');
 
   const checkToken = (req, res, next) => {
     if (!token || req.get('X-Yd-Token') === token) return next();
@@ -80,6 +86,19 @@ function registerCallAudio(app, deps) {
 
     const t0 = Date.now();
 
+    // ---------- 0. 第三票先发出去（它最慢，和转写并行跑） ----------
+    //
+    // 【为什么要并行】专用模型在本机 CPU 上一次前向要 40~80 秒，而手机端读超时
+    //   只有 90 秒。串行等它会把一次正常的复盘拖成超时，所以一拿到录音就发起，
+    //   转写和两路判定同时进行，总耗时取决于最慢的那一个。
+    //
+    // 【为什么有硬上限】模型没加载完、机器被别的活占住，都可能让它更久。
+    //   到点就按"缺席"处理 —— 第三票是加分项，不能因为它把整条复盘搞失败。
+    let sftTask = null;
+    if (sft && sft.enabled && sftWaitMs > 0) {
+      sftTask = sft.riskAudio({ audio, name }).catch(() => null);
+    }
+
     // ---------- 1. 转文字 ----------
     let asrOut;
     try {
@@ -110,8 +129,30 @@ function registerCallAudio(app, deps) {
       stage = localStage;
       basis = 'rule';
     }
+
+    // ---------- 2.5 第三票：专用模型听音频 ----------
+    //
+    // 【融合规矩：只抬不降】这条不是随便定的。
+    //   · 它能抬：p≥0.85 说明模型从语气、语速、背景音里听出了转写稿丢掉的东西，
+    //     这时哪怕规则和大模型都说没事，也该让子女知道一声。
+    //   · 它不能单独降：模型只听到几十秒，没听到要钱那一段就会给低分。
+    //     让它拿低分否决规则 + 大模型的一致结论，等于给骗子留了个后门。
+    let sftOut = null;
+    if (sftTask) {
+      sftOut = await Promise.race([
+        sftTask,
+        new Promise(r => setTimeout(() => r(null), sftWaitMs)),
+      ]);
+    }
+    if (sftOut && typeof sftOut.p === 'number' && sftOut.p >= 0.85 && stage < 2) {
+      stage = 2;
+      basis += '+sft';
+    }
+
     const level = LEVEL_OF_STAGE[stage];
     const isFraud = stage >= 2;
+    const sftState = (!sft || !sft.enabled) ? '未接入'
+      : (!sftTask ? '已关闭' : (sftOut ? '已判定' : '超时或失败'));
 
     const localWords = (local.hits || []).filter(h => h.weight > 0).map(h => h.word).slice(0, 4);
     const result = {
@@ -126,6 +167,16 @@ function registerCallAudio(app, deps) {
         ? ai.evidence.map(e => (e.length < 8 ? quotesOf(transcript, [e])[0] : e))   // 只给了半句，补成整句
         : quotesOf(transcript, localWords)).map(clean),
       basis,
+      // 转写的真实情况：长录音是被切成几段识别的，如实告诉子女端
+      asr: {
+        source: asrOut.source,
+        parts: asrOut.parts || 1,
+        durationSec: Math.round(asrOut.durationSec || 0),
+        ms: asrMs,
+      },
+      // 第三票的原始结论，如实给出去；没接入 / 超时就写 null，不编造
+      sft: sftOut ? { p: Number(sftOut.p.toFixed(3)), verdict: sftOut.verdict || '', ms: sftOut.ms || 0 } : null,
+      sftState,
     };
 
     // ---------- 3. 落库 + 推子女端（warn 及以上） ----------
@@ -138,7 +189,9 @@ function registerCallAudio(app, deps) {
         title: `妈妈接听的陌生来电疑似诈骗${result.type ? '（' + result.type + '）' : ''}`.slice(0, 120),
         body: [`号码 ${clean(number) || '未知'}，通话 ${fmtDur(durSec)}。`, result.reason, quotes].filter(Boolean).join('\n').slice(0, 500),
         why: `通话录音复盘 · S${stage}${result.stageName} · 转写来源：${SOURCE_TXT[asrOut.source] || asrOut.source}`
-          + (basis === 'rule' ? ' · 仅规则判定' : ''),
+          + ((asrOut.parts || 1) > 1 ? `（${Math.round(asrOut.durationSec)} 秒录音分 ${asrOut.parts} 段识别）` : '')
+          + (basis.startsWith('rule') ? ' · 仅规则判定' : '')
+          + (sftOut ? ` · 专用模型 ${sftOut.p.toFixed(2)}` : ` · 专用模型${sftState}`),
         channel: 'callaudio',
       };
       try {
@@ -160,15 +213,67 @@ function registerCallAudio(app, deps) {
       }
     }
 
-    console.log(`[CallAudio] ${number || '未知号码'} ${fmtDur(durSec)} → S${stage}/${level}（${basis}，转写 ${asrOut.source} ${asrMs}ms，共 ${Date.now() - t0}ms）`);
+    // ---------- 3.5 号码网：判到 high/block，把这个号码记进共享信誉库 ----------
+    //
+    // 【为什么从 high 起记】warn 只代表"像"，老年机一天能遇到好几个；记进去会让
+    //   正常快递、外卖号码被标成诈骗。high/block 是模型已经认出套路、能给出证据的那一档。
+    //
+    // 【为什么按"天 + 设备"去重】复盘是手动点的，同一条录音点三遍就会变成"判定 3 次"。
+    //   这个次数对外要能代表"有多少台设备独立判过它"，不是"被点了多少下按钮"。
+    //
+    // 【为什么不存内容】号码可以共享，通话内容不能。excerpt 和 signals 一律留空 ——
+    //   这一条不是可选项，是号码网敢不敢上线的前提。
+    if (rank(level) >= rank('high') && number) {
+      try {
+        const dayStart = new Date();
+        dayStart.setHours(0, 0, 0, 0);
+        const dup = await db.hasReportSince(number, elderId, dayStart.getTime());
+        if (!dup) {
+          await db.addReport({
+            elderId,
+            reporter: 'callaudio',
+            number,
+            source: 'call',
+            isFraud: true,
+            stage,
+            type: result.type,
+            reason: result.reason,
+            advice: result.advice,
+            excerpt: '',      // 隐私：只共享号码，不共享通话内容
+            signals: [],      // 同上，关键话术片段也不落
+            localScore: local.score,
+          });
+          console.log(`[CallAudio] 号码网已记录：${number} S${stage}/${level}`);
+        }
+      } catch (e) {
+        console.warn('[CallAudio] 号码网写入失败：', e.message);
+      }
+    }
+
+    console.log(`[CallAudio] ${number || '未知号码'} ${fmtDur(durSec)} → S${stage}/${level}`
+      + `（${basis}${sftOut ? `，专用模型 p=${sftOut.p.toFixed(2)} ${sftOut.ms}ms` : `，专用模型${sftState}`}`
+      + `，转写 ${asrOut.source} ${asrMs}ms`
+      + ((asrOut.parts || 1) > 1 ? `（切 ${asrOut.parts} 段，录音 ${Math.round(asrOut.durationSec)}s）` : '')
+      + `，共 ${Date.now() - t0}ms）`);
 
     res.json({
       ok: true,
       ...result,
       pushed: !!alert,
       local: { score: local.score, stage: local.stage, why: local.why },
-      asr: { source: asrOut.source, chars: transcript.length, ms: asrMs },
-      meta: { ms: Date.now() - t0, model: ai ? pangu.model : null, cost: ai ? pangu.lastCost : 0 },
+      asr: {
+        source: asrOut.source,
+        chars: transcript.length,
+        ms: asrMs,
+        parts: asrOut.parts || 1,
+        durationSec: Math.round(asrOut.durationSec || 0),
+      },
+      meta: {
+        ms: Date.now() - t0,
+        model: ai ? pangu.model : null,
+        cost: ai ? pangu.lastCost : 0,
+        sft: sftOut ? { model: sft.model, p: sftOut.p, ms: sftOut.ms } : null,
+      },
     });
   });
 }

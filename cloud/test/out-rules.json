@@ -1,0 +1,550 @@
+[
+ {
+  "type": "冒充公检法",
+  "who": "stranger",
+  "text": "这里是派出所，你的银行账户被用于电信诈骗，现在要冻结，配合我们做资金核查",
+  "expect": "fraud",
+  "score": 40,
+  "stage": "S2",
+  "level": "warn",
+  "pred": "fraud",
+  "hit": true,
+  "us": 3.286,
+  "hits": [
+   "冻结",
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "冒充公检法",
+  "who": "stranger",
+  "text": "我是反诈中心的，你的资金不安全，需要转移到国家指定账户保管",
+  "expect": "fraud",
+  "score": 15,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": false,
+  "us": 0.686,
+  "hits": [
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "冒充亲友",
+  "who": "stranger",
+  "text": "爷爷，我是你孙子，我在外地出了点麻烦，需要一万块钱，你别跟我爸妈讲",
+  "expect": "fraud",
+  "score": 15,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": false,
+  "us": 0.191,
+  "hits": [
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "冒充亲友",
+  "who": "stranger",
+  "text": "阿姨，我是你侄子，刚换了号码，最近资金周转不开，能不能先借点钱给我",
+  "expect": "fraud",
+  "score": 15,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": false,
+  "us": 0.171,
+  "hits": [
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "冒充亲友",
+  "who": "stranger",
+  "text": "老哥，我是老李啊，换了个号，手头有个急事需要用钱，你方便吗",
+  "expect": "fraud",
+  "score": 15,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": false,
+  "us": 0.185,
+  "hits": [
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "刷单兼职",
+  "who": "stranger",
+  "text": "宝妈兼职，手机就能做，一单一结，每天轻松赚两三百",
+  "expect": "fraud",
+  "score": 30,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": false,
+  "us": 0.144,
+  "hits": [
+   "兼职",
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "刷单兼职",
+  "who": "stranger",
+  "text": "帮商家刷好评，先垫资购买，确认收货后本金加提成一起返还",
+  "expect": "fraud",
+  "score": 15,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": false,
+  "us": 0.129,
+  "hits": [
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "贷款",
+  "who": "stranger",
+  "text": "您的征信有问题导致贷款无法到账，需要先缴纳一笔验证金证明还款能力",
+  "expect": "fraud",
+  "score": 30,
+  "stage": "S2",
+  "level": "warn",
+  "pred": "fraud",
+  "hit": true,
+  "us": 0.157,
+  "hits": [
+   "征信",
+   "到账",
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "客服退款",
+  "who": "stranger",
+  "text": "我是京东金融客服，您开通的金条服务需要关闭，否则会影响您的征信",
+  "expect": "fraud",
+  "score": 45,
+  "stage": "S2",
+  "level": "warn",
+  "pred": "fraud",
+  "hit": true,
+  "us": 0.278,
+  "hits": [
+   "征信",
+   "客服",
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "客服退款",
+  "who": "stranger",
+  "text": "您好，您在我们平台购买的商品存在质量问题，我们会给您办理理赔，请配合操作",
+  "expect": "fraud",
+  "score": 15,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": false,
+  "us": 0.115,
+  "hits": [
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "投资理财",
+  "who": "stranger",
+  "text": "老年人专属理财产品，保本保息，每月分红，比存银行划算多了",
+  "expect": "fraud",
+  "score": 15,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": false,
+  "us": 0.104,
+  "hits": [
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "投资理财",
+  "who": "stranger",
+  "text": "数字人民币内测名额，现在投入一万，三个月翻三倍",
+  "expect": "fraud",
+  "score": 15,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": false,
+  "us": 0.098,
+  "hits": [
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "中奖",
+  "who": "stranger",
+  "text": "恭喜您成为本台幸运观众，获得现金大奖八万元，请先缴纳个人所得税",
+  "expect": "fraud",
+  "score": 25,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": false,
+  "us": 0.121,
+  "hits": [
+   "恭喜您",
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "养老医保",
+  "who": "stranger",
+  "text": "国家给老年人发放高龄补贴，请回复您的姓名身份证号和银行卡号登记",
+  "expect": "fraud",
+  "score": 95,
+  "stage": "S4",
+  "level": "block",
+  "pred": "fraud",
+  "hit": true,
+  "us": 0.117,
+  "hits": [
+   "银行卡号",
+   "身份证号",
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "养老医保",
+  "who": "stranger",
+  "text": "您的医保账户异常，即将停用，请按语音提示进行身份核验",
+  "expect": "fraud",
+  "score": 53,
+  "stage": "S2",
+  "level": "warn",
+  "pred": "fraud",
+  "hit": true,
+  "us": 0.099,
+  "hits": [
+   "账户异常",
+   "即将停用",
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "钓鱼链接",
+  "who": "stranger",
+  "text": "【中国邮政】您的包裹因地址错误被退回，请于24小时内登录 https://ems-cn.top 更新",
+  "expect": "fraud",
+  "score": 35,
+  "stage": "S2",
+  "level": "warn",
+  "pred": "fraud",
+  "hit": true,
+  "us": 0.111,
+  "hits": [
+   "陌生号码",
+   "含链接"
+  ]
+ },
+ {
+  "type": "钓鱼链接",
+  "who": "stranger",
+  "text": "尊敬的用户，您的电子社保卡已失效，请点击 http://sbk-gov.cc 重新激活",
+  "expect": "fraud",
+  "score": 58,
+  "stage": "S2",
+  "level": "warn",
+  "pred": "fraud",
+  "hit": true,
+  "us": 1.891,
+  "hits": [
+   "点击",
+   "社保卡",
+   "陌生号码",
+   "含链接"
+  ]
+ },
+ {
+  "type": "索要验证码",
+  "who": "stranger",
+  "text": "阿姨，我是您家附近超市的，刚才帮您领优惠券，您手机收到的数字告诉我一下",
+  "expect": "fraud",
+  "score": 5,
+  "stage": "S0",
+  "level": "none",
+  "pred": "normal",
+  "hit": false,
+  "us": 0.2,
+  "hits": [
+   "优惠券",
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "屏幕共享",
+  "who": "stranger",
+  "text": "您打开手机设置里的屏幕录制，我这边帮您把多扣的钱退回去",
+  "expect": "fraud",
+  "score": 15,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": false,
+  "us": 0.176,
+  "hits": [
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "其他",
+  "who": "stranger",
+  "text": "我们是慈善基金会，为困难老人发放慰问金，需先交500元手续费",
+  "expect": "fraud",
+  "score": 60,
+  "stage": "S4",
+  "level": "block",
+  "pred": "fraud",
+  "hit": true,
+  "us": 0.123,
+  "hits": [
+   "手续费",
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "银行通知",
+  "who": "service",
+  "text": "【建设银行】您尾号5678的储蓄卡11月9日支出200.00元，余额3850.00元",
+  "expect": "normal",
+  "score": 0,
+  "stage": "S0",
+  "level": "none",
+  "pred": "normal",
+  "hit": true,
+  "us": 0.118,
+  "hits": [
+   "服务号验证码(+0)"
+  ]
+ },
+ {
+  "type": "生活服务",
+  "who": "service",
+  "text": "【滴滴出行】您的行程已结束，费用23.5元，感谢使用",
+  "expect": "normal",
+  "score": 0,
+  "stage": "S0",
+  "level": "none",
+  "pred": "normal",
+  "hit": true,
+  "us": 0.152,
+  "hits": [
+   "服务号验证码(+0)"
+  ]
+ },
+ {
+  "type": "生活服务",
+  "who": "service",
+  "text": "【燃气公司】您家燃气表将于11月20日入户安检，请家中留人",
+  "expect": "normal",
+  "score": 0,
+  "stage": "S0",
+  "level": "none",
+  "pred": "normal",
+  "hit": true,
+  "us": 0.283,
+  "hits": [
+   "服务号验证码(+0)"
+  ]
+ },
+ {
+  "type": "政务通知",
+  "who": "service",
+  "text": "【民政局】高龄津贴已按月发放至本人社保卡，无需办理任何手续",
+  "expect": "normal",
+  "score": 5,
+  "stage": "S0",
+  "level": "none",
+  "pred": "normal",
+  "hit": true,
+  "us": 0.12,
+  "hits": [
+   "社保卡",
+   "发放至",
+   "服务号验证码(+0)"
+  ]
+ },
+ {
+  "type": "反诈宣传",
+  "who": "service",
+  "text": "【派出所】温馨提示：凡是让您下载会议软件共享屏幕的都是诈骗，请相互转告",
+  "expect": "normal",
+  "score": 22,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": true,
+  "us": 0.129,
+  "hits": [
+   "共享屏幕",
+   "相互转告",
+   "服务号验证码(+0)"
+  ]
+ },
+ {
+  "type": "验证码",
+  "who": "service",
+  "text": "【微信】验证码 908712，用于登录验证，请勿转发",
+  "expect": "normal",
+  "score": 0,
+  "stage": "S0",
+  "level": "none",
+  "pred": "normal",
+  "hit": true,
+  "us": 0.106,
+  "hits": [
+   "服务号验证码(+0)"
+  ]
+ },
+ {
+  "type": "家人",
+  "who": "contact",
+  "text": "妈，我下个月发工资了，给你买个新手机",
+  "expect": "normal",
+  "score": -5,
+  "stage": "S0",
+  "level": "none",
+  "pred": "normal",
+  "hit": true,
+  "us": 0.198,
+  "hits": [
+   "工资"
+  ]
+ },
+ {
+  "type": "家人",
+  "who": "contact",
+  "text": "爸，你那个医保卡放哪了，我帮你去药店买药",
+  "expect": "normal",
+  "score": -5,
+  "stage": "S0",
+  "level": "none",
+  "pred": "normal",
+  "hit": true,
+  "us": 0.106,
+  "hits": [
+   "医保卡",
+   "通讯录号码"
+  ]
+ },
+ {
+  "type": "陌生正常",
+  "who": "stranger",
+  "text": "您好，我是社区网格员，明天上门登记人口信息，请家里留人",
+  "expect": "normal",
+  "score": 15,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": true,
+  "us": 0.09,
+  "hits": [
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "陌生正常",
+  "who": "stranger",
+  "text": "李阿姨，我是小区菜市场的，您订的排骨到了，有空来拿",
+  "expect": "normal",
+  "score": 15,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": true,
+  "us": 0.091,
+  "hits": [
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "陌生正常",
+  "who": "stranger",
+  "text": "您好，您预约的上门维修师傅大约下午三点到",
+  "expect": "normal",
+  "score": 3,
+  "stage": "S0",
+  "level": "none",
+  "pred": "normal",
+  "hit": true,
+  "us": 0.085,
+  "hits": [
+   "您预约的",
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "陌生正常",
+  "who": "stranger",
+  "text": "老张，下周老年大学书法班开课，记得带毛笔",
+  "expect": "normal",
+  "score": 15,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": true,
+  "us": 0.094,
+  "hits": [
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "陌生正常",
+  "who": "stranger",
+  "text": "您好，我是银行大堂经理，您的存单下周到期，有空可以来网点办理续存",
+  "expect": "normal",
+  "score": 15,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": true,
+  "us": 0.094,
+  "hits": [
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "陌生正常",
+  "who": "stranger",
+  "text": "奶奶好，我是您孙女的同学，她让我跟您说今晚晚点回家",
+  "expect": "normal",
+  "score": 15,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": true,
+  "us": 0.087,
+  "hits": [
+   "陌生号码"
+  ]
+ },
+ {
+  "type": "陌生正常",
+  "who": "stranger",
+  "text": "您的报纸订阅明年续订价格不变，有需要可以到邮局办理",
+  "expect": "normal",
+  "score": 15,
+  "stage": "S1",
+  "level": "watch",
+  "pred": "normal",
+  "hit": true,
+  "us": 0.089,
+  "hits": [
+   "陌生号码"
+  ]
+ }
+]

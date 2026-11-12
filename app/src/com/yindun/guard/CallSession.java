@@ -155,6 +155,19 @@ class CallSession {
         return number;
     }
 
+    /**
+     * 现在是不是正在通电话（响铃中或已接通）。
+     *
+     * 【为什么不能用 id() != null 代替】
+     *   id 在挂断后还要留 30 分钟给"挂断后去转账"那一步归组用，
+     *   所以 id 非空只说明"最近有一通电话"，不说明电话还没挂。
+     *   两件事必须分开问，混着用的后果是：挂断十分钟后仍然以为在通话中，
+     *   该拨的号一直不拨。
+     */
+    static synchronized boolean inCall() {
+        return id != null && phase != IDLE;
+    }
+
     /** 给日志用：还剩多少分钟有效期 */
     static long ageSec() {
         if (id == null) return -1;

@@ -10,6 +10,8 @@ import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import java.io.OutputStream;
@@ -209,10 +211,52 @@ public class Notifier {
         return childBound(ctx) || Guard.isEmulator();
     }
 
-    /** 上一次"已自动呼叫家人"上报的时刻。见 callChild 里的 60 秒去重 */
+    /** 上一次真的把号拨出去的时刻（不管有没有上报）。用于冷却，见 queueChildCall */
     private static volatile long lastCallChildAt = 0;
 
-    public static void callChild(Context ctx) {        if (!canDial(ctx)) {
+    /** 上一次"已自动呼叫家人"上报的时刻。见 dialChild 里的 60 秒去重 */
+    private static volatile long lastCallChildPushAt = 0;
+
+    /** 有一通"该打给家人但现在打不了"的呼叫在等着挂断后补拨；0 = 没有。见 callChild */
+    private static volatile long queuedChildCallAt = 0;
+
+    /** 排队最多等这么久。十分钟后才突然拨出去，比不拨更吓人 */
+    private static final long QUEUE_TTL_MS = 10L * 60 * 1000;
+
+    /**
+     * 拨出去之后的冷却期：这段时间内不再排队补拨。
+     *
+     * 【为什么必须有这个】
+     *   实测（2026-11-12）：补拨成功、正打给女儿的时候，老人手机上
+     *   假银行 App 还留在前台，AppWatcher 每秒都在报"前台出现银行类 App"，
+     *   于是 callChild 被反复调用。此时我们自己在通话中，就一次次排队。
+     *   结果女儿那通一挂断，又补拨一次 —— 变成连环拨号，老人的手机永远占线。
+     *   同一场诈骗只该拨一次：没接通是家人那边的事，不该拿老人的电话去重试。
+     */
+    private static final long QUEUE_COOLDOWN_MS = 5L * 60 * 1000;
+
+    /** 挂断后延迟多久再拨：系统刚挂断那一两秒内发 CALL 会被拒 */
+    private static final long DIAL_AFTER_HANGUP_MS = 3000;
+
+    /**
+     * 该打给家人了。由判定引擎和 Shield 兜底调用。
+     *
+     * 【2026-11-12 修：正在通话中不能硬拨】
+     *   原来这里不管三七二十一直接 ACTION_CALL。老人本来就正在和骗子通话时，
+     *   安卓会弹一个**英文系统框**："Cannot place a call at this time.
+     *   There are already two calls in progress." —— 老人看不懂，
+     *   而且这个框盖在通话界面上，比不弹更让人慌。
+     *   更实际的一点：骗子正在电话里指挥她转账，我们这通电话拨出去也接不通，
+     *   只是白白在屏幕上糊一层看不懂的英文。
+     *
+     *   所以改成两条路：
+     *     · 空闲 —— 照旧立刻拨；
+     *     · 通话中 —— 记下来等挂断补拨，同时立刻推一条高优告警让子女主动回拨。
+     *       子女回拨走的是"呼叫等待"，能在骗子还在说话的时候就插进去，
+     *       这比我们拨出去有用得多。
+     */
+    public static void callChild(Context ctx) {
+        if (!canDial(ctx)) {
             // 真机未设置紧急联系人：打开拨号盘，让老人自己拨，并提示去设置
             Log.w(TAG, "未设置紧急联系人，不自动拨号，改为打开拨号盘");
             try {
@@ -223,6 +267,76 @@ public class Notifier {
             }
             return;
         }
+        if (CallSession.inCall()) {
+            queueChildCall(ctx);
+            return;
+        }
+        dialChild(ctx);
+    }
+
+    /**
+     * 正在通话中：先不拨，记一笔等挂断。
+     *
+     * 【文案为什么不说"已自动呼叫家人"】
+     *   那一刻电话并没有打出去。写"已呼叫"就是让子女看到一件没发生的事，
+     *   他甚至会以为妈妈已经被叫到了。这里只说真相：老人还在通话，我们打不进去。
+     */
+    private static void queueChildCall(Context ctx) {
+        // 刚拨过就别再排队：见 QUEUE_COOLDOWN_MS 的注释（实测出来的连环拨号）
+        long since = System.currentTimeMillis() - lastCallChildAt;
+        if (lastCallChildAt > 0 && since < QUEUE_COOLDOWN_MS) {
+            Log.i(TAG, "刚拨过家人（" + (since / 1000) + " 秒前），本次不再排队");
+            return;
+        }
+        // 已经排过队了就别重复记、也别重复推子女端：同一件事报两遍会像出了两次事
+        if (queuedChildCallAt > 0) {
+            Log.i(TAG, "已有一通呼叫在排队等挂断，不重复排队");
+            return;
+        }
+        queuedChildCallAt = System.currentTimeMillis();
+        String num = dialTarget(ctx);
+        Log.i(TAG, "正在通话中，本次不硬拨，改记下来等挂断后补拨 " + num);
+        pushToBackend(ctx, K_CALL_CHILD, "high",
+                "老人还在通话中，银盾打不进去",
+                "银盾已记下这通呼叫，挂断后会自动拨给您（" + num
+                        + "）。这通电话请您现在就主动回拨，越快越好。");
+    }
+
+    /**
+     * 挂断之后把排队的那通呼叫补上。由 Guard 的挂断分支调用。
+     *
+     * 【为什么要等 3 秒】刚挂断时立刻发 ACTION_CALL，系统有一小段时间还认为
+     * 通话没完全结束，会直接拒掉。3 秒是实测能过的最小值。
+     */
+    public static void flushQueuedChildCall(Context ctx) {
+        if (queuedChildCallAt == 0) return;
+
+        final long waited = System.currentTimeMillis() - queuedChildCallAt;
+        queuedChildCallAt = 0;
+
+        if (waited > QUEUE_TTL_MS) {
+            Log.w(TAG, "排队中的呼叫已等了 " + (waited / 60000) + " 分钟，过期不再补拨");
+            return;
+        }
+        if (!canDial(ctx)) return;
+
+        Log.i(TAG, "通话结束，3 秒后补拨给家人（这通呼叫等了 " + (waited / 1000) + " 秒）");
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // 又打进来了（呼叫等待、或者骗子回拨）：那就继续等，不能硬拨
+                if (CallSession.inCall()) {
+                    queuedChildCallAt = System.currentTimeMillis();
+                    Log.i(TAG, "刚挂断又接了一通，补拨再次延后");
+                    return;
+                }
+                dialChild(ctx);
+            }
+        }, DIAL_AFTER_HANGUP_MS);
+    }
+
+    /** 真正的拨号动作。只有确认"此刻没在通话中"才会走到这里 */
+    private static void dialChild(Context ctx) {
         String num = dialTarget(ctx);
         if (!childBound(ctx)) {
             Log.w(TAG, "模拟器上未绑定子女号码，改用演示号码拨出 " + num);
@@ -235,14 +349,17 @@ public class Notifier {
             // 时间轴的最后一步。必须在 startActivity 之后发——
             // 拨号被系统拒了（没权限/没号码）就走不到这里，
             // 子女端也就不会看到一句"已自动呼叫女儿"的假消息。
-            //
+            long now = System.currentTimeMillis();
+
+            // 冷却时间点：拨出去就算，不管这次上不上报。见 QUEUE_COOLDOWN_MS
+            lastCallChildAt = now;
+
             // 【60 秒内只记一次】拨号有两条路：判定为阻断级时立即拨，
             // 盖屏 6 秒无人操作时 Shield 还会兜底再拨一次。真的拨两次是有意的
             // （第一次可能被系统拦掉），但时间轴上连着两条"已自动呼叫家人"
-            // 会让人以为打了好几通。记录去重，拨号不动。
-            long now = System.currentTimeMillis();
-            if (now - lastCallChildAt > 60000) {
-                lastCallChildAt = now;
+            // 会让人以为打了好几通。上报去重，拨号不动。
+            if (now - lastCallChildPushAt > 60000) {
+                lastCallChildPushAt = now;
                 pushToBackend(ctx, K_CALL_CHILD, "high", "银盾已自动呼叫家人",
                         (childBound(ctx) ? "已自动拨出" : "未绑定家人号码，演示号码拨出") + "：" + num);
             }

@@ -335,6 +335,61 @@ public class Notifier {
         }, DIAL_AFTER_HANGUP_MS);
     }
 
+    // ==========================================================
+    //  「这通电话是我们自己拨的」
+    // ----------------------------------------------------------
+    //  2026-11-12 实测抓出来的：子女远程锁了转账 → 老人开银行 → 盖屏 →
+    //  6 秒无人操作 → 银盾自动拨给女儿。女儿接起来那一刻，
+    //  CallWatcher 把来电判成了 who=stranger（陌生号码），
+    //  而银行还开在前台，于是「通话中打开银行」这条最硬的阻断判据成立，
+    //  又盖了一次屏，还推了一条"妈妈正在进行高风险操作"给女儿——
+    //  她正接着我打过去的电话，看到这句只会更慌，而且这句话是假的。
+    //
+    //  根子在 CallWatcher 靠"通话记录里的方向"区分呼入呼出，
+    //  但刚接通那一瞬间通话记录还没落盘，查到的方向是空的。
+    //  所以这里自己记一笔：拨的是谁、什么时候拨的。
+    // ==========================================================
+
+    /** 银盾自己拨出的号码（未归一化，比对时用 sameNumber） */
+    private static volatile String selfDialNum = null;
+    private static volatile long selfDialAt = 0;
+    /** 这笔记录管多久。家人没接、响很久的情况也算在内，取 3 分钟 */
+    private static final long SELF_DIAL_TTL_MS = 3 * 60 * 1000L;
+
+    private static void markSelfDial(String num) {
+        selfDialNum = num;
+        selfDialAt = System.currentTimeMillis();
+    }
+
+    /**
+     * 这个号码是不是银盾刚才自己拨出去的。
+     * 是的话说明对面是家人，不是骗子打进来的。
+     */
+    public static boolean selfDialed(String num) {
+        if (num == null || selfDialNum == null) return false;
+        if (System.currentTimeMillis() - selfDialAt > SELF_DIAL_TTL_MS) return false;
+        return sameNumber(num, selfDialNum);
+    }
+
+    /** 只比数字，忽略空格、+86、连字符 —— 系统给的号码格式不统一 */
+    private static boolean sameNumber(String a, String b) {
+        String x = digits(a), y = digits(b);
+        if (x.length() == 0 || y.length() == 0) return false;
+        if (x.length() > 11 && x.startsWith("86")) x = x.substring(2);
+        if (y.length() > 11 && y.startsWith("86")) y = y.substring(2);
+        return x.equals(y);
+    }
+
+    private static String digits(String s) {
+        if (s == null) return "";
+        StringBuilder sb = new StringBuilder(s.length());
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            if (ch >= '0' && ch <= '9') sb.append(ch);
+        }
+        return sb.toString();
+    }
+
     /** 真正的拨号动作。只有确认"此刻没在通话中"才会走到这里 */
     private static void dialChild(Context ctx) {
         String num = dialTarget(ctx);
@@ -345,6 +400,8 @@ public class Notifier {
             Intent i = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + num));
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             ctx.startActivity(i);
+            // 先记下来再打日志：接通回调可能比这行日志更早到
+            markSelfDial(num);
             Log.i(TAG, "已自动拨给子女 " + num);
             // 时间轴的最后一步。必须在 startActivity 之后发——
             // 拨号被系统拒了（没权限/没号码）就走不到这里，

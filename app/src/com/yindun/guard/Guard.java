@@ -100,6 +100,21 @@ public class Guard {
     private boolean askedInCall = false;
 
     /**
+     * 这一通电话是银盾自己拨出去的吗（自动打给家人）。
+     *
+     * 【为什么需要】
+     * 2026-11-12 实测：子女远程锁了转账 → 老人开银行 → 盖屏 → 6 秒无人操作
+     * → 银盾自动拨给女儿。女儿接起那一刻，来电被判成陌生号码，
+     * 而银行还在前台，「通话中打开银行」成立 —— 又盖了一次屏，
+     * 还给正在接电话的女儿推了一条"妈妈正在进行高风险操作"。
+     * 那通电话是我们自己打的，这条警报是假的。
+     *
+     * 所以这类通话不参与判定。但只摘掉"这通电话本身"带来的信号，
+     * 短信、装软件、开无障碍这些照判 —— 自家人在通话，不代表别的风险不存在。
+     */
+    private volatile boolean selfDialed = false;
+
+    /**
      * 这一通来电，响铃时那条「陌生号码来电」报给子女了吗。
      *
      * 【2026-11-09 为什么加这个字段】
@@ -156,6 +171,9 @@ public class Guard {
             // ---- 开始通话 ----
             // 接起来了，熟人询问就没意义了：手机一贴耳朵屏幕就黑，问了他也看不见
             Acquaint.dismiss();
+            // 这通是不是我们自己拨的（见字段说明）。每次接通都重算：
+            // 通话中老人切去接另一通时，这个标记必须跟着变。
+            selfDialed = Notifier.selfDialed(number);
             if (callStartAt == 0) {
                 startNewCall(number, who);
             } else if (number != null && !number.equals(callNumber)) {
@@ -205,6 +223,7 @@ public class Guard {
             // ---- 挂断 ----
             Acquaint.dismiss();
             TipBar.hide();      // 通话结束，轻提醒没有留着的道理
+            selfDialed = false; // 这一通结束了，下一通重新算
 
             // 【2026-11-09 修】不管接没接，这一通都结束了，响铃标记必须复位。
             // 否则"响铃没接就挂断"会让标记一直挂着，下一通陌生来电
@@ -437,6 +456,12 @@ public class Guard {
     }
 
     private void evaluate(String trigger) {
+        // 【2026-11-12】自己拨给家人的那通电话不算风险来源。
+        // 只摘掉这三个触发源 —— sms / install / a11y 照判：
+        // 正和女儿通着电话、同时收到验证码并开着银行，那是真危险，不能跟着一起吞掉。
+        if (selfDialed && ("call".equals(trigger) || "tick".equals(trigger) || "bank".equals(trigger))) {
+            return;
+        }
         Judge.Result r = Judge.get(ctx).judgeState(st);
         int rank = rank(r.level);
 

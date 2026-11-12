@@ -132,6 +132,18 @@ public class CallWatcher {
         if (state == TelephonyManager.CALL_STATE_OFFHOOK) {
             // ---------- 通话中 ----------
             inCall = true;
+
+            // 【2026-11-12 修】银盾自己拨给家人的那通，必须按"呼出"算。
+            // 刚接通这一瞬间通话记录还没落盘，上面查到的 dir 是空的；
+            // 而家人号码不一定存在通讯录里（演示号码就一定不在），
+            // 于是 classify 判成 stranger —— 银行又正好在前台，
+            // 「通话中打开银行」这条阻断判据就成立了，明明是我们自己打的电话。
+            // 详见 Notifier.selfDialed() 上面那段实测记录。
+            if (dir != 2 && Notifier.selfDialed(num)) {
+                dir = 2;
+                Log.i(TAG, "这通电话是银盾自己拨出的（" + num + "），按呼出处理，不当作陌生来电");
+            }
+
             String who = NumberInfo.classify(ctx, num);
             if (dir == 2) who = NumberInfo.CONTACT;   // 老人自己打的，不报警
 

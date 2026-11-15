@@ -47,5 +47,19 @@
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
+        <!-- 开机自启：手机重启后把预警监听拉起。
+             不写这一条，子女手机关一次机就再也收不到预警了 ——
+             而界面上只是一片空白，看起来跟"妈妈今天没事"一模一样。 -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
     </application>
 </manifest>

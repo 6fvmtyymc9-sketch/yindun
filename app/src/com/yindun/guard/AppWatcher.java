@@ -113,20 +113,39 @@ public class AppWatcher {
      *
      * 【原理】
      * 系统会记录每一次"某个界面来到前台"的事件。我们问它：
-     * "最近 10 秒有哪些界面来过前台？" 最后那个就是现在这个。
+     * "最近这几秒有哪些界面来过前台？" 最后那个就是现在这个。
+     *
+     * 【为什么要查两个窗口】
+     * 只查 10 秒会漏一种真机上很常见的情况：银盾进程被 ROM 杀掉、又被拉起来
+     * （或者手机刚重启），而老人**一直就停在银行界面上**。这时候 10 秒内
+     * 一个新事件都没有 —— 事件是 5 分钟前发生的 —— 查出来是空，
+     * 我们就把"她在银行"这件事整个漏掉了。
+     *
+     * 所以 10 秒查不到时，再往前看 60 秒兜一次。这个放宽是安全的：
+     *   · 她若已经切到别的 App，那个 App 一定有更新的前台事件，取到的还是它；
+     *   · 她若锁屏不动，取到的是最后一个前台 App —— 那正是"屏幕最后停在哪儿"。
+     * 而且多查一次不会导致误弹：真正决定盖屏的是「通话中」或「风险窗口」，
+     * 这两个条件 handled 在 Guard.onBankForeground 里，跟窗口宽度无关。
      *
      * 【没有权限时】
      * 返回空列表，也就是永远查不到。这不影响别的功能，只是"看动作"这只眼睛瞎了。
      * 所以装机引导里必须让用户开"使用情况访问权限"，否则这一整块白做。
      */
     private String foreground() {
+        String pkg = latestForeground(10000);
+        if (pkg != null && pkg.length() > 0) return pkg;
+        return latestForeground(60000);   // 冷启动兜底，见上面那段
+    }
+
+    /** 在指定时间窗里，最后一个来到前台的包名 */
+    private String latestForeground(long windowMs) {
         try {
             UsageStatsManager usm = (UsageStatsManager)
                     ctx.getSystemService(Context.USAGE_STATS_SERVICE);
             if (usm == null) return null;
 
             long now = System.currentTimeMillis();
-            UsageEvents events = usm.queryEvents(now - 10000, now);
+            UsageEvents events = usm.queryEvents(now - windowMs, now);
             if (events == null) return null;
 
             UsageEvents.Event e = new UsageEvents.Event();

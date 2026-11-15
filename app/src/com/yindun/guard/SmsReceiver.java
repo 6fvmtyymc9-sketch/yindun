@@ -288,7 +288,7 @@ public class SmsReceiver extends BroadcastReceiver {
                 try {
                     JSONObject o = new JSONObject(extractJson(reply));
                     boolean scam  = o.optBoolean("scam", false);
-                    String stage  = o.optString("stage", "S0");
+                    String stage  = saneStage(o.optString("stage", "S0"), score);
                     String reason = o.optString("reason", "");
 
                     Log.i(TAG, "AI复审 scam=" + scam + " stage=" + stage + " reason=" + reason);
@@ -319,6 +319,29 @@ public class SmsReceiver extends BroadcastReceiver {
                 EventBus.pushAI("review", reason, false);
             }
         });
+    }
+
+    /**
+     * 把模型给的 stage 收进白名单。
+     *
+     * 【为什么要这一步】
+     * 这个字段会原样显示在子女端的时间线上（EventBus.pushAlert 直接带过去了）。
+     * 提示词里写的是 S0~S4，但模型偶尔会输出 "S1阶段"、"stage1"、中文"初期"，
+     * 甚至整段跑偏。不收的话，界面上会出现一个谁也看不懂的标签。
+     *
+     * 收的法子是：认不出就用本地分数反推一个阶段 —— 规则判的分数一定在，
+     * 比丢成 S0（"无阶段"）更接近事实。
+     * 注意：这一步只影响"显示成什么样"，不影响判级 —— 级别在调用处写死是 warn。
+     */
+    private String saneStage(String raw, int score) {
+        String s = raw == null ? "" : raw.trim().toUpperCase(java.util.Locale.ROOT);
+        if ("S0".equals(s) || "S1".equals(s) || "S2".equals(s)
+                || "S3".equals(s) || "S4".equals(s)) {
+            return s;
+        }
+        String fallback = score >= 70 ? "S2" : (score >= 40 ? "S1" : "S0");
+        Log.w(TAG, "AI 返回的 stage 不规范（" + raw + "），按本地分数改为 " + fallback);
+        return fallback;
     }
 
     /** 模型有时会把 JSON 包在 ```json 里，或者前后带解释，这里只抠出花括号那一段 */

@@ -41,6 +41,21 @@ public class Pair {
         sp(c).edit().putBoolean("demo_mode", on).apply();
     }
 
+    /**
+     * 她到底开通过守护没有。
+     *
+     * 【为什么不能用"装了就自启"】装了只看一眼就走的人不少，对她们来说
+     * 每次开机常驻一条通知跟流氓软件一样。所以只有真正拉起过守护服务的人，
+     * 才配得上开机自启。标记由 MainActivity.startGuard() 写。
+     */
+    public static boolean enabled(Context c) {
+        return sp(c).getBoolean("guard_enabled", false);
+    }
+
+    public static void setEnabled(Context c, boolean on) {
+        sp(c).edit().putBoolean("guard_enabled", on).apply();
+    }
+
     /** 给一个 HTTP 请求带上身份头（演示模式不带） */
     public static void sign(Context c, HttpURLConnection conn) {
         if (demo(c)) return;

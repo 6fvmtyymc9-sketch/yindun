@@ -58,6 +58,10 @@
     <!-- 引导用户把我们从电池优化名单里去掉（真正保命的一步） -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
+    <!-- 开机自启：手机重启后守护要自己站起来。
+         少了这一条，老人只要重启一次，银盾就成了一张摆在那儿的图标。 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <!-- 查询已安装应用：判断"这个 App 是不是从应用商店装的" -->
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
@@ -177,6 +181,22 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="com.yindun.guard.DRILL_REMIND" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 开机自启：手机重启后把守护服务拉起。
+             exported=true 是必须的 —— 系统发的广播来自别的进程，
+             写成 false 就永远收不到（Android 12 起不写也会被判收不到）。
+             QUICKBOOT_POWERON 是小米/vivo/OPPO 那几家自己的"快速开机"广播，
+             标准 BOOT_COMPLETED 在它们身上有时不发，补这两条兜住。 -->
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
             </intent-filter>
         </receiver>
 

@@ -247,6 +247,10 @@ public class MainActivity extends Activity {
     // ==========================================================
     private void startGuard() {
         try {
+            // 记一笔"她开通过守护"。BootReceiver 只有在看到这一笔之后，
+            // 开机才会把服务拉起来 —— 否则装完只是看了一眼的人，
+            // 每次开机都会莫名多出一条常驻通知。
+            Pair.setEnabled(this, true);
             Intent i = new Intent(this, GuardService.class);
             if (Build.VERSION.SDK_INT >= 26) startForegroundService(i);
             else startService(i);

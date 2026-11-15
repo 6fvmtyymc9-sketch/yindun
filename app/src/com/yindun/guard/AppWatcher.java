@@ -101,8 +101,15 @@ public class AppWatcher {
         lastPkg = pkg;
 
         Guard g = Guard.get(ctx);
-        if (Judge.isBank(pkg, null)) {
-            g.onBankForeground(pkg, InstallReceiver.label(ctx, pkg));
+        // 【2026-11-15 修】这里原来传的是 isBank(pkg, null) —— 应用名压根没进去。
+        // 后果是词表里那 18 个中文词（银行/支付/信用卡/农商/农信/邮储/村镇银行…）
+        // 在这条唯一的调用路径上**全部失效**，只有包名里的英文字母算数。
+        // 而地方银行、农商行、村镇银行的包名常常是 com.xxx.mobile 这种，
+        // 一个字母关键词都不带 —— 等于她在那些银行里转钱时没人拦。
+        // 应用名只在包名变了的时候才查一次（上面 lastPkg 去重挡着），开销可以忽略。
+        String label = InstallReceiver.label(ctx, pkg);
+        if (Judge.isBank(pkg, label)) {
+            g.onBankForeground(pkg, label);
         } else {
             g.onLeaveBank();
         }

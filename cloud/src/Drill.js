@@ -46,11 +46,11 @@ const SCENARIOS = {
         fallback: '朱女士，您名下尾号 6688 的银行卡涉嫌一起特大洗钱案件，我们已经立案侦查。现在依法要冻结您名下所有账户。',
         question: '对方说你涉嫌犯罪',
         choices: [
-          { t: '我没干过，那我该怎么办？', ok: false },
-          { t: '你凭什么说我犯罪？有文件吗？', ok: true },
           { t: '我马上配合你们', ok: false },
+          { t: '挂了，我去派出所当面问', ok: true },
+          { t: '我没干过，那我该怎么办？', ok: false },
         ],
-        tip: '一被吓住就输了。真立案会有书面文书，不会在电话里通知你，更不会让你"自己查"。',
+        tip: '一被吓住就输了。真立案只有派出所当面办，电话里说你"涉嫌犯罪"的，百分之百是骗子。',
       },
       {
         stage: 3,
@@ -58,8 +58,8 @@ const SCENARIOS = {
         question: '对方要求你别告诉家人',
         choices: [
           { t: '好，我不说', ok: false },
-          { t: '我现在就给我女儿打电话', ok: true },
           { t: '那我先想想', ok: false },
+          { t: '我现在就给我女儿打电话', ok: true },
         ],
         tip: '"别告诉家人"是所有诈骗的共同点。凡是让你瞒着子女的，一定是骗子。',
       },
@@ -69,8 +69,8 @@ const SCENARIOS = {
         question: '对方让你把钱转到"安全账户"',
         choices: [
           { t: '好，我现在去银行转', ok: false },
-          { t: '不转，我先问家里人', ok: true },
           { t: '那我先转一部分试试', ok: false },
+          { t: '不转，我先问家里人', ok: true },
         ],
         tip: '根本不存在"安全账户"。只要听到转账、验资、审查资金，就是诈骗。',
       },
@@ -88,11 +88,11 @@ const SCENARIOS = {
         fallback: '妈，我手机掉水里坏了，这是同事的号，我新号还没办下来。你存一下这个号。',
         question: '对方自称是你的孩子',
         choices: [
-          { t: '哎，你怎么了？没事吧', ok: false },
-          { t: '你叫什么名字？我儿子叫什么？', ok: true },
           { t: '哦，那我存一下', ok: false },
+          { t: '我先挂掉，用原来的号打给你', ok: true },
+          { t: '哎，你怎么了？没事吧', ok: false },
         ],
-        tip: '声音可以模仿，名字可以打听到。要问只有你家人知道的事。',
+        tip: '声音能模仿，名字能打听。挂了，用手机里存的号打回去——这一步谁也骗不了你。',
       },
       {
         stage: 2,
@@ -100,8 +100,8 @@ const SCENARIOS = {
         question: '对方说自己出事了',
         choices: [
           { t: '要多少钱？妈给你', ok: false },
-          { t: '你先别急，我打你原来那个号', ok: true },
           { t: '你怎么这么不小心', ok: false },
+          { t: '你先别急，我打你原来那个号', ok: true },
         ],
         tip: '越是催你、越是不让你核实的，越可疑。挂掉，用原来的号码打回去。',
       },
@@ -122,8 +122,8 @@ const SCENARIOS = {
         question: '对方要你转钱到别人卡上',
         choices: [
           { t: '好，我这就去转', ok: false },
+          { t: '那我少转一点行不行', ok: false },
           { t: '不转，我先视频看看你', ok: true },
-          { t: '那我转 2 万行不行', ok: false },
         ],
         tip: '转到"朋友账户"是典型特征。视频一下、或者打原来号码，一问就穿。',
       },
@@ -164,8 +164,8 @@ const SCENARIOS = {
         question: '对方不让你挂电话',
         choices: [
           { t: '好，你说', ok: false },
-          { t: '我先挂了，问问我女儿', ok: true },
           { t: '那你快点', ok: false },
+          { t: '我先挂了，问问我女儿', ok: true },
         ],
         tip: '"别挂电话、别问家人"是为了不给你冷静和商量的机会。挂断是安全的。',
       },
@@ -174,7 +174,7 @@ const SCENARIOS = {
         fallback: '我现在给您手机上发一个验证码，您念给我，我帮您在系统里走完最后一步，钱立刻就到。',
         question: '对方要你念短信验证码',
         choices: [
-          { t: '好，是 382910', ok: false },
+          { t: '好，我念给你听', ok: false },
           { t: '验证码不能给任何人', ok: true },
           { t: '我念慢一点', ok: false },
         ],
@@ -195,8 +195,8 @@ const SCENARIOS = {
         question: '对方说动动手就能赚钱',
         choices: [
           { t: '有兴趣，怎么做？', ok: false },
-          { t: '不用出钱吧？', ok: true },
           { t: '一天能赚多少？', ok: false },
+          { t: '不接这活儿，挂掉', ok: true },
         ],
         tip: '"动动手就赚钱"本身就是最大的破绽。真工作不会在微信群里招人。',
       },
@@ -216,7 +216,7 @@ const SCENARIOS = {
         fallback: '您这个情况比较特殊，别跟家里人说，说了他们肯定不同意，等您赚到了再告诉他们不是更好？',
         question: '对方让你瞒着家人',
         choices: [
-          { t: '也是', ok: false },
+          { t: '行，我不说', ok: false },
           { t: '我跟我儿子商量一下', ok: true },
           { t: '那我先不说', ok: false },
         ],
@@ -227,9 +227,9 @@ const SCENARIOS = {
         fallback: '刚才您操作错了，账户被冻结，要再充 2 万才能解冻，不然前面的钱都拿不回来。您快一点，名额只有一个。',
         question: '对方让你再充钱解冻',
         choices: [
-          { t: '那我再充 2 万', ok: false },
-          { t: '不充了，这是骗局', ok: true },
+          { t: '那我再充点钱试试', ok: false },
           { t: '能不能少一点', ok: false },
+          { t: '不充了，这是骗局', ok: true },
         ],
         tip: '冒充"解冻费"是杀猪盘的最后一刀。此时止损，就是最好的选择。',
       },
@@ -419,7 +419,9 @@ class Drill {
     let lines = null;
     let cost = 0;
     if (this.pangu && this.pangu.enabled) {
-      lines = await this._script(`诈骗类型：${s.name}（${s.desc}）。请写这 4 句话。`);
+      // 必须把这四轮"要说到的事"交给模型，否则它自己编情节，
+      // 跟下面写死的选项各说各话（实测：台词讲"账户要被冻结追责"，选项却在问"多少钱"）。
+      lines = await this._script(`诈骗类型：${s.name}（${s.desc}）。`, s.rounds.map(r => r.question));
       cost = this.pangu.lastCost || 0;
     }
 
@@ -452,16 +454,20 @@ class Drill {
 
     const bp = CaseBank.buildBlueprint(opts, reports);
 
+    // 【2026-11-16 修】先把四轮的"要说到的事"算出来，再让模型开口。
+    // 顺序反过来就是本次实测到的错位：模型自己编了一版情节，选项还是写死那一套。
+    const planned = bp.lanes.map(lane => CaseBank.buildRound({ ...lane, demand: bp.demand }));
+
     let lines = null;
     let cost = 0;
     if (this.pangu && this.pangu.enabled) {
-      lines = await this._script(bp.brief);
+      lines = await this._script(bp.brief, planned.map(r => r.question));
       cost = this.pangu.lastCost || 0;
     }
 
     const id = 'd' + seq++;
     const rounds = bp.lanes.map((lane, i) => {
-      const r = CaseBank.buildRound({ ...lane, demand: bp.demand });
+      const r = planned[i] || CaseBank.buildRound({ ...lane, demand: bp.demand });
       return {
         stage: r.stage,
         aiText: (lines && lines[i]) || fallbackLine(lane, bp),
@@ -481,17 +487,32 @@ class Drill {
     return this._view(live.get(id));
   }
 
-  /** 模型编台词；返回 4 条数组，失败返回 null */
-  async _script(brief) {
+  /**
+   * 模型编台词；返回 4 条数组，失败返回 null。
+   *
+   * @param brief     这一局是什么套路
+   * @param questions 四轮分别"要说到的事"（剧本里写死的 question）
+   *
+   * 【2026-11-16 修】以前只给 brief，模型自由发挥，于是台词和选项对不上：
+   *   第 2 轮台词说"账户要被冻结追责"，选项却在问"多少钱？"。
+   *   现在把每轮要点喂进去，并禁掉具体金额/卡号——选项里写死了"再充 2 万"，
+   *   台词要是说"三万八"，老人就更对不上了。
+   */
+  async _script(brief, questions = []) {
     const sys = [
       '你在做老年人反诈演练，扮演电话那头的诈骗分子。',
       '只输出一个 JSON 数组，4 个字符串，不要 markdown，不要解释。',
       '第1条是套近乎、拉近关系；第2条是吓唬、制造紧张；第3条是要求别告诉家人；第4条是直接要钱或要验证码。',
+      '四条必须依次落实用户给的"四轮要说到的事"，不许换情节、不许跳过、不许自己加别的事。',
+      '禁止出现任何具体金额、银行卡号、账号尾号、日期时刻。要提钱就说"这笔钱"，要提时间就说"今天之内"。',
       '每句话不超过 60 字，要像真人打电话，可以用"您""阿姨"这种称呼，不要出现"诈骗""剧本"这类元词。',
     ].join('\n');
+    const user = (Array.isArray(questions) && questions.length >= 4)
+      ? `${brief}\n\n四轮要说到的事：\n${questions.slice(0, 4).map((q, i) => `${i + 1}. ${q}`).join('\n')}`
+      : brief;
     try {
       const raw = await this.pangu.chat(
-        [{ role: 'system', content: sys }, { role: 'user', content: brief }],
+        [{ role: 'system', content: sys }, { role: 'user', content: user }],
         { maxTokens: 400, temperature: 0.8 }
       );
       const m = String(raw).match(/\[[\s\S]*\]/);

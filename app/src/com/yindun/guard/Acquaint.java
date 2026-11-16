@@ -58,6 +58,20 @@ public class Acquaint {
     /** 本次响铃已经问过了吗（一次响铃只问一次，别反复打扰） */
     private static boolean askedThisRing = false;
     private static String askedNumber = null;
+    /** 上面那个标记是什么时候立起来的（毫秒）。见 ASK_TTL_MS 的说明 */
+    private static long askedAt = 0;
+    /**
+     * 标记的保质期。
+     *
+     * 【为什么需要它】这个标记本来只靠"接通 / 挂断"两个回调来复位。
+     * 但实测发现：卡片 20 秒没人理就自动收起了，标记却还挂着（hide(false) 刻意不复位，
+     * 免得同一通响铃被重复打扰）。一旦系统这一次漏发挂断回调——真机上偶发，
+     * 老人直接按电源键、或者系统把通话界面杀了都会——标记就一直为真，
+     * 下一通陌生来电压根不弹卡，人还以为"防护失灵了"。
+     * 加个保质期：90 秒。响铃卡本身只活 20 秒，一通电话的响铃也很少超过 60 秒，
+     * 所以正常路径下行为完全不变，只有"上一通的状态漏清了"这一种情况会被它救回来。
+     */
+    private static final long ASK_TTL_MS = 90 * 1000L;
 
     /** 当前这张卡是"通话中复问"吗（决定要不要停振动、要不要自动收） */
     private static boolean inCallCard = false;
@@ -154,8 +168,10 @@ public class Acquaint {
         if (!NumberInfo.STRANGER.equals(who)) return;
         if (number == null || number.length() == 0) return;
 
-        // 同一次响铃已经问过，不再打断
-        if (askedThisRing && eq(number, askedNumber)) return;
+        // 同一次响铃已经问过，不再打断。
+        // 超过保质期就不算"这一次"了 —— 见 ASK_TTL_MS 上面那段实测记录。
+        boolean stillFresh = askedAt > 0 && System.currentTimeMillis() - askedAt < ASK_TTL_MS;
+        if (askedThisRing && stillFresh && eq(number, askedNumber)) return;
 
         // 没有悬浮窗权限就不弹了。这里刻意不降级去打开 App——
         // 响铃时把 App 拽到前台会把来电界面顶掉，老人可能就找不到接听按钮了。
@@ -166,6 +182,7 @@ public class Acquaint {
 
         askedThisRing = true;
         askedNumber = number;
+        askedAt = System.currentTimeMillis();
 
         handler.post(new Runnable() {
             @Override
@@ -204,6 +221,7 @@ public class Acquaint {
         handler.removeCallbacks(slowDown);
         askedThisRing = false;
         askedNumber = null;
+        askedAt = 0;
         hide(true);
     }
 
@@ -321,6 +339,7 @@ public class Acquaint {
         if (resetRing) {
             askedThisRing = false;
             askedNumber = null;
+            askedAt = 0;
         }
     }
 

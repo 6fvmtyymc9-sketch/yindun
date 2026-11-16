@@ -53,9 +53,12 @@ const KIND_OF = {
   '平台安全中心': 'authority',
   '贷款中介': 'authority',
   '陌生机构': 'authority',
+  '人社/税务部门': 'authority',
   '电商客服': 'service',
   '快递公司': 'service',
   '活动主办方': 'service',
+  '航空公司客服': 'service',
+  '平台客服': 'service',
   '冒充亲属': 'kin',
   '子女': 'kin',
   '子女（视频出镜）': 'kin',
@@ -64,10 +67,29 @@ const KIND_OF = {
   '投资导师': 'benefit',
   '养老项目顾问': 'benefit',
   '兼职招募': 'benefit',
+  '养生专家': 'benefit',
+  '征信修复顾问': 'benefit',
 };
 
+/**
+ * 身份 → 类别。
+ *
+ * 【为什么要有关键词兜底】热点库每月都在加新的自称，只靠上面那张表的话，
+ * 漏配一个就会静默 fallback 成 authority —— 2026-11-16 实测就出了这个事故：
+ * 「机票退改签诈骗」被演成"对方自称是公安机关的"，第 1 轮就假得没法看。
+ * 兜底按语义归类，顺序是"越具体越先判"：
+ *   kin（亲属称谓）→ benefit（卖资格/机会）→ service（卖服务）→ authority（权力机关）
+ * 最后兜到 service 而不是 authority：客服类的要求"回 App 自己核实"，
+ * 放错身份也不会让老人去打 110。
+ */
 function kindOf(identity) {
-  return KIND_OF[identity] || 'authority';
+  const id = String(identity || '');
+  if (KIND_OF[id]) return KIND_OF[id];
+  if (/子女|儿子|女儿|孙|亲属|领导/.test(id)) return 'kin';
+  if (/投资|导师|理财|兼职|荐股|刷单|返利|顾问|专家/.test(id)) return 'benefit';
+  if (/客服|快递|航空|电商|平台|售后|会员|退款|票务|物流/.test(id)) return 'service';
+  if (/公检法|公安|警察|检察|法院|社保|医保|税务|银行|监管|安全中心|征信/.test(id)) return 'authority';
+  return 'service';
 }
 
 /** 电话里的自称，兜底台词要用 */
@@ -107,9 +129,9 @@ const LIB = {
     },
     2: {
       q: '对方说你涉嫌犯罪',
-      right: '你凭什么说我犯罪？有文件吗？',
+      right: '挂了，我去派出所当面问',
       traps: ['我没干过，那我该怎么办？', '我马上配合你们', '你能不能帮我说说情？', '我真没做，你们别抓我'],
-      tip: '一被吓住就输了。真立案会有书面文书，不会在电话里通知你。',
+      tip: '一被吓住就输了。真立案只有派出所当面办，电话里说你"涉嫌犯罪"的，百分之百是骗子。',
     },
     3: {
       q: '对方要求你别告诉家人',
@@ -145,9 +167,9 @@ const LIB = {
   kin: {
     1: {
       q: '对方自称是你的孩子',
-      right: '你叫什么名字？我儿子叫什么？',
-      traps: ['哎，你怎么了？没事吧', '哦，那我存一下', '你怎么换号了？'],
-      tip: '声音可以模仿，名字可以打听到。要问只有你家人知道的事。',
+      right: '我先挂掉，用原来的号打给你',
+      traps: ['哦，那我存一下新号', '你怎么换号了？', '那你快说，我听着'],
+      tip: '声音能模仿，名字能打听。挂了，用手机里存的号打回去——这一步谁也骗不了你。',
     },
     2: {
       q: '对方说自己出事了',
@@ -167,7 +189,7 @@ const LIB = {
   benefit: {
     1: {
       q: '对方说动动手就能赚钱',
-      right: '不用出钱吧？',
+      right: '不接这活儿，挂掉',
       traps: ['有兴趣，怎么做？', '一天能赚多少？', '真的假的？'],
       tip: '"动动手就赚钱"本身就是最大的破绽。真工作不会在微信群里招人。',
     },
@@ -180,7 +202,7 @@ const LIB = {
     3: {
       q: '对方让你瞒着家人',
       right: '我跟我儿子商量一下',
-      traps: ['也是', '那我先不说', '等赚到了再告诉他们'],
+      traps: ['行，我不说', '那我先不说', '等赚到了再告诉他们'],
       tip: '让你保密的人，一定不希望你被提醒。这本身就是最大的警报。',
     },
   },
@@ -222,31 +244,31 @@ const D4_RIGHT = {
 const D4_TRAPS = {
   authority: {
     transfer: ['好，我这就去转', '那我先转一部分试试', '能不能少转点？'],
-    code: ['好，是 382910', '我念慢一点你记', '我找不到短信，你等我一下'],
+    code: ['好，我念给你听', '我念慢一点你记', '我找不到短信，你等我一下'],
     screen: ['好，你教我怎么开', '我点了你发的链接了', '那我截图发给你看'],
     install: ['好，我装一下', '在哪里下载？'],
-    invest: ['那我先投 2 万试试', '真的能赚这么多？'],
+    invest: ['那我先投点试试', '真的能赚这么多？'],
   },
   service: {
-    transfer: ['好，我这就转', '那你把账号发我', '我卡里就 3 万'],
-    code: ['好，是 382910', '我念慢一点', '是这个六位数吗？'],
+    transfer: ['好，我这就转', '那你把账号发我', '我卡里也没多少钱'],
+    code: ['好，我念给你听', '我念慢一点', '是这个六位数吗？'],
     screen: ['好，你教我怎么开', '我点了你发的链接'],
     install: ['好，我装一下', '在哪里下载？'],
-    invest: ['那我先充 2 万', '怎么充值？'],
+    invest: ['那我先充一点', '怎么充值？'],
   },
   kin: {
-    transfer: ['好，妈这就给你转', '那我转 2 万行不行', '你等着，我去银行'],
-    code: ['好，是 382910', '我念给你听'],
+    transfer: ['好，妈这就给你转', '那我少转一点行不行', '你等着，我去银行'],
+    code: ['好，我念给你听', '我这就翻短信'],
     screen: ['好，你说怎么弄'],
     install: ['好，我装一下'],
-    invest: ['那我先给你 2 万'],
+    invest: ['那我先给你一些'],
   },
   benefit: {
     transfer: ['好，我这就转', '那我先转一点'],
-    code: ['好，是 382910', '我念慢一点'],
+    code: ['好，我念给你听', '我念慢一点'],
     screen: ['好，你教我'],
     install: ['好，我装一下'],
-    invest: ['那我先投 2 万试试', '真的能赚这么多？', '我加你微信，怎么充值？'],
+    invest: ['那我先投点试试', '真的能赚这么多？', '我加你微信，怎么充值？'],
   },
 };
 
@@ -524,10 +546,6 @@ function buildBlueprint(opts = {}, reports = []) {
       icon: '📮',
       skeleton: sk,
       caseRef: sk.caseRef,
-      // 这条案例是"老人自己传上来的"还是"挂断后录音复盘自动记下的"，文案不一样。
-      // 自动上报那种情况里她没有做过"上传"这个动作，说成"你上传的那条"就是在编事实；
-      // 老人听不出来，但子女端和答辩时被问一句就穿帮。
-      byCall: caseA.reporter === 'callaudio',
     };
   } else if (hotA) {
     seedA = { origin: 'hot', name: hotA.name, icon: hotA.icon, skeleton: hotA.skeleton, hotRef: { id: hotA.id, name: hotA.name } };
@@ -620,9 +638,7 @@ function compose(seedA, seedB, bridge, mode) {
     from: seedB
       ? `${seedB.name}（热点）叠加 ${seedA.name}`
       : seedA.origin === 'case'
-        ? (seedA.byCall
-            ? `上次那通电话的套路「${seedA.name}」`
-            : `你上传的那条「${seedA.name}」`)
+        ? `你上传的那条「${seedA.name}」`
         : `${seedA.name}（本周热点）`,
   };
 }
@@ -713,6 +729,10 @@ function buildRound(lane) {
 
   if (stage === 4) {
     question = DEMAND_Q[demand] || DEMAND_Q.transfer;
+    // 冒充亲属的局不会说"安全账户"——那是公检法的台词。亲属说的是
+    // "我同学的卡""医院的账户"。实测"冒充孙辈要补习费"第 4 轮冒出
+    // "安全账户"，一眼串戏（2026-11-16）。
+    if (kind === 'kin' && demand === 'transfer') question = '对方让你把钱转到别人的卡上';
     tip = DEMAND_TIP[demand] || DEMAND_TIP.transfer;
     const R = D4_RIGHT[kind] || D4_RIGHT.authority;
     const T = D4_TRAPS[kind] || D4_TRAPS.authority;
@@ -721,6 +741,13 @@ function buildRound(lane) {
   } else {
     const L = (LIB[kind] || LIB.authority)[stage] || LIB.authority[1];
     question = L.q;
+    // 第 1 轮问的是"对方自称什么"。原来一律写死"公安机关"，于是
+    // "远程控制 / 屏幕共享""会员自动扣费取消"这类热点全被演成公安来电，一眼假。
+    // 热点骨架本来就带 identity，按它说才准。
+    if (stage === 1 && kind !== 'benefit' && lane.identity) {
+      const cn = SELF_CN[lane.identity] || lane.identity;
+      question = cn.charAt(0) === '你' ? '对方自称是' + cn : '对方自称是' + cn + '的';
+    }
     tip = L.tip;
     right = L.right;
     trapPool = L.traps;

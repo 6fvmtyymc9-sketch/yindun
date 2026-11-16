@@ -63,6 +63,13 @@ public class SmsReceiver extends BroadcastReceiver {
         if (intent == null) return;
         if (!"android.provider.Telephony.SMS_RECEIVED".equals(intent.getAction())) return;
 
+        // 短信能到，说明进程已经被系统拉起来了 —— 顺手确认通话监听也在。
+        // 【为什么在这里做】短信是静态注册的广播接收器，进程被杀也照样能收到，
+        // 收完进程就活了；但通话监听只挂在 GuardService 上，服务不来它就是瞎的。
+        // 实测（2026-11-16）装新包之后整整两分钟，短信判得欢、陌生来电一声不响。
+        // 短信到达时系统会给一小段前台服务豁免期，正好用来把服务补上。
+        GuardService.ensureRunning(ctx);
+
         try {
             handle(ctx, intent);
         } catch (Exception e) {

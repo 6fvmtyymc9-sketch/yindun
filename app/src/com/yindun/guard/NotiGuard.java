@@ -545,9 +545,18 @@ public class NotiGuard extends NotificationListenerService {
         return s.length() > 40 ? s.substring(0, 40) + "…" : s;
     }
 
-    /** 服务连上系统时打个日志，方便现场确认权限到底有没有生效 */
+    /**
+     * 服务连上系统时打个日志，方便现场确认权限到底有没有生效。
+     *
+     * 【顺带把通话监听拉回来】这一段不是可有可无的。
+     * 通知监听的绑定和进程的生命周期绑在一起：装新包、系统回收之后，
+     * 系统会为了重新绑定本服务把进程拉起来，但**不会**顺手把 GuardService 拉起来。
+     * 结果就是进程活着、短信微信都在判、通话监听却是瞎的，而且一条错误都不报。
+     * 2026-11-16 实测漏掉过整整两分钟（详见 GuardService.ensureRunning 的注释）。
+     */
     @Override
     public void onListenerConnected() {
         Log.i(TAG, "通知使用权已生效（盖屏清通知 + 微信消息判定）");
+        GuardService.ensureRunning(this);
     }
 }

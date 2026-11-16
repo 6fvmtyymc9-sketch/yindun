@@ -152,6 +152,42 @@ public class GuardService extends Service {
         return START_STICKY;
     }
 
+    /**
+     * 确保守护服务在跑 —— 任何"进程已经活着"的时机都该调一次。
+     * ============================================================
+     * 【为什么需要它】服务的入口原来只有两个：开机广播、打开银盾界面。
+     *
+     * 但进程还会被系统以别的方式重新拉起来。最能说明问题的一次实测（2026-11-16）：
+     *
+     *     19:29:15  装新包，系统把整个进程杀掉
+     *     19:29:16  系统为了重新绑定通知监听，把进程拉起来（{NotiGuard}）
+     *     19:31     陌生电话打进来 —— 屏幕上什么都没有，日志一条不剩
+     *     19:32:10  老人自己打开银盾，GuardService 才被创建，通话监听这才挂上
+     *
+     * 也就是说：**通知监听会自我恢复，通话监听不会**。这中间的时间里，
+     * 短信照样判、微信照样判，唯独最该盯的电话是瞎的 —— 而且不报错，静默失效。
+     * 现场演示时这种"什么都没发生"最容易被当成防护失灵。
+     *
+     * 所以结论很简单：只要确认进程活着（通知服务连上了、收到短信了），
+     * 就顺手确认一次本服务也在。已经在跑时重复 start 是安全的，
+     * onStartCommand 直接返回，不会重建。
+     */
+    public static void ensureRunning(Context ctx) {
+        // 老人从没开通过守护就别自作主张 —— 装完看了一眼的人，
+        // 不该在状态栏莫名多出一条常驻通知（和 BootReceiver 同一条规矩）
+        if (!Pair.enabled(ctx)) return;
+        try {
+            Intent i = new Intent(ctx, GuardService.class);
+            if (Build.VERSION.SDK_INT >= 26) ctx.startForegroundService(i);
+            else ctx.startService(i);
+            Log.i(TAG, "守护服务补拉：进程还活着，但服务不在");
+        } catch (Exception e) {
+            // Android 12 起后台起前台服务会被拦。拦了不要紧，她下次打开银盾自会起来，
+            // 记一条日志，别让这次静默无痕。
+            Log.w(TAG, "守护服务补拉失败（等她下次打开银盾）：" + e.getMessage());
+        }
+    }
+
     @Override
     public void onDestroy() {
         Log.w(TAG, "守护服务被销毁");

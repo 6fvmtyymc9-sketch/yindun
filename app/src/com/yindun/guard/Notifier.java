@@ -160,7 +160,20 @@ public class Notifier {
         pushToBackend(ctx, kind, level, title, body);
 
         // 阻断级：直接拨号（这才是真正能叫醒人的那一招）
-        if ("block".equals(level)) {
+        //
+        // 【2026-11-16 修：一条短信到站不应该拨号】
+        //   实测（2026-11-15 22:34）：冒充公安的短信判到 block，
+        //   0.15 秒后就开始拨号，浮条 1.2 秒后才弹——停在屏幕上的是通话全屏界面，
+        //   "疑似诈骗短信"这条提醒一个像素都没露出来。老人只知道手机自己打了个电话，
+        //   不知道刚才那条短信是骗子发的。
+        //   短信里的骗子不在通话里，拨给女儿也打断不了任何事；真正该用拨号硬闯的，
+        //   是"人正在被骗、钱正在动"的那一刻（通话中收验证码、通话中开银行）。
+        //   所以消息类（短信/微信）到站不拨，其余保持原行为。
+        //
+        //   这里刻意用"排除法"而不是白名单：Guard 里经由定时器盲区升到 block 的
+        //   场景（kind=judge，例如老人一直停在银行界面上）同样属于"正在发生"，
+        //   用白名单会把它一起关掉，那就从一个错误变成两个。
+        if ("block".equals(level) && !K_SMS.equals(kind) && !K_WECHAT.equals(kind)) {
             callChild(ctx);
         }
     }
@@ -481,6 +494,8 @@ public class Notifier {
     static final String K_REVIEW = "review";
     /** 可疑短信 */
     static final String K_SMS = "sms";
+    /** 微信可疑消息 */
+    static final String K_WECHAT = "wechat";
     /** 装了非应用商店的 App */
     static final String K_INSTALL = "install";
     /** 组合判据升级（陌生号 + 时长 + 验证码 + 银行 App 等） */

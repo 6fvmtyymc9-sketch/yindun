@@ -214,6 +214,17 @@ class Judge {
       };
     }
 
+    // 【2026-11-16 改：分数不再出现负值，与端侧 Judge.java 同步】
+    // 反例词是会扣分的（"取件码""驿站"各 -15），原来没有下限，
+    // 一条正常快递短信能判到 -45。判级不受影响（仍是 S0/none），但：
+    //   ① 分数会显示给用户看，"-45 分"没人看得懂；
+    //   ② 骗子在诈骗短信里塞反例词就能白拿负分。
+    // 钳到 0：反例最多把可疑度归零。端侧同一位置也钳，两端分数仍然对得上。
+    if (score < 0) {
+      score = 0;
+      hits.push({ word: '反例扣分已触底', weight: 0, tag: null });
+    }
+
     const stage = this.stageOf(score, hits);
     let level = this.levelOf(score, stage);
 

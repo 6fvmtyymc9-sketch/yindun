@@ -59,15 +59,30 @@ const SYS =
   'stage 含义：S1套近乎 S2吓唬 S3让你别告诉家人 S4要钱。不是诈骗填 S0。';
 
 /**
- * 新的复核门限：本地没到 warn、不是服务号，且（陌生号码 或 正文够长）。
+ * 新的复核门限：本地没到 warn，且（陌生号码 或 正文够长）。
  *
  * 【为什么排除服务号】银行、运营商、快递的正常短信全在这个区间，
  *   送模型纯属烧钱；模型的偶发误判还会把正常短信变成警报。
  * 【为什么"够长"也算】冒充亲友、投资理财这类骗局不一定用陌生号伪装，
  *   但一定啰嗦——短到 15 字以内的多是验证码、取件码、问候。
+ *
+ * 【2026-11-16 改：服务号不再一律跳过】
+ *   106 / 95 号段是诈骗短信的大户（违规短信通道），原来"服务号 = 不用复核"
+ *   等于结构上就没打算看。现在服务号里出现「官方短信绝不会有的东西」时照送：
+ *   短链，或骗子专用词。
+ *   实测（留出集 35 条 + 回归集 99 条）只会多进 1 条（国家反诈中心的宣传短信），
+ *   成本可忽略；但也要如实说：这两份数据里**一条服务号诈骗样本都没有**，
+ *   所以这次改动救回多少，用现有数据证明不了，只能靠现实案例类推。
  */
+const SHORT_PAT = /\b(?:t\.cn|bit\.ly|dwz\.cn|url\.cn|s\.cn|w\.cn|rb\.gy|suo\.im|6url\.cn|tinyurl\.com|j\.mp)\/[a-z0-9\-._/?=&%#]+/i;
+const SERVICE_LEAK = ['安全账户', '解冻', '刷单', '返利', '保证金', '资金核查', '涉嫌洗钱'];
+
 function wouldReview(c, r) {
-  if (c.who === 'service') return false;
+  if (c.who === 'service') {
+    const t = c.text || '';
+    const leaked = SHORT_PAT.test(t) || SERVICE_LEAK.some(k => t.includes(k));
+    if (!leaked) return false;
+  }
   if ((RANK[r.level] || 0) >= RANK.warn) return false;
   if (c.who === 'stranger') return true;
   return (c.text || '').length >= 15;

@@ -119,8 +119,26 @@ public class Judge {
                     + "rb\\.gy|suo\\.im|6url\\.cn|tinyurl\\.com|j\\.mp)/[a-z0-9\\-._/?=&%#]+",
             Pattern.CASE_INSENSITIVE);
 
-    /** 关键词：每个词带权重和它属于哪个阶段 */
-    private final List<Word> words = new ArrayList<Word>();
+    /**
+     * 短链特征。
+     *
+     * 【为什么单独拎出来】
+     * 正规银行、运营商、快递的短信会带自己的域名（jd.com、10086.cn），
+     * 但几乎不会用 t.cn / dwz.cn 这类短链 —— 短链藏着真实地址，是伪装的刚需。
+     * 服务号短信要不要送大模型复核，就看这个信号（见 SmsReceiver.shouldReview）。
+     */
+    private static final Pattern SHORT_URL_PATTERN = Pattern.compile(
+            "\\b(?:t\\.cn|bit\\.ly|dwz\\.cn|url\\.cn|s\\.cn|w\\.cn|"
+                    + "rb\\.gy|suo\\.im|6url\\.cn|tinyurl\\.com|j\\.mp)/[a-z0-9\\-._/?=&%#]+",
+            Pattern.CASE_INSENSITIVE);
+
+    /** 正文里有没有短链 */
+    public static boolean hasShortUrl(String text) {
+        if (text == null || text.length() == 0) return false;
+        return SHORT_URL_PATTERN.matcher(text).find();
+    }
+
+    /** 关键词：每个词带权重和它属于哪个阶段 */    private final List<Word> words = new ArrayList<Word>();
     /** 反例词：命中就扣分，用来压误报 */
     private final List<Word> negatives = new ArrayList<Word>();
     /** 各阶段的门槛分 */
@@ -406,9 +424,25 @@ public class Judge {
             return r;
         }
 
-        // 【2026-11-04】原来这里把负分夹到 0。已去掉：云端 Judge.js 从不夹，
-        // 两端分数不一致会让对拍工具（tools/modelcheck）永远对不上。
-        // 负分只表示"比基准更不像诈骗"，阶段/等级都已经是 S0/none，不影响任何行为。
+        // 【2026-11-16 改：分数不再出现负值】
+        // 原来这里写着"负分只表示比基准更不像诈骗，不影响任何行为"——
+        // 判定上确实没错（阶段 S0、级别 none 都是对的），但有两处害处：
+        //   ① 它会被显示出来。实测一条正常快递短信判 -45 分
+        //      （"快递已到" -15、"驿站" -15、"取件码" -15 全命中），
+        //      老人和子女看到"-45 分"只会困惑，而我们要的是"看得懂"。
+        //   ② 它是可被利用的。骗子在诈骗短信里塞"取件码""驿站"就能白拿 -30 分，
+        //      虽然还不足以把一条 90 分的短信压到安全线以下，但这是白送的。
+        // 现在钳到 0：反例最多把"可疑度"归零，不能倒扣。
+        //
+        // 【为什么 11-04 撤掉的钳位现在又加回来】
+        // 当时撤掉是因为云端 Judge.js 不钳，两端分数对不上，对拍工具永远报差异。
+        // 这次两端一起改（cloud/src/Judge.js 同步），对拍仍然能对上。
+        if (score < 0) {
+            score = 0;
+            // 命中明细里还列着那几条 -15，不解释一句，看的人会问"为什么总分是 0"
+            if (hits.length() > 0) hits.append("、");
+            hits.append("反例扣分已触底(0)");
+        }
 
         // ---------- 4. 定阶段、定级别 ----------
         r.score = score;

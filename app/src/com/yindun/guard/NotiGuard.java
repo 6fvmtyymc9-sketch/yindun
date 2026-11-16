@@ -60,8 +60,14 @@ public class NotiGuard extends NotificationListenerService {
     /** 到达 warn（橙）才打扰老人。watch 只落库，不弹 */
     private static final int MIN_RANK = 2;
 
-    /** 同一条消息 10 分钟内不重复弹。微信会对同一条通知反复更新（"正在输入"等） */
-    private static final long DEDUP_MS = 10 * 60 * 1000L;
+    /**
+     * 指纹的时间桶粒度：同一个 5 分钟桶里，同一条消息只判一次。
+     *
+     * 【为什么不再用"距上次判过多少毫秒"】
+     * 指纹里已经带了桶号，再叠一个 10 分钟窗口，等于"隔 5 分钟重发也算旧的"——
+     * 演示重跑时浮条又弹不出来了。时间粒度只留一处，行为才可预期。
+     */
+    private static final long DEDUP_BUCKET_MS = 5 * 60 * 1000L;
 
     /**
      * 最近判过的消息指纹 → 判定时间。
@@ -134,13 +140,17 @@ public class NotiGuard extends NotificationListenerService {
 
         // 群消息的通知正文常带"某某: 内容"，标题是群名，这里不拆，整段交给词库
         //
-        // 【指纹为什么要带 postTime】
-        // 2026-11-09 实测：只按 key + 正文算指纹，演示脚本重跑第二遍时，
-        // 内容一模一样、通知 id 也一模一样，全被当成"刚判过"拦掉了，
-        // 浮条再也不弹 —— 现场重演一次就废。
-        // 通知的发出时间是系统打的，重发一次必然不同，带上它就等于
-        // "同一条消息只判一次，重新发的照样算新的"。
-        final String fp = sbn.getKey() + "#" + body.hashCode() + "#" + sbn.getPostTime();
+        // 【指纹为什么改成"5 分钟时间桶"】（2026-11-16）
+        // 原来带 postTime，是为了解决"演示脚本重跑第二遍弹不出来"：
+        // 内容一样、通知 id 也一样，全被当成"刚判过"拦掉。
+        // 但 postTime 是系统在每次通知更新时重打的 —— 微信里"对方正在输入"、
+        // 多设备同步、撤回重发，任何一个动作都会改它，指纹跟着变，
+        // 于是同一条消息被判第二次、浮条弹第二次。而 10 分钟去重的初衷正是"只弹一次"。
+        // 换成时间桶：同一个 5 分钟桶里只判一次；隔几分钟再发一次（演示重跑）
+        // 天然落进下一个桶，照样能弹。两个时间量叠在一起反而会复现老问题，
+        // 所以 fresh() 那边不再另设窗口。
+        long bucket = System.currentTimeMillis() / DEDUP_BUCKET_MS;
+        final String fp = sbn.getKey() + "#" + body.hashCode() + "#" + bucket;
         if (!fresh(fp)) return;
 
         final Context app = getApplicationContext();
@@ -149,15 +159,58 @@ public class NotiGuard extends NotificationListenerService {
             @Override
             public void run() {
                 try {
+                    // ---------- 先过一道最硬的：通话中被索要验证码 ----------
+                    // 【2026-11-16 新增，对应短信侧 SmsReceiver 第 5 步】
+                    // 短信那条链早就是完整闭环，微信这条一直是空的。而现实里骗子
+                    // 更常用微信要验证码：能发语音、能发假截图、冒充亲人比短信可信得多。
+                    //
+                    // 触发条件不是"这条消息可疑"，而是"她此刻正和陌生号码通话"。
+                    // 银行客服、快递、家人，都不会在电话里让老人把验证码念出来——
+                    // 那一秒说这句话只可能是骗子。所以这条走 block，不吃 MIN_RANK 那道 warn 门槛。
+                    if (looksLikeCodeRequest(body) && strangerOnCall(app)) {
+                        Log.w(TAG, "★ 通话中被微信索要验证码 —— 阻断级");
+                        Guard.get(app).onCodeInCall();   // 置标志位并进判定链
+                        EventBus.pushAlert("block", "通话中被微信索要验证码", "S4", 100);
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                TipBar.showBottom(NotiGuard.this, "block",
+                                        "有人在问您要验证码",
+                                        "不管是微信还是电话，验证码谁都不能给");
+                            }
+                        });
+                        Notifier.alertChild(app, Notifier.K_CODE, "block",
+                                "妈妈正在通话中被人索要验证码",
+                                "微信来自「" + brief(from) + "」：" + brief(body));
+                        return;
+                    }
+
                     // 微信里发消息的不是通讯录里的号码，也不是服务号 —— 一律按陌生人算。
                     // 注意这一步本身会 +15，但还不够 warn 的门槛，正常聊天不会被误报。
+                    //
+                    // 【2026-11-16 加：群消息不当"陌生人私聊"判】
+                    // 微信群聊的通知正文是「张三: 内容」，标题是群名。原来一律按
+                    // STRANGER 起手 +15，家里人在群里说一句"我收到个验证码，不知道是谁的"，
+                    // 加上"验证码"本身的权重就够到 45 线 → 弹浮条 + 推子女。
+                    // 老人的家庭群是高频场景，撞一次她就觉得银盾乱弹。
+                    //
+                    // 处理：群消息只在判到 S4（要钱 / 要码）时才打扰。
+                    // 真正的骗局不会在群里闲聊两句就收手，它一定要东西；
+                    // 而"谁家孩子考了多少分"这类闲聊永远走不到 S4。
+                    final boolean group = looksGroupMessage(body);
                     Judge.Result r = Judge.get(app).judgeSms(body, NumberInfo.STRANGER, false);
                     Stats.wechat(app);
 
-                    Log.i(TAG, "微信消息 from=" + from + " 分数=" + r.score
+                    Log.i(TAG, "微信消息 from=" + from + (group ? "（群聊）" : "")
+                            + " 分数=" + r.score
                             + " 阶段=" + r.stage + " 级别=" + r.level + " 原因=" + r.why);
 
                     if (rank(r.level) < MIN_RANK) return;   // 正常聊天，不打扰
+                    if (group && !"S4".equals(r.stage)) {
+                        // 群里的提醒仍留在内部记录里，只是不弹、不推
+                        Log.i(TAG, "群消息没走到 S4，不打扰老人和子女");
+                        return;
+                    }
 
                     // ---------- 弹给老人看 ----------
                     // 【为什么静默】老人可能正拿着手机，突然一声音效会把她从
@@ -168,14 +221,20 @@ public class NotiGuard extends NotificationListenerService {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            TipBar.showBottom(NotiGuard.this,
-                                    r.level, "疑似诈骗消息", "请勿点击消息中的链接或转账");
+                            // 【2026-11-16 改：说清楚是谁发的】
+                            // 原来只写"疑似诈骗消息"。老人微信里同时开着好几个会话，
+                            // 她不知道指的哪一条，转头就去点了那条通知。
+                            // from 在上一步就已经拿到了，只是没往浮条上传。
+                            String who = from.length() > 12 ? from.substring(0, 12) + "…" : from;
+                            TipBar.showBottom(NotiGuard.this, r.level,
+                                    who.length() == 0 ? "微信消息可疑" : "「" + who + "」的消息可疑",
+                                    "请勿点击消息中的链接或转账");
                         }
                     });
 
                     // ---------- 推给子女端 ----------
                     EventBus.pushAlert(r.level, r.why, r.stage, r.score);
-                    Notifier.alertChild(app, r.level,
+                    Notifier.alertChild(app, Notifier.K_WECHAT, r.level,
                             "妈妈微信收到可疑消息",
                             "来自「" + from + "」：" + brief(body));
 
@@ -188,15 +247,91 @@ public class NotiGuard extends NotificationListenerService {
         }, "yindun-wx-judge").start();
     }
 
+    /**
+     * 这句话像不像在"向老人索要验证码"。
+     *
+     * 【为什么不能只看有没有"验证码"三个字】
+     * 「我把验证码发你了」是给，正常；「你把验证码告诉我」是要，诈骗。
+     * 方向反了，判断就全反。所以要同时满足：出现验证码类词 + 出现索要动词。
+     *
+     * 【为什么会话词里有"多少""几位"】
+     * 骗子很少说"请告诉我验证码"，更常说"收到几位数字？""你念一下那个码"。
+     * 这些词单独看毫无意义，但前面已经锁定了"验证码"这个词，
+     * 所以组合起来的误报很低。
+     */
+    private static final String[] CODE_WORDS = {
+            "验证码", "校验码", "动态码", "确认码", "授权码", "安全码", "短信码"
+    };
+
+    private static final String[] ASK_WORDS = {
+            "发我", "发给我", "告诉我", "报给我", "报一下", "念一下", "念给我",
+            "念出来", "说给我", "发过来", "发一下", "多少", "几位", "几个数字", "收到没有"
+    };
+
+    private boolean looksLikeCodeRequest(String body) {
+        if (body == null || body.length() == 0) return false;
+        boolean hasCode = false;
+        for (String w : CODE_WORDS) {
+            if (body.contains(w)) { hasCode = true; break; }
+        }
+        if (!hasCode) return false;
+        for (String w : ASK_WORDS) {
+            if (body.contains(w)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * 此刻是不是"正和一个陌生人通话"。
+     *
+     * Guard 是老人端单例，NotiGuard 拿到的是 application context，跨进程组件里
+     * 万一 Guard 还没初始化，这里不能把整条微信判定带崩（历史上踩过这个坑）。
+     */
+    private boolean strangerOnCall(Context ctx) {
+        try {
+            Guard g = Guard.get(ctx);
+            return g.callStartAt > 0 && NumberInfo.STRANGER.equals(g.st.callWho);
+        } catch (Exception e) {
+            Log.w(TAG, "取不到通话状态，按未通话处理：" + e.getMessage());
+            return false;
+        }
+    }
+
     /** 主线程用的 handler（悬浮窗只能在主线程操作） */
     private final Handler handler = new Handler(Looper.getMainLooper());
 
-    /** 这条消息是不是新的（同一条 10 分钟内只判一次） */
+    /**
+     * 这条微信通知像不像群消息。
+     *
+     * 依据是微信自己的通知格式：群消息正文是「发送人: 内容」，单聊正文就是内容。
+     * 只在正文前 20 个字内出现冒号、且冒号前面"像个名字"（无空格、无标点）时才认，
+     * 避免把"温馨提示：明天降温"这类正文误判成群消息。
+     *
+     * 判断错了的代价是不对称的：真群消息被当成单聊 → 多弹一次；
+     * 单聊被当成群聊 → 只在 S4 才报，可能晚一步。所以宁可判得保守（宁可认出群聊）。
+     */
+    private boolean looksGroupMessage(String body) {
+        if (body == null || body.length() < 3) return false;
+        int colon = -1;
+        int limit = Math.min(body.length(), 20);
+        for (int i = 0; i < limit; i++) {
+            char ch = body.charAt(i);
+            if (ch == ':' || ch == '：') { colon = i; break; }
+        }
+        if (colon <= 0) return false;
+        String head = body.substring(0, colon).trim();
+        if (head.length() == 0 || head.length() > 16) return false;
+        for (int i = 0; i < head.length(); i++) {
+            char ch = head.charAt(i);
+            if (ch == ' ' || ch == '，' || ch == '。' || ch == '！' || ch == '？') return false;
+        }
+        return true;
+    }
+
+    /** 这条消息是不是新的（同一个时间桶里只判一次，见 DEDUP_BUCKET_MS） */
     private synchronized boolean fresh(String fp) {
-        long now = System.currentTimeMillis();
-        Long last = seen.get(fp);
-        if (last != null && now - last < DEDUP_MS) return false;
-        seen.put(fp, now);
+        if (seen.containsKey(fp)) return false;
+        seen.put(fp, System.currentTimeMillis());
         return true;
     }
 

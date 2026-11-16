@@ -100,7 +100,13 @@ public class SmsReceiver extends BroadcastReceiver {
             if (time == 0) time = sms.getTimestampMillis();
         }
 
-        if (from == null) return;
+        if (from == null) {
+            // 【2026-11-16】有些系统类、推送类短信没有发件号码，原来这里直接 return，
+            // 整条丢掉。"根本没看"和"看了觉得没问题"是两件事，按未知号码继续往下判
+            // 更严谨（NumberInfo.classify 对空串本来就返回 STRANGER）。
+            Log.i(TAG, "短信没有发件号码，按未知号码继续判定");
+            from = "";
+        }
         String text = body.toString();
 
         // ---------- 1. 这个号是谁 ----------
@@ -136,19 +142,30 @@ public class SmsReceiver extends BroadcastReceiver {
         } catch (Exception ignored) {
         }
 
+        // ---------- 4. 推给界面（判据看板 + 子女端卡片） ----------
+        //
+        // 【2026-11-16 修：K_CODE 只能给"通话中收到的验证码"】
+        // 原来这里写的是 isCode ? K_CODE : K_SMS —— 只要正文带"验证码"就标成 K_CODE。
+        // 而 K_CODE 在 Notifier 那边的含义是"骗子正在电话里等这串数字，必须立刻拨号叫人"。
+        // 于是一条到站的验证码诈骗短信也被当成"通话中"，触发自动拨号，
+        // 把刚弹出来的浮条整个盖掉（实测 22:34）。
+        // 现在只有真的"在通话中 + 陌生号"才算 K_CODE，其余一律 K_SMS。
+        Guard g = Guard.get(ctx);
+        boolean codeInCall = isCode && g.callStartAt > 0
+                && NumberInfo.STRANGER.equals(g.st.callWho);
+
         // 分数够高就当成一条预警推给子女端
         if (!"none".equals(r.level) && !"watch".equals(r.level)) {
             EventBus.pushAlert(r.level, r.why, r.stage, r.score);
-            Notifier.alertChild(ctx, isCode ? Notifier.K_CODE : Notifier.K_SMS, r.level,
+            Notifier.alertChild(ctx, codeInCall ? Notifier.K_CODE : Notifier.K_SMS, r.level,
                     isCode ? "妈妈收到一条验证码短信" : "妈妈收到可疑短信",
-                    "来自 " + from + "：" + r.why);
+                    "来自 " + (from.length() == 0 ? "未知号码" : from) + "：" + r.why);
         }
 
         // ---------- 5. 关键一步：通话中收到的验证码 ----------
         // 这是"阻断级"的触发条件之一。骗子正在电话里要这个数字，
         // 我们比她开口更早拿到。只要把它遮住，她念不出来。
-        Guard g = Guard.get(ctx);
-        if (isCode && g.callStartAt > 0 && NumberInfo.STRANGER.equals(g.st.callWho)) {
+        if (codeInCall) {
             Log.w(TAG, "★ 通话中收到验证码 —— 阻断级");
             g.onCodeInCall();
             // 通知界面：让老人端立刻盖屏（网页里已有盖屏逻辑）
@@ -162,10 +179,20 @@ public class SmsReceiver extends BroadcastReceiver {
         //
         // 为什么只对"高危诈骗"和"验证码"弹：
         // 每来一条短信都弹，老人会烦，然后去关权限。宁可少弹，不能烦人。
-        if (isCode) {
-            alert(ctx, "warn", "收到验证码短信", "请勿向任何人透露验证码");
-        } else if (!"none".equals(r.level) && !"watch".equals(r.level)) {
-            alert(ctx, r.level, "疑似诈骗短信", "请勿点击短信中的链接");
+        //
+        // 【2026-11-16 修：验证码不再把级别压回 warn】
+        // 原来 isCode 的分支写在前头，一条 240 分的 block 诈骗短信只要正文里
+        // 带"验证码"三个字，老人端就只弹一条黄色 warn；而同一条短信，
+        // 子女端收到的是 r.level = block（上面第 4 步传的是 r.level，不是写死的）。
+        // 两端说的不是同一件事，而且更荒诞的是：老人看着黄条"别告诉任何人验证码"，
+        // 手机正在自己拨号出去。
+        // 现在取两者的较高级别：验证码短信至少 warn（原行为不变），
+        // 规则已经判到 block 时不再被压回去。
+        String shown = isCode ? higher(r.level, "warn") : r.level;
+        if (!"none".equals(shown) && !"watch".equals(shown)) {
+            alert(ctx, shown,
+                    isCode ? "收到验证码短信" : "疑似诈骗短信",
+                    isCode ? "请勿向任何人透露验证码" : "请勿点击短信中的链接");
         }
 
         // ---------- 7. 大模型复核：本地拿不准的，交给华为云 MaaS 判一次 ----------
@@ -210,8 +237,28 @@ public class SmsReceiver extends BroadcastReceiver {
      * 拿新的抓回率/误报率说话。
      */
     private boolean shouldReview(Context ctx, String who, Judge.Result r, String text) {
-        // 服务号：银行/运营商/快递的正常短信都在这儿，送了纯烧钱
-        if (NumberInfo.SERVICE.equals(who)) return false;
+        // 服务号默认不送 —— 但不再是"一律跳过"。
+        //
+        // 【2026-11-16 修：106 / 95 号段是诈骗短信的大户】
+        //   NumberInfo.classify 判断服务号只看号码长相（长度 ≤6、95 开头、106 开头），
+        //   于是"106 开头 = 服务号 = 不用复核"。可现实里大量诈骗短信正是从 106
+        //   违规通道发出来的。一条换了个说法的 106 诈骗短信，本地规则只给 0~15 分，
+        //   模型永远看不到 —— 两道防线同时失效，而且事后不会有任何补救。
+        //
+        //   现在的规则：服务号里"正文自己露出马脚"的照送复核。
+        //   真正的银行/快递通知不会让你点短链解冻账户，也不会要验证码转会钱，
+        //   所以这条放宽不会把账单打爆；改完的复核量要在留出集上重跑一次看数。
+        if (NumberInfo.SERVICE.equals(who)) {
+            // 只认"官方短信绝不会有的东西"：短链、只有骗子才说的词。
+            // 不用"带链接"做判据 —— 京东、银行的正常短信也带 https 链接，
+            // 那会白白多送一大截（实测留出集里会多进 3 条，全是正常短信）。
+            // 也不用"验证码""转账"这类敏感词 —— 正规银行的验证码短信每天都有。
+            boolean leaked = Judge.hasShortUrl(text)
+                    || containsAny(text, "安全账户", "解冻", "刷单", "返利",
+                                   "保证金", "资金核查", "涉嫌洗钱");
+            if (!leaked) return false;
+            Log.i(TAG, "服务号短信出现短链/骗子专用词 —— 不再一律跳过，继续看后面两道关");
+        }
 
         // 本地已经判到 warn 及以上：警报早发出去了，模型再判一次也不会改变什么
         boolean belowWarn = "none".equals(r.level) || "watch".equals(r.level);
@@ -221,7 +268,12 @@ public class SmsReceiver extends BroadcastReceiver {
         boolean longEnough = text != null && text.length() >= 15;
         if (!stranger && !longEnough) return false;
 
-        return aiQuota(ctx);
+        // 日志打在这里才是真的："过了所有关卡、并且配额也拿到了"。
+        // 原来那句挂在服务号分支里，本地已判到 high 的短信明明不会送审，
+        // 日志却说"照送 AI 复核"——排查时会把人带进沟里。
+        if (!aiQuota(ctx)) return false;
+        Log.i(TAG, "送 AI 复核：who=" + who + " 本地分=" + r.score + " " + brief(text));
+        return true;
     }
 
     /**
@@ -254,8 +306,58 @@ public class SmsReceiver extends BroadcastReceiver {
     // ==========================================================
     //  老人端提示：优先浮条，没权限才退回 Toast
     // ==========================================================
+
+    /**
+     * 两个级别取高的那个。级别顺序 none &lt; watch &lt; warn &lt; high &lt; block。
+     *
+     * 用在"内容本身要求至少 X 级、但规则可能已经判得更高"的地方。
+     * 原则只有一条：一条通用规则不许把已经判出来的高危级别压回去。
+     */
+    private static String higher(String a, String b) {
+        return rankOf(a) >= rankOf(b) ? a : b;
+    }
+
+    private static int rankOf(String level) {
+        if ("block".equals(level)) return 4;
+        if ("high".equals(level))  return 3;
+        if ("warn".equals(level))  return 2;
+        if ("watch".equals(level)) return 1;
+        return 0;
+    }
+
+    /** 正文里有没有这几个词中的任何一个 */
+    private static boolean containsAny(String text, String... words) {
+        if (text == null || text.length() == 0) return false;
+        for (String w : words) {
+            if (text.contains(w)) return true;
+        }
+        return false;
+    }
+
+    // ---------- 浮条节流 ----------
+    /** 上一条同类浮条的指纹与时刻。进程重启就清空，这正是我们要的（不需要持久化） */
+    private static volatile String lastTipKey = null;
+    private static volatile long lastTipAt = 0;
+    /** 同类浮条的最小间隔 */
+    private static final long TIP_THROTTLE_MS = 60 * 1000L;
+
     private void alert(final Context ctx, final String level,
                        final String title, final String sub) {
+        // 【2026-11-16 加：同类浮条 60 秒只弹一次】
+        // 原来一条短信都不限。老人被连发 20 条诈骗短信，就弹 20 次浮条，
+        // 越弹越烦，最后她会去关悬浮窗权限 —— 而红屏拦截同样依赖
+        // Shield.canOverlay，权限一关，最硬的那道防线跟着一起废掉。
+        //
+        // 被节流掉的提醒并不丢：EventBus 和子女端推送在上面第 4 步已经发过了，
+        // 这里省掉的只是"再打扰老人一次"。
+        final String key = level + "|" + title;
+        long now = System.currentTimeMillis();
+        if (key.equals(lastTipKey) && now - lastTipAt < TIP_THROTTLE_MS) {
+            Log.i(TAG, "同类浮条 60 秒内已弹过，本次不再打扰老人（仍已上报）");
+            return;
+        }
+        lastTipKey = key;
+        lastTipAt = now;
         // 【为什么从下方弹】短信到达时，系统自己也会在顶部弹一条通知横幅
         // （Google Messages 那条带 Reply 按钮的会挂十几秒）。我们的浮条如果也在顶部，
         // 就被整条压住——实测截图上一个字都看不见，等于没提醒。
@@ -300,7 +402,14 @@ public class SmsReceiver extends BroadcastReceiver {
                     }
 
                     EventBus.pushAI("review", "AI 确认可疑：" + reason, true);
-                    EventBus.pushAlert("warn", "AI 复审：" + reason, stage, score + 20);
+                    // 【2026-11-16 改：不再凭空造一个分数】
+                    // 模型只回答"可疑 / 不可疑"和一句理由，它没有算过分。
+                    // 原来这里写的是 score + 20 —— 那个 20 是拍出来的。
+                    // 一旦界面把分数显示出来（时间线、判据看板），老人和子女
+                    // 就会看到"得分 65"，以为模型算出了 65，这是我们自己造的假数据。
+                    // 传 -1 表示"这条没有分数"：界面要么不显示，要么直接写"AI 研判可疑"。
+                    // （接云端真实概率那条路要动 Pangu.riskSms + 重新部署，等部署窗口一起做。）
+                    EventBus.pushAlert("warn", "AI 复审：" + reason, stage, -1);
                     Notifier.alertChild(ctx, Notifier.K_SMS, "warn",
                             "妈妈收到一条可疑短信",
                             "AI 复核判定为可疑：" + reason

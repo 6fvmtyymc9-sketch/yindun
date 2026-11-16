@@ -44,8 +44,23 @@ public class TipBar {
 
     private static final String TAG = "YinDun";
 
-    /** 挂多久自己收起来 */
-    private static final long AUTO_HIDE_MS = 9000;
+    /**
+     * 挂多久自己收起来。
+     *
+     * 【2026-11-16 改：按级别分】
+     * 原来一律 9 秒。实测（2026-11-15 22:40）：手机放在桌上、人在别处，
+     * 9 秒后屏幕干干净净，只有短信图标上一个未读圆点 —— 等于没提醒过。
+     * 老人低头干活的这 9 秒，比我们想象的短得多。
+     * 现在：warn 15 秒；block/high 留 60 秒兜底。
+     *
+     * 【为什么 block 是"60 秒"而不是"等老人点掉"】
+     * 这条浮条为了不打断接听，本身是 NOT_FOCUSABLE + 不可点的
+     * （见下面的 WindowManager.LayoutParams）。要能"点掉"就得让它抢触摸，
+     * 通话中挡住挂断键比多看 60 秒更糟。所以给一个够长的兜底时间，
+     * 真升级到盖屏时由 Shield 那边 TipBar.hide() 撤掉。
+     */
+    private static final long AUTO_HIDE_MS = 15000;
+    private static final long AUTO_HIDE_BLOCK_MS = 60000;
 
     private static View view = null;
     private static boolean showing = false;
@@ -186,7 +201,9 @@ public class TipBar {
             Log.i(TAG, "轻提醒已弹出（" + level + "）：" + title);
 
             handler.removeCallbacks(autoHide);
-            handler.postDelayed(autoHide, AUTO_HIDE_MS);
+            handler.postDelayed(autoHide,
+                    ("block".equals(level) || "high".equals(level))
+                            ? AUTO_HIDE_BLOCK_MS : AUTO_HIDE_MS);
 
         } catch (Exception e) {
             Log.w(TAG, "轻提醒弹不出来：" + e.getMessage());

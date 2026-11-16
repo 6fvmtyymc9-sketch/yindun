@@ -157,8 +157,21 @@ public class SmsReceiver extends BroadcastReceiver {
         // 分数够高就当成一条预警推给子女端
         if (!"none".equals(r.level) && !"watch".equals(r.level)) {
             EventBus.pushAlert(r.level, r.why, r.stage, r.score);
+            // 【2026-11-16 改：级别高的时候标题不能只说"收到验证码"】
+            // 实测（10:48）：一条 180 分、冒充公安要转账的短信，子女端标题是
+            // 「妈妈收到一条验证码短信」—— 和银行正常验证码长得一模一样，
+            // 子女第一眼就划过去了，救命的警报变成了日常噪音。
+            // 级别到 high/block 时必须把"可疑"写进标题。
+            String childTitle;
+            if (isCode) {
+                childTitle = rankOf(r.level) >= 3
+                        ? "妈妈收到含验证码的可疑短信"
+                        : "妈妈收到一条验证码短信";
+            } else {
+                childTitle = "妈妈收到可疑短信";
+            }
             Notifier.alertChild(ctx, codeInCall ? Notifier.K_CODE : Notifier.K_SMS, r.level,
-                    isCode ? "妈妈收到一条验证码短信" : "妈妈收到可疑短信",
+                    childTitle,
                     "来自 " + (from.length() == 0 ? "未知号码" : from) + "：" + r.why);
         }
 
@@ -190,9 +203,13 @@ public class SmsReceiver extends BroadcastReceiver {
         // 规则已经判到 block 时不再被压回去。
         String shown = isCode ? higher(r.level, "warn") : r.level;
         if (!"none".equals(shown) && !"watch".equals(shown)) {
+            // 【2026-11-16 改：高危时浮条要说"在骗什么"，不能只陈述"收到验证码"】
+            // 老人看到"收到验证码短信"，很容易当成银行发的正常那条，随手就念了。
+            // 级别到 high/block 说明规则已经认定这是骗局，那就要说出来。
+            boolean severe = rankOf(shown) >= 3;
             alert(ctx, shown,
-                    isCode ? "收到验证码短信" : "疑似诈骗短信",
-                    isCode ? "请勿向任何人透露验证码" : "请勿点击短信中的链接");
+                    isCode ? (severe ? "这条短信在骗验证码" : "收到验证码短信") : "疑似诈骗短信",
+                    isCode ? "验证码不管谁要，都不能给" : "请勿点击短信中的链接");
         }
 
         // ---------- 7. 大模型复核：本地拿不准的，交给华为云 MaaS 判一次 ----------

@@ -138,6 +138,15 @@ public class NotiGuard extends NotificationListenerService {
         final String body = csText == null ? "" : csText.toString().trim();
         if (body.length() < 4) return;          // 太短的（"在吗"）不值得判
 
+        // 【2026-11-16 加】同一个会话连来好几条时，微信的通知正文会变成
+        // "2 条新消息"这类汇总文案，真正的消息内容不在里面。
+        // 拿这句话去判词库，得出的结论毫无意义（还可能是高分），
+        // 所以直接跳过 —— 等它展开成具体内容时，下一条通知会带正文。
+        if (body.matches("^\\d+\\s*条新消息.*$") || body.matches("^\\[\\d+条\\].*$")) {
+            Log.i(TAG, "微信通知是多条合并（" + body + "），跳过判定");
+            return;
+        }
+
         // 群消息的通知正文常带"某某: 内容"，标题是群名，这里不拆，整段交给词库
         //
         // 【指纹为什么改成"5 分钟时间桶"】（2026-11-16）
@@ -182,6 +191,9 @@ public class NotiGuard extends NotificationListenerService {
                         Notifier.alertChild(app, Notifier.K_CODE, "block",
                                 "妈妈正在通话中被人索要验证码",
                                 "微信来自「" + brief(from) + "」：" + brief(body));
+                        // 这条是实打实的阻断级：通知留在栏里，老人一点就回
+                        // 到那个让她念数字的对话
+                        clearIfBlock("block", sbn);
                         return;
                     }
 
@@ -238,6 +250,14 @@ public class NotiGuard extends NotificationListenerService {
                             "妈妈微信收到可疑消息",
                             "来自「" + from + "」：" + brief(body));
 
+                    // ---------- 阻断级的，把这条通知从通知栏清掉 ----------
+                    // 【2026-11-16 加，用户拍板：只清 block】
+                    // 原来浮条说"别点"，通知栏里却还挂着那个可以点的入口 ——
+                    // 提醒和入口并存，老人手指一滑就进去了。
+                    // 为什么 warn 级不清：warn 可能是误报，删掉她反而收不到家人的正常消息。
+                    // 只有判到 S4（要钱/要码）才值得动这一下手。
+                    clearIfBlock(r.level, sbn);
+
                     Log.i(TAG, "已向老人弹浮条、向子女推送（微信可疑消息）");
 
                 } catch (Exception e) {
@@ -245,6 +265,22 @@ public class NotiGuard extends NotificationListenerService {
                 }
             }
         }, "yindun-wx-judge").start();
+    }
+
+    /**
+     * 判到阻断级时，把这条微信通知从通知栏撤掉。
+     *
+     * 只清 block：warn 可能是误报，替老人删掉一条家人消息的代价太大。
+     * 清不掉也不影响其它流程（可能是系统限制），只记一条日志。
+     */
+    private void clearIfBlock(String level, StatusBarNotification sbn) {
+        if (!"block".equals(level) || sbn == null) return;
+        try {
+            cancelNotification(sbn.getKey());
+            Log.i(TAG, "阻断级：已从通知栏清掉这条微信消息");
+        } catch (Exception e) {
+            Log.w(TAG, "清微信通知失败：" + e.getMessage());
+        }
     }
 
     /**

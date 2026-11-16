@@ -57,6 +57,25 @@ public class NotiGuard extends NotificationListenerService {
     /** 只认这一个包名。别的 App 的通知一个字都不碰 */
     private static final String PKG_WECHAT = "com.tencent.mm";
 
+    /**
+     * 系统短信 App 的包名。
+     *
+     * 【为什么是一张表而不是一个名字】
+     * 短信 App 不像微信那样全平台统一：AOSP、华为、小米、OPPO、vivo 用的是
+     * com.android.mms，Google 系是 com.google.android.apps.messaging，三星、魅族各家又不同。
+     * 这里只做一件事 —— 认出"这是短信"，然后拿它去对照表里查有没有被判过诈骗。
+     * 查不到就什么都不做，所以多列几个包名没有副作用。
+     */
+    private static final String[] PKG_SMS = {
+            "com.android.mms",                          // AOSP / 华为 / 小米 / OPPO / vivo
+            "com.android.messaging",                    // AOSP 旧版
+            "com.google.android.apps.messaging",        // Google 信息
+            "com.samsung.android.messaging",            // 三星
+            "com.oneplus.mms",                          // 一加
+            "com.meizu.mms",                            // 魅族
+            "com.huawei.mms"                            // 华为部分版本
+    };
+
     /** 到达 warn（橙）才打扰老人。watch 只落库，不弹 */
     private static final int MIN_RANK = 2;
 
@@ -108,7 +127,119 @@ public class NotiGuard extends NotificationListenerService {
             } catch (Exception e) {
                 Log.e(TAG, "分析微信通知出错", e);
             }
+            return;
         }
+
+        // ---------- 第三只眼睛：把系统短信通知换成银盾自己的 ----------
+        if (isSmsApp(pkg)) {
+            try {
+                judgeSmsNoti(sbn);
+            } catch (Exception e) {
+                Log.e(TAG, "处理短信通知出错", e);
+            }
+        }
+    }
+
+    /** 这个包名是不是系统短信 App */
+    private static boolean isSmsApp(String pkg) {
+        for (String p : PKG_SMS) {
+            if (p.equals(pkg)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * 一条短信通知到了 —— 被判过诈骗的就换掉它。
+     *
+     * 【为什么这里不做判定】
+     * 判定已经在 SmsReceiver 里做完了（短信广播比通知先到），这里再做一次就是
+     * 重复判、重复推子女、重复弹浮条。所以这里只查对照表：查到说明这条刚被判过
+     * 是诈骗，就把系统那条通知换成银盾的话；查不到就是一条正常短信，一个字都不碰。
+     *
+     * 【为什么非换不可】
+     * 老人下拉通知栏，看到的是一条和快递、工行毫无区别的短信通知，点开就是骗子的原话。
+     * 我们判出来了、也告诉女儿了，唯独最该知道的那个人什么都不知道。
+     */
+    private void judgeSmsNoti(StatusBarNotification sbn) {
+        Notification n = sbn.getNotification();
+        if (n == null || n.extras == null) return;
+
+        Bundle ex = n.extras;
+        String body = notificationText(ex);
+        Blocked.Item hit = Blocked.take(body);
+        if (hit == null) return;               // 正常短信，不动
+
+        CharSequence cs = ex.getCharSequence(Notification.EXTRA_TITLE);
+        String from = cs == null ? "" : cs.toString().trim();
+        if (from.length() == 0) from = hit.from;
+
+        // 先撤掉系统那条。
+        //
+        // 【2026-11-16 实测】只撤"具体那条"不够：Google Messages 把同一会话的
+        // 通知拆成「组摘要 + 具体消息」两条，撤掉子通知后摘要还留着那条内容，
+        // 系统随即把子通知重建回来 —— dump 出来的通知列表里两条都在。
+        // 所以同包的组摘要也一起撤。
+        cancelSmsNoti(sbn.getKey(), sbn.getPackageName());
+
+        Notifier.notifyElderScam(getApplicationContext(), from);
+        Log.w(TAG, "系统短信通知已换成银盾警告，来自「" + from + "」");
+    }
+
+    /**
+     * 撤掉系统短信 App 的那条通知，连它所在的通知组一起。
+     *
+     * 只撤命中的那一条会白撤：短信 App 的通知是「组摘要 + 成员」结构，
+     * 摘要里仍然带着正文，系统会把成员重建回来。
+     * 这里只对同一个包动手，别的 App 的通知一个字都不碰。
+     */
+    private void cancelSmsNoti(String key, String pkg) {
+        int gone = 0;
+        try {
+            cancelNotification(key);
+            gone++;
+        } catch (Exception e) {
+            Log.w(TAG, "撤短信通知失败：" + e.getMessage());
+        }
+
+        try {
+            for (StatusBarNotification s : getActiveNotifications()) {
+                if (s == null || !pkg.equals(s.getPackageName())) continue;
+                if (s.getKey().equals(key)) continue;
+                Notification n = s.getNotification();
+                if (n == null) continue;
+                // 组摘要（FLAG_GROUP_SUMMARY）才撤；同一 App 的其他独立通知不动
+                if ((n.flags & Notification.FLAG_GROUP_SUMMARY) == 0) continue;
+                cancelNotification(s.getKey());
+                gone++;
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "撤通知组失败：" + e.getMessage());
+        }
+
+        Log.i(TAG, "撤掉系统短信通知 " + gone + " 条（" + pkg + "）");
+    }
+
+    /**
+     * 取通知正文。
+     *
+     * 大多数短信 App 把正文放在 EXTRA_TEXT；也有 ROM 用 MessagingStyle，
+     * 正文在 EXTRA_MESSAGES 这个数组里（每条是一个 Bundle）。两条路都试一遍。
+     * 常量直接写字符串值，避免为了一个字段去卡 API 版本。
+     */
+    private static String notificationText(Bundle ex) {
+        CharSequence t = ex.getCharSequence(Notification.EXTRA_TEXT);
+        if (t != null && t.length() > 0) return t.toString();
+
+        Object o = ex.get("android.messages");
+        if (o instanceof Object[]) {
+            Object[] arr = (Object[]) o;
+            for (int i = arr.length - 1; i >= 0; i--) {
+                if (!(arr[i] instanceof Bundle)) continue;
+                CharSequence m = ((Bundle) arr[i]).getCharSequence("text");
+                if (m != null && m.length() > 0) return m.toString();
+            }
+        }
+        return "";
     }
 
     /**
@@ -296,25 +427,54 @@ public class NotiGuard extends NotificationListenerService {
      * 所以组合起来的误报很低。
      */
     private static final String[] CODE_WORDS = {
-            "验证码", "校验码", "动态码", "确认码", "授权码", "安全码", "短信码"
+            "验证码", "校验码", "动态码", "确认码", "授权码", "安全码", "短信码",
+            // 【2026-11-16 补】骗子往往不说全称，只说"那几位数""发个码给我"。
+            // 这几条单独出现没有意义（"几位数"还可能是在问年龄），
+            // 但必须同时命中下面 ASK_WORDS 里的索要词才算数，
+            // 外面还压着 strangerOnCall() 这道门，误报进不来。
+            "那几位", "几位数", "那个数字", "短信里的数"
     };
 
     private static final String[] ASK_WORDS = {
             "发我", "发给我", "告诉我", "报给我", "报一下", "念一下", "念给我",
-            "念出来", "说给我", "发过来", "发一下", "多少", "几位", "几个数字", "收到没有"
+            "念出来", "说给我", "发过来", "发一下", "多少", "几位", "几个数字", "收到没有",
+            // 【2026-11-16 补】骗子换个动作说同一件事：不"念"，让老人自己"输入"。
+            // 对老人来说这一步更危险 —— 她自己把数字敲进骗子给的页面里，
+            // 而我们原本的词表里，"输入"压根不算"索要"。
+            "输入", "读一下", "读给我", "报个数"
     };
 
     private boolean looksLikeCodeRequest(String body) {
         if (body == null || body.length() == 0) return false;
+
         boolean hasCode = false;
         for (String w : CODE_WORDS) {
             if (body.contains(w)) { hasCode = true; break; }
         }
+
+        // 【2026-11-16 补：裸"码"】
+        // 骗子常说"把码发我""码是多少"，不说全称。但"码"这个字在微信里太常见，
+        // 直接加进词表会把"收款码发我""扫个码"一起咬进来。
+        // 做法：先把日常说法整段抠掉，剩下的字里还有"码"，才认它是在说验证码。
+        if (!hasCode) hasCode = bareCode(body);
         if (!hasCode) return false;
+
         for (String w : ASK_WORDS) {
             if (body.contains(w)) return true;
         }
         return false;
+    }
+
+    /** 去掉"扫码/二维码/收款码"这类日常说法后，还剩不剩一个"码"字 */
+    private static final String[] CODE_SAFE = {
+            "扫码", "二维码", "收款码", "付款码", "健康码", "行程码", "号码", "密码",
+            "筹码", "明码", "价码", "代码", "编码", "解码", "条码", "图标码"
+    };
+
+    private static boolean bareCode(String body) {
+        String t = body;
+        for (String s : CODE_SAFE) t = t.replace(s, "");
+        return t.contains("码");
     }
 
     /**

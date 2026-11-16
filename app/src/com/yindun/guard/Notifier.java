@@ -47,6 +47,8 @@ public class Notifier {
     public static final int NOTIFY_FOREVER = 1001;
     /** 预警通知的编号 */
     public static final int NOTIFY_ALERT = 1002;
+    /** 老人机上"这条短信有问题"的编号，用来替掉被判诈骗的系统短信通知 */
+    public static final int NOTIFY_SMS_WARN = 1003;
 
     // ==========================================================
     //  一、通知渠道（安卓 8 以后必须有）
@@ -176,6 +178,56 @@ public class Notifier {
         if ("block".equals(level) && !K_SMS.equals(kind) && !K_WECHAT.equals(kind)) {
             callChild(ctx);
         }
+    }
+
+    // ==========================================================
+    //  四、老人机上的一条持留提醒
+    // ==========================================================
+    /**
+     * 代替被判为诈骗的那条系统短信通知。
+     *
+     * 【为什么老人机需要这条，而子女机那条不能用】
+     * {@link #alertChild} 那条通知的收件人是子女（"妈妈可能正在被骗"），
+     * 放在老人机上读起来没头没脑，还会盖住红屏顶端，所以老人机刻意不发。
+     * 结果就是老人端唯一的提醒载体只有浮条 —— 浮条十几秒后自己消失，不留痕迹。
+     * 手机放在桌上的时候，等于什么都没提醒。
+     *
+     * 这条通知说给老人自己听，而且替掉的是原本那条"看起来很正常"的短信通知，
+     * 所以位置正好在对的地方：她下拉通知栏，看到的是银盾的话，不是骗子的话。
+     *
+     * 【文案为什么不写"已拦截"】
+     * 短信已经进了她的手机、原文在短信 App 里躺着，我们撤掉的只是那条通知。
+     * 写"已拦截"是不实陈述。这里只说"有问题"和"别做什么"。
+     *
+     * @param from 发件号码，可能为空
+     */
+    public static void notifyElderScam(final Context ctx, final String from) {
+        if (!isElderPhone(ctx)) return;
+        ensureChannel(ctx);
+
+        String who = (from == null || from.length() == 0) ? "未知号码" : from;
+        String body = "来自 " + who + " 的短信，别转账、别点链接、别把验证码告诉任何人";
+
+        Intent i = new Intent(ctx, MainActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pi = PendingIntent.getActivity(
+                ctx, 3, i,
+                Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
+
+        Notification.Builder b = (Build.VERSION.SDK_INT >= 26)
+                ? new Notification.Builder(ctx, CHANNEL_ID)
+                : new Notification.Builder(ctx);
+
+        Notification n = b.setContentTitle("这条短信有问题")
+                .setContentText(body)
+                .setStyle(new Notification.BigTextStyle().bigText(body))
+                .setSmallIcon(android.R.drawable.stat_sys_warning)
+                .setAutoCancel(true)
+                .setContentIntent(pi)
+                .build();
+
+        NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm != null) nm.notify(NOTIFY_SMS_WARN, n);
     }
 
     // ==========================================================

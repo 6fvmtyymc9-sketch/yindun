@@ -180,9 +180,17 @@ public class TipBar {
                             | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
                     android.graphics.PixelFormat.TRANSLUCENT);
             if (bottom) {
-                // 贴底：留 140dp 出来，躲开导航栏和全面屏手势区，也躲开系统通知横幅
+                // 【2026-11-16 改：140dp → 贴底，避开导航栏】
+                // 实测（今天上午）：诈骗短信进来时浮条挂在 y=1497~1763，
+                // 正好压在两条正常短信上，而列表最上面那条诈骗短信一个字都没被遮住——
+                // 该盖的没盖，不该盖的盖了两条。老人从上往下读，最先读到的就是骗子那句话。
+                //
+                // 浮条是全局窗口，本来就不可能对准某一条短信（除非上无障碍读界面结构）。
+                // 能做的只有尽量少占地方：贴到底部，只压住列表末端。
+                // 会话页底部是输入框，会挡一下——但那一刻老人正要看清的短信内容在上方，
+                // 挡输入框比挡正文代价小得多。
                 lp.gravity = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-                lp.y = dp(ctx, 140);
+                lp.y = dp(ctx, 8) + navBarHeight(ctx);
             } else {
                 lp.gravity = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
                 // 【2026-11-07 上移】原来看 76dp，实测把通话界面的号码
@@ -235,5 +243,21 @@ public class TipBar {
 
     private static int dp(Context ctx, int v) {
         return Math.round(ctx.getResources().getDisplayMetrics().density * v);
+    }
+
+    /**
+     * 导航栏高度。取不到就返回 0（老机型、全面屏手势），那时只留 8dp 边距。
+     *
+     * 从系统资源里读而不是写死：屏幕尺寸、手势导航/虚拟按键在这台机器上
+     * 到底是哪种，只有系统自己知道。
+     */
+    private static int navBarHeight(Context ctx) {
+        try {
+            int id = ctx.getResources()
+                    .getIdentifier("navigation_bar_height", "dimen", "android");
+            if (id > 0) return ctx.getResources().getDimensionPixelSize(id);
+        } catch (Exception ignored) {
+        }
+        return 0;
     }
 }

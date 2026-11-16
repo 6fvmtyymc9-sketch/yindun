@@ -89,12 +89,17 @@ class Judge {
 
     const found = [];
     for (const m of (cfg.markers || [])) {
-      if (text.includes(m)) found.push(m);
+      // text 在上面已经 toLowerCase 过了，所以标记也必须转小写再比 ——
+      // 与端侧 Judge.java 的 text.contains(m.toLowerCase()) 对齐。
+      // 当前 markers 全是中文，toLowerCase 对中文是恒等变换，两种写法结果一样；
+      // 但将来只要有人加一个带大写的英文标记（"AntiFraud"），
+      // 这里会静默匹配不到，同一短信两端判出完全不同的级别。先对齐，不留这个坑。
+      if (text.includes(m.toLowerCase())) found.push(m);
     }
     if (found.length < (cfg.minMarkers || 2)) return null;
 
     for (const v of (cfg.veto || [])) {
-      if (text.includes(v)) return null;
+      if (text.includes(v.toLowerCase())) return null;
     }
     return `官方宣传(${found.join('、')})`;
   }

@@ -157,6 +157,17 @@ public class SmsReceiver extends BroadcastReceiver {
         // 分数够高就当成一条预警推给子女端
         if (!"none".equals(r.level) && !"watch".equals(r.level)) {
             EventBus.pushAlert(r.level, r.why, r.stage, r.score);
+
+            // 【2026-11-16 加】把这条记进对照表，等系统短信 App 发出通知时把它换掉。
+            //
+            // 为什么需要：判定走的是短信广播，老人看到的却是短信 App 自己发的通知。
+            // 两条链路互不相识，所以现在会出现这种场面 —— 银盾已经认定这是诈骗、
+            // 子女端已经收到预警，而老人通知栏里那条通知跟快递、工行的长得一模一样，
+            // 点开就是骗子的完整原话。只对 block 记：warn/high 还可能误判，
+            // 替老人换掉一条正常短信的通知，不如只弹一次浮条就收手。
+            if ("block".equals(r.level)) {
+                Blocked.add(from, text);
+            }
             // 【2026-11-16 改：级别高的时候标题不能只说"收到验证码"】
             // 实测（10:48）：一条 180 分、冒充公安要转账的短信，子女端标题是
             // 「妈妈收到一条验证码短信」—— 和银行正常验证码长得一模一样，

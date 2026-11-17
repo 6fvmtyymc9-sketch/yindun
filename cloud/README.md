@@ -98,6 +98,11 @@ RDS_PASS=密码
 RDS_DB=yindun
 ```
 
+> **注意**：上面两段是"如果你用的是华为云托管实例"的填写示例，**本项目当前并没有买 RDS / DCS**。
+> 线上跑的是 ECS 本机的 MySQL 8 与 Redis（`apt-get install mysql-server redis-server`），
+> 服务器 `.env` 里就是 `RDS_HOST=127.0.0.1`、`REDIS_URL=redis://127.0.0.1:6379/0`。
+> 这三个环境变量名是为了"将来换成托管实例时只改配置、不改代码"而留的口子。
+
 启动日志会明确告诉你哪些依赖连上了、哪些降级了。
 
 **模型选型说明**：DeepSeek-V4.1-Flash 属非思考型模型，

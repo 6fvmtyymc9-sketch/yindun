@@ -100,17 +100,38 @@ public class NumberInfo {
                     new String[]{CallLog.Calls.NUMBER, CallLog.Calls.TYPE, CallLog.Calls.DATE},
                     null, null, CallLog.Calls.DATE + " DESC");
             if (c != null) {
-                if (c.moveToFirst()) {
-                    Call r = new Call();
-                    r.number = c.getString(0);
-                    r.type = c.getInt(1);
-                    r.date = c.getLong(2);
+                try {
+                    int scanned = 0;
+                    while (c.moveToNext() && scanned < 6) {
+                        scanned++;
+                        long date = c.getLong(2);
+                        // 记录按时间倒序，这条都太旧了，后面的更旧
+                        if (System.currentTimeMillis() - date >= 60000) break;
+
+                        String number = c.getString(0);
+                        int type = c.getInt(1);
+
+                        // 【2026-11-17 修】银盾自己刚拨给家人的那通不算"这一通电话"。
+                        //
+                        // 真机实测：第一通陌生电话走完红屏，6 秒自动拨给女儿（通话中先排队，
+                        // 挂断后补拨成功）。第二通陌生电话打进来、接起时，
+                        // 这个方法捞到的"最新一条"是那条"呼出给女儿"的记录：
+                        //   · 方向被判成呼出 → 整通电话按"老人自己打的"处理
+                        //   · 身份被定成熟人 → 「通话中打开银行」从 block 掉到 warn
+                        // 屏幕上就是什么都不发生。用户看到的是"第二次不红屏"。
+                        if (type == CallLog.Calls.OUTGOING_TYPE && Notifier.selfDialed(number)) {
+                            continue;
+                        }
+
+                        Call r = new Call();
+                        r.number = number;
+                        r.type = type;
+                        r.date = date;
+                        return r;
+                    }
+                } finally {
                     c.close();
-                    // 超过 60 秒的记录不算"这通电话"
-                    if (System.currentTimeMillis() - r.date < 60000) return r;
-                    return null;
                 }
-                c.close();
             }
         } catch (Exception ignored) {
             // 没给通话记录权限

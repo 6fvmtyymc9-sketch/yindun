@@ -125,8 +125,18 @@ public class CallWatcher {
 
         NumberInfo.Call c = NumberInfo.latestCall(ctx);
         if (c != null) {
-            dir = c.type;
-            if (num == null || num.length() == 0) num = c.number;
+            if (num == null || num.length() == 0) {
+                // 系统没给号码：只能信通话记录
+                num = c.number;
+                dir = c.type;
+            } else if (NumberInfo.normalize(num).equals(NumberInfo.normalize(c.number))) {
+                // 号码对得上，这条记录说的确实是这一通
+                dir = c.type;
+            }
+            // 【2026-11-17 修】号码对不上，就说明最新那条记录是**另一通**电话
+            // （最常见的是银盾自己刚补拨给家人的那通）。
+            // 原来这里不管对得上对不上都拿它的方向用，于是一通陌生来电
+            // 会被判成"老人自己拨出去的"，身份定成熟人，红屏不弹。
         }
 
         if (state == TelephonyManager.CALL_STATE_OFFHOOK) {

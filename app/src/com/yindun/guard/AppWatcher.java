@@ -59,6 +59,8 @@ public class AppWatcher {
     private boolean running = false;
     private int counter = 0;
     private String lastPkg = null;
+    /** 上一次查到的应用名。包名没变时直接复用，省掉一次系统查询 */
+    private String lastLabel = null;
 
     private AppWatcher(Context c) {
         this.ctx = c;
@@ -97,8 +99,8 @@ public class AppWatcher {
 
         String pkg = foreground();
         if (pkg == null || pkg.length() == 0) return;
-        if (pkg.equals(lastPkg)) return;    // 没换，不用重复处理
-        lastPkg = pkg;
+        boolean changed = !pkg.equals(lastPkg);
+        if (changed) lastPkg = pkg;
 
         Guard g = Guard.get(ctx);
         // 【2026-11-15 修】这里原来传的是 isBank(pkg, null) —— 应用名压根没进去。
@@ -106,11 +108,27 @@ public class AppWatcher {
         // 在这条唯一的调用路径上**全部失效**，只有包名里的英文字母算数。
         // 而地方银行、农商行、村镇银行的包名常常是 com.xxx.mobile 这种，
         // 一个字母关键词都不带 —— 等于她在那些银行里转钱时没人拦。
-        // 应用名只在包名变了的时候才查一次（上面 lastPkg 去重挡着），开销可以忽略。
-        String label = InstallReceiver.label(ctx, pkg);
-        if (Judge.isBank(pkg, label)) {
-            g.onBankForeground(pkg, label);
+        //
+        // 应用名只在包名变了的时候才查一次（查包名对应应用名要问系统，有开销），
+        // 没变就复用上一次的结果。
+        String label;
+        if (changed) {
+            label = InstallReceiver.label(ctx, pkg);
+            lastLabel = label;
         } else {
+            label = lastLabel;
+        }
+
+        if (Judge.isBank(pkg, label)) {
+            // 【2026-11-17 修】包名没变也要走一次。
+            //
+            // 原来上面那句 `if (pkg.equals(lastPkg)) return;` 会把"老人在支付宝里没动"
+            // 这种情况整个跳过。第一通红屏撤掉后她一直停在支付宝，第二通电话打进来，
+            // 这个入口一次都不会被调到 —— 判级不重算，屏幕上就什么都不发生。
+            // 现在改成：银行类每次扫到都重新评一次（Guard 那边有去重，不会刷屏）。
+            g.onBankForeground(pkg, label);
+        } else if (changed) {
+            // 离开银行类只在前台真的换了的时候说一声，省电
             g.onLeaveBank();
         }
     }

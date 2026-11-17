@@ -128,6 +128,23 @@ public class Guard {
      */
     private boolean rangAlerted = false;
 
+    /**
+     * 通话中又响过一次铃（呼叫等待），而且还没接通。
+     *
+     * 【2026-11-17 为什么加这个字段】
+     * 真机实测：第一通陌生电话走完红屏、挂断，用同一个号再打第二通，
+     * 通话中打开支付宝**不红屏**。
+     *
+     * 根因在这条链上：系统的挂断回调偶尔会丢（EMUI 尤其），callStartAt 停在上一通，
+     * 第二通响铃就走"呼叫等待"分支；接通时再用「号码不一样」判断是不是新的一通 ——
+     * 同一个号打第二遍，号码当然一样，于是判定为"还是那一通"，
+     * 判级标记 lastRank 保留在最高级，evaluate 里 `rank <= lastRank` 直接返回，什么都不做。
+     *
+     * 判据改成"这一通里响过铃"：响铃就是新的一通来了，接通就该按新通话重置。
+     * 号码相同也不再例外 —— 骗子挂掉再打一遍是常见操作，我们自己测第二遍也是这个路径。
+     */
+    private boolean ringWhileInCall = false;
+
     private Guard(Context c) {
         this.ctx = c;
         try {
@@ -176,6 +193,14 @@ public class Guard {
             selfDialed = Notifier.selfDialed(number);
             if (callStartAt == 0) {
                 startNewCall(number, who);
+                ringWhileInCall = false;
+            } else if (ringWhileInCall) {
+                // 这一通里有电话响过铃，接通了就一定是新的一通。
+                // 不再用「号码不一样」当判据 —— 同一个号重打（挂断回调丢了、骗子回拨）
+                // 号码当然一样，老写法会把它当成上一通的延续，判级不重置，红屏再也不弹。
+                Log.i(TAG, "呼叫等待接通 " + callNumber + " → " + number + "，按新通话重置");
+                startNewCall(number, who);
+                ringWhileInCall = false;
             } else if (number != null && !number.equals(callNumber)) {
                 // 【2026-11-08 修】呼叫等待：老人通话中又接起另一通电话时，
                 // 系统的 state 一直是 2，不会走"挂断"分支，
@@ -188,6 +213,8 @@ public class Guard {
         } else if (state == 1) {
             // ---- 有电话打进来 ----
             if (callStartAt > 0) {
+                // 记一笔：这一通里有电话响过铃。接通后要按"新的一通"重置判级。
+                ringWhileInCall = true;
                 // 正在通话时又来了一个电话，记一笔。是不是家人由 CallLog 事后确认。
                 //
                 // 【为什么这里要打日志】这一支不弹熟人询问卡。实测时最容易被误判成
@@ -232,6 +259,7 @@ public class Guard {
             Acquaint.dismiss();
             TipBar.hide();      // 通话结束，轻提醒没有留着的道理
             selfDialed = false; // 这一通结束了，下一通重新算
+            ringWhileInCall = false;
 
             // 【2026-11-09 修】不管接没接，这一通都结束了，响铃标记必须复位。
             // 否则"响铃没接就挂断"会让标记一直挂着，下一通陌生来电
@@ -316,11 +344,27 @@ public class Guard {
 
     /** 前台换成了银行/支付类 App */
     public void onBankForeground(String pkg, String label) {
-        if (st.bankForeground) return;   // 已经在银行里，不用重复报
+        boolean already = st.bankForeground;
         st.bankForeground = true;
-        Log.i(TAG, "前台出现银行类 App: " + label + " (" + pkg + ")");
-        EventBus.push(event("app", "pkg", pkg, null, null, 0, label));
+
+        if (!already) {
+            Log.i(TAG, "前台出现银行类 App: " + label + " (" + pkg + ")");
+            EventBus.push(event("app", "pkg", pkg, null, null, 0, label));
+        }
+
+        // 【2026-11-17 修】即使"已经在银行里"，也要重新评一次。
+        //
+        // 真机实测：第一通红屏走完、挂断，用同一个号再打第二通，
+        // 通话中打开支付宝不再红屏。
+        // 其中一条路就断在这里：老人红屏撤掉后一直停在支付宝界面没退出，
+        // AppWatcher 看到包名没变过就不再调这个方法，
+        // 判级永远停在上一通的结论上 —— 屏幕上什么都不发生。
+        //
+        // evaluate 自带「只升不降」的去重，重复调用不会重复打扰；
+        // 红屏本身（Shield.show）在已经盖着时也是直接返回。
         evaluate("bank");
+
+        if (already) return;   // 下面这些只做一次：重复推给子女就是刷屏
 
         // 电话已经挂了，但刚才那通被录音复盘判成了诈骗 —— 骗子常让老人挂断后再去转账。
         // 通话中打开银行由上面的组合判据处理，这里只管"挂断之后"这一段。

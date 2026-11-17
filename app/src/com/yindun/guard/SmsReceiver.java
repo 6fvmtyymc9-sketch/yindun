@@ -233,7 +233,7 @@ public class SmsReceiver extends BroadcastReceiver {
             boolean severe = rankOf(shown) >= 3;
             alert(ctx, shown,
                     isCode ? (severe ? "这条短信在骗验证码" : "收到验证码短信") : "疑似诈骗短信",
-                    isCode ? "验证码不管谁要，都不能给" : "请勿点击短信中的链接");
+                    isCode ? "验证码不管谁要，都不能给" : tipSubFor(text));
         }
 
         // ---------- 7. 大模型复核：本地拿不准的，交给华为云 MaaS 判一次 ----------
@@ -428,6 +428,35 @@ public class SmsReceiver extends BroadcastReceiver {
             if (text.contains(w)) return true;
         }
         return false;
+    }
+
+    /**
+     * 浮条第二行：告诉她"这一条"该怎么办。
+     *
+     * 【2026-11-17 改】原来所有非验证码短信一律写"请勿点击短信中的链接"。
+     * 真机上抓到一条「王叔，我手机丢了换号了，急用先转…」—— 正文里根本没有链接，
+     * 屏幕上却教她别点链接。她照着找了一遍，找不到链接，于是认定"银盾说错了"，
+     * 接着就按短信里的账号把钱转了。这是最坏的一种错：提醒本身把她推向了骗局。
+     *
+     * 一句话能说对的前提是它跟着内容走，所以按"这条短信在催她做什么"分支：
+     *   有网址 → 别点链接（钓鱼入口）
+     *   让转钱 → 先打电话跟本人核实（冒充熟人/公检法最常见的一步）
+     *   让打电话 → 别回拨（改号、吸费的入口）
+     *   都不像 → 至少别说她做不到的事，回到"先问家里人"
+     */
+    private static String tipSubFor(String text) {
+        if (text == null || text.length() == 0) return "别按短信里说的做，先问家里人";
+        String t = text.toLowerCase();
+        if (containsAny(t, "http", "www.", "t.cn", ".cn/", ".com/", ".top", ".cc/", "点此", "点击")) {
+            return "请勿点击短信中的链接";
+        }
+        if (containsAny(t, "转账", "转钱", "转这", "汇款", "打款", "打钱", "借钱", "借点", "先转", "把钱")) {
+            return "先打电话跟本人核实，别急着转钱";
+        }
+        if (containsAny(t, "拨打", "回拨", "致电", "打电话", "联系电话")) {
+            return "别回拨这个号码，先问家里人";
+        }
+        return "别按短信里说的做，先问家里人";
     }
 
     // ---------- 浮条节流 ----------

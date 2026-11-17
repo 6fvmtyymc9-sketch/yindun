@@ -206,7 +206,11 @@ public class Notifier {
         ensureChannel(ctx);
 
         String who = (from == null || from.length() == 0) ? "未知号码" : from;
-        String body = "来自 " + who + " 的短信，别转账、别点链接、别把验证码告诉任何人";
+        // 【2026-11-17 改】原来写"来自 18111007701 的短信，…"，配上标题
+        // 「这条短信有问题」，通知栏读出来是"这条短信有问题，来自 18111007701 的短信" ——
+        // 一句话里两个"短信"，而且真正要紧的号码被挤到后面，折叠状态下连"别转账"都截掉了。
+        // 现在把号码提到最前，一句话说完。
+        String body = who + " · 别转账、别点链接、别把验证码告诉任何人";
 
         Intent i = new Intent(ctx, MainActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);

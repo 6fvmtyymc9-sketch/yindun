@@ -160,6 +160,23 @@ public class Judge {
     public String loadError = null;
 
     /** 一个词条 */
+    /**
+     * 这个命中词是不是已经被另一个更长的命中词包含了。
+     *
+     * 例：正文里出现「我是警察」，那么「我是警察(+30)」和「警察(+20)」同时命中，
+     * 但这两条表达的是同一个意思，只算最具体的那一个。
+     * 只处理"包含"这一种情况，不碰语义相似 —— 那件事交给模型，规则表不该装聪明。
+     */
+    private static boolean swallowedByLonger(Word w, List<Word> hits) {
+        String me = w.text.toLowerCase();
+        for (Word o : hits) {
+            if (o == w) continue;
+            String other = o.text.toLowerCase();
+            if (other.length() > me.length() && other.contains(me)) return true;
+        }
+        return false;
+    }
+
     private static class Word {
         String text;
         int weight;
@@ -318,25 +335,37 @@ public class Judge {
         // ---------- 1. 逐词打分 ----------
         int score = 0;
         StringBuilder hits = new StringBuilder();
+
+        // 【2026-11-17 修】同一个说法只能算一次。
+        // 词表里"我是警察"(+30) 与"警察"(+20)、"点击链接"(+20) 与"点击"(+8)、
+        // "不要告诉子女"(+45) 与"不要告诉"(+25) 都是包含关系 ——
+        // 一条"我是警察，你别告诉子女"会被算成 120 分，其实只有两个意思。
+        // 分数虚高比漏报更危险：它会把这个阈值上的每一条判定都变得不可信，
+        // 而且真机实测过"请及时取件"靠模型分堆到 94% 那种事故。
+        // 所以先收集命中词，被更长的命中词吞掉的短词不再计分（取最具体的那个说法）。
+        List<Word> hitList = new ArrayList<Word>();
+        for (Word w : words) {
+            // 已经是"验证码短信"时，「验证码」这个词必然出现，第 4 步会按发送方单独处理，
+            // 词库不再重复计分 —— 否则银行正常验证码短信会被 "验证码+S4" 直接推到盖屏。
+            if (isCode && "验证码".equals(w.text)) continue;
+            if (text.contains(w.text.toLowerCase())) hitList.add(w);
+        }
+
         // 2026-11-04 新增：一边打分一边记下"命中的最高阶段词"。
         // 阶段判定已从"总分落桶"改为"最高命中阶段词"——分数衡量可疑度，
         // 阶段问的是"骗子走到第几步"，两件事必须分开算。
         String topStage = "S0";
         int topRank = 0;
-        for (Word w : words) {
-            // 已经是"验证码短信"时，「验证码」这个词必然出现，第 4 步会按发送方单独处理，
-            // 词库不再重复计分 —— 否则银行正常验证码短信会被 "验证码+S4" 直接推到盖屏。
-            if (isCode && "验证码".equals(w.text)) continue;
-            if (text.contains(w.text.toLowerCase())) {
-                score += w.weight;
-                if (hits.length() > 0) hits.append("、");
-                hits.append(w.text).append("(+").append(w.weight).append(")");
-                if (w.stage != null && w.weight > 0) {
-                    int rk = stageRankOf(w.stage);
-                    if (rk > topRank) {
-                        topRank = rk;
-                        topStage = w.stage;
-                    }
+        for (Word w : hitList) {
+            if (swallowedByLonger(w, hitList)) continue;
+            score += w.weight;
+            if (hits.length() > 0) hits.append("、");
+            hits.append(w.text).append("(+").append(w.weight).append(")");
+            if (w.stage != null && w.weight > 0) {
+                int rk = stageRankOf(w.stage);
+                if (rk > topRank) {
+                    topRank = rk;
+                    topStage = w.stage;
                 }
             }
         }

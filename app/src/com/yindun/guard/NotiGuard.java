@@ -80,11 +80,16 @@ public class NotiGuard extends NotificationListenerService {
     private static final int MIN_RANK = 2;
 
     /**
-     * 指纹的时间桶粒度：同一个 5 分钟桶里，同一条消息只判一次。
+     * 兜底的时间桶粒度：只在这条通知拿不到 postTime 时才用。
      *
-     * 【为什么不再用"距上次判过多少毫秒"】
-     * 指纹里已经带了桶号，再叠一个 10 分钟窗口，等于"隔 5 分钟重发也算旧的"——
-     * 演示重跑时浮条又弹不出来了。时间粒度只留一处，行为才可预期。
+     * 【2026-11-17 改：主判据换成通知自己的 postTime】
+     * 原来指纹里放的就是这个 5 分钟桶，实测出了真问题：
+     * 同一段话（骗子重复催"转3000到这个卡"，或者用户自己复测）
+     * 在 5 分钟内再发一次，指纹一模一样，直接被当成"刚判过"跳过 ——
+     * 屏幕上什么都不弹，子女端也收不到，老人以为银盾不认这条了。
+     * "是不是同一条消息"的权威答案是系统给的通知时间，不该由我们拿时钟猜。
+     * 换成 postTime 之后：系统重复回调同一个通知（postTime 不变）照样只判一次，
+     * 而微信真的又收到一条（哪怕一个字都没变），postTime 会前进，就会重新判。
      */
     private static final long DEDUP_BUCKET_MS = 5 * 60 * 1000L;
 
@@ -280,17 +285,16 @@ public class NotiGuard extends NotificationListenerService {
 
         // 群消息的通知正文常带"某某: 内容"，标题是群名，这里不拆，整段交给词库
         //
-        // 【指纹为什么改成"5 分钟时间桶"】（2026-11-16）
-        // 原来带 postTime，是为了解决"演示脚本重跑第二遍弹不出来"：
-        // 内容一样、通知 id 也一样，全被当成"刚判过"拦掉。
-        // 但 postTime 是系统在每次通知更新时重打的 —— 微信里"对方正在输入"、
-        // 多设备同步、撤回重发，任何一个动作都会改它，指纹跟着变，
-        // 于是同一条消息被判第二次、浮条弹第二次。而 10 分钟去重的初衷正是"只弹一次"。
-        // 换成时间桶：同一个 5 分钟桶里只判一次；隔几分钟再发一次（演示重跑）
-        // 天然落进下一个桶，照样能弹。两个时间量叠在一起反而会复现老问题，
-        // 所以 fresh() 那边不再另设窗口。
-        long bucket = System.currentTimeMillis() / DEDUP_BUCKET_MS;
-        final String fp = sbn.getKey() + "#" + body.hashCode() + "#" + bucket;
+        // 【指纹为什么带 postTime】（2026-11-17 改）
+        // 原来带的是"5 分钟时间桶"，于是同一段话在 5 分钟内再发一次就完全静默：
+        // 骗子反复催同一句话、或者现场复测同一段文案，第二次起什么都不弹。
+        // 判"这是不是又一条新消息"，权威答案是系统记的通知时间，不是我们的时钟：
+        //   - 系统把同一个通知重复回调给我们（列表重建、设备恢复）→ postTime 不变 → 跳过
+        //   - 微信真的又收到一条，哪怕一个字都没改 → 通知重新 post，postTime 前进 → 重新判
+        // postTime 拿不到（个别 ROM 给 0）才退回时间桶，至少保证不会疯狂重复弹。
+        long stamp = sbn.getPostTime();
+        if (stamp <= 0) stamp = System.currentTimeMillis() / DEDUP_BUCKET_MS;
+        final String fp = sbn.getKey() + "#" + body.hashCode() + "#" + stamp;
         if (!fresh(fp)) return;
 
         final Context app = getApplicationContext();
@@ -524,7 +528,7 @@ public class NotiGuard extends NotificationListenerService {
         return true;
     }
 
-    /** 这条消息是不是新的（同一个时间桶里只判一次，见 DEDUP_BUCKET_MS） */
+    /** 这条通知是不是新的（指纹见 judgeWechat 里 postTime 那段说明） */
     private synchronized boolean fresh(String fp) {
         if (seen.containsKey(fp)) return false;
         seen.put(fp, System.currentTimeMillis());

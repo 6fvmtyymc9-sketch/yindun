@@ -1,7 +1,9 @@
 package com.yindun.guard;
 
 import android.content.Context;
+import android.media.AudioManager;
 import android.os.Build;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 /**
@@ -212,6 +214,23 @@ public class Guard {
             }
         } else if (state == 1) {
             // ---- 有电话打进来 ----
+            //
+            // 【2026-11-17 真机「熟人询问不在了」的修复】
+            // 用户重启后打进来一通陌生号（15308086145），屏幕上是系统来电界面，
+            // 银盾一句话都没问。翻代码才看清这条链：
+            //   上一通（银盾自动补拨给女儿那通）挂断时，EMUI 漏发了 state==0，
+            //   callStartAt 停在那一刻不清零；
+            //   这通陌生来电于是被当成"通话中又来了一个电话"（呼叫等待），
+            //   而那一支刻意不弹熟人询问卡（见下面的注释）。
+            // 结果：防护在最该说话的一刻完全静默，老人和子女都不知道。
+            //
+            // 判据不能只看 callStartAt——它是我们自己的记忆，而记忆正是出错的那一方。
+            // 这里拿系统的音频通道对一次账：真的还有话路，才认这是呼叫等待。
+            if (callStartAt > 0 && !reallyInCall()) {
+                Log.w(TAG, "来电响铃时发现上一通的状态没清干净"
+                        + "（本地记着在通话中，系统没有话路），先按挂断复位，再当新来电处理：" + number);
+                onCallState(0, callNumber, null);   // 复用挂断清理，走完全一样的复位
+            }
             if (callStartAt > 0) {
                 // 记一笔：这一通里有电话响过铃。接通后要按"新的一通"重置判级。
                 ringWhileInCall = true;
@@ -705,6 +724,65 @@ public class Guard {
     private long realDur() {
         if (callStartAt == 0) return 0;
         return (System.currentTimeMillis() - callStartAt) / 1000;
+    }
+
+    /**
+     * 系统那边现在真的有话路吗。
+     *
+     * 【为什么不能只看 callStartAt】
+     * callStartAt 是我们自己的记忆。它只靠系统的"挂断回调"清零，
+     * 而这个回调在 EMUI 上会丢——丢了以后我们会一直以为还在通话，
+     * 下一通来电被当成呼叫等待，熟人询问卡不再弹，整条防护静默失效。
+     * 记忆出错的时候，必须去问记录事实的那一方。
+     *
+     * 【为什么用音频模式，而不是 TelephonyManager.getCallState()】
+     * getCallState() 在"新来电正在响铃"时返回 RINGING，
+     * 而呼叫等待时上一通话路还活着、状态也是 RINGING——两种情况分不开，
+     * 正好是要区分的那两种。音频模式能分开：
+     *   有话路 → MODE_IN_CALL(2) / MODE_IN_COMMUNICATION(3)
+     *   只有铃声 → MODE_RINGTONE(1)，连系统电话都不在用音频通道
+     * 拿不到音频服务时才退回时长兜底（一通电话超过 4 小时基本只可能是残留）。
+     */
+    private boolean reallyInCall() {
+        if (callStartAt == 0) return false;
+        try {
+            AudioManager am = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
+            if (am != null) {
+                int m = am.getMode();
+                if (m == AudioManager.MODE_NORMAL || m == AudioManager.MODE_RINGTONE) {
+                    return false;   // 只有铃声、没有话路
+                }
+                return true;
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "查不到音频模式，改用时长兜底", e);
+        }
+        return realDur() < 4 * 3600;
+    }
+
+    /**
+     * 跟系统对一次账：系统说没通话了，我们这边还挂着 → 挂断回调丢了。
+     *
+     * 由 CallWatcher 每 5 秒调一次（它本来就在看表）。
+     * 【为什么必须补这一步】光在"来电响铃"时补救是不够的：
+     * 回调丢了以后，红屏、复问计时、"通话中"这个前提全都在错误的方向上，
+     * 老人在那段时间里做任何事，判定都是按"还在跟骗子通话"算的。
+     * 每 5 秒对一次账，最坏情况也只错 5 秒。
+     */
+    public boolean reconcile() {
+        if (callStartAt == 0) return false;
+        try {
+            TelephonyManager tm = (TelephonyManager) ctx.getSystemService(Context.TELEPHONY_SERVICE);
+            if (tm == null) return false;
+            if (tm.getCallState() != TelephonyManager.CALL_STATE_IDLE) return false;
+            Log.w(TAG, "对账：系统已空闲，本地还记着在通话中（"
+                    + realDur() + " 秒）—— 挂断回调丢了，现在补一次清理");
+            onCallState(0, callNumber, null);
+            return true;
+        } catch (Exception e) {
+            Log.w(TAG, "对账失败（可能没给 READ_PHONE_STATE）", e);
+            return false;
+        }
     }
 
     private long dur() {

@@ -65,11 +65,18 @@ public class CallWatcher {
         this.ctx = c;
     }
 
-    /** 每 5 秒跑一次：看表 + 查有没有拒接家人 */
+    /** 每 5 秒跑一次：对账 + 看表 + 查有没有拒接家人 */
     private final Runnable ticker = new Runnable() {
         @Override
         public void run() {
             try {
+                // 【2026-11-17】先对账再干活。
+                // 系统的挂断回调在 EMUI 上会丢，丢了以后 Guard 会一直以为还在通话，
+                // 下一通来电被当成"呼叫等待"、熟人询问卡不弹（真机已发生）。
+                // 对账最快 5 秒兜住，比等下一通电话来才暴露要早得多。
+                if (Guard.get(ctx).reconcile()) {
+                    inCall = false;
+                }
                 Guard.get(ctx).tick();
                 if (inCall) checkRejectedFamily();
             } catch (Exception e) {

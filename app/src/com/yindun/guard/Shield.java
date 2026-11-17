@@ -41,10 +41,18 @@ import android.widget.TextView;
  * 3. **6 秒没人动，机器自己拨。**
  *    人会被吓懵，机器不会。
  *
- * 【技术上的实话】
- * 第三方 App 挂不断骗子的电话，安卓不给这个权限。
- * 所以"拦截"只能做到：盖住屏幕、抢走注意力、把女儿的声音叫过来。
- * 这一点在答辩时要说在前面，别吹。
+ * 【技术上的实话（2026-11-17 更正）】
+ * 这里原来写着"第三方 App 挂不断骗子的电话"，**这句是错的**。
+ * Android 9（API 28）起 TelecomManager.endCall() 就能挂断一通不是自己拨的电话，
+ * 只要拿到 ANSWER_PHONE_CALLS 这个普通危险权限，不需要系统签名、不需要 root。
+ * 真机上实测确实挂了（见 Hangup.java）。
+ *
+ * 但仍有边界，答辩时要讲清楚：
+ *  - 系统版本低于 9 没有这个接口；
+ *  - 个别 ROM 只放行默认拨号器，endCall() 会返回 false —— 所以我们绝不假装成功，
+ *    失败就如实写"没能挂断"并把操作权还给老人（fallbackExit）。
+ *
+ * 所以现在的拦截是三件事：挂断这通电话、盖住屏幕、把女儿的声音叫过来。
  * ============================================================
  */
 public class Shield {
@@ -58,6 +66,17 @@ public class Shield {
 
     private static View view = null;
     private static final Handler handler = new Handler(Looper.getMainLooper());
+
+    /**
+     * 挂断后的复核任务。
+     * endCall() 返回 true 只代表"系统收下了这个请求"，不代表话路真的断了。
+     * 有的 ROM 会收下、然后什么都不做。那样屏幕上写着"已挂断"就是骗人 ——
+     * 老人以为电话断了，其实那头还在说话。
+     */
+    private static Runnable verifyHangup = null;
+
+    /** 这一屏上老人按了几次"挂断"。连按两次都没断，就认输，把手机还给她 */
+    private static int hangTries = 0;
     private static boolean dialed = false;
 
     // ==========================================================
@@ -351,6 +370,7 @@ public class Shield {
             // 6 秒无人操作自动拨（没设置紧急联系人的真机不自动拨，倒计时也不显示）
             dialed = false;
             dialResult = Notifier.DIAL_NONE;
+            hangTries = 0;
             if (Notifier.canDial(ctx)) handler.postDelayed(autoDial, AUTO_DIAL_MS);
 
             // 兜底：万一电话一直没挂（或系统没回调），2 分钟后自己撤。
@@ -370,6 +390,10 @@ public class Shield {
         countBar = null;
         handler.removeCallbacks(autoDial);
         handler.removeCallbacks(safetyHide);
+        if (verifyHangup != null) {
+            handler.removeCallbacks(verifyHangup);
+            verifyHangup = null;
+        }
         // 屏幕撤了还继续振（还继续晃），就是纯骚扰了
         Vibrate.stop();
         shakeStop();
@@ -382,6 +406,7 @@ public class Shield {
         view = null;
         dialed = false;
         dialResult = Notifier.DIAL_NONE;
+        hangTries = 0;
         wmRef = null;      // 窗口已经没了，别让抖动还拿着引用
         lpRef = null;
         Log.i(TAG, "盖屏已撤");
@@ -623,10 +648,49 @@ public class Shield {
                         return;
                     }
                     boolean ok = Hangup.endCall(ctx);
-                    Log.i(TAG, "老人按了「挂断这通电话」，系统返回 " + ok);
+                    hangTries++;
+                    Log.i(TAG, "老人按了「挂断这通电话」，系统返回 " + ok + "（第 " + hangTries + " 次）");
                     if (ok) {
                         hangBtn.setText("已挂断");
                         // 通话一断，Guard 那边会回调，3 秒后自动撤屏（见 Guard.onCallEnded 分支）
+                        //
+                        // 2026-11-17 补：光把按钮改成"已挂断"就完事是不负责任的。
+                        // endCall() 只保证"系统收下了请求"，真断没断要另看。
+                        // 模拟器上实测就抓到一次：返回 true，通话纹丝不动。
+                        // 所以立刻把下面那行过期文案换掉（原来还写着"挂了这通就拨"，
+                        // 和按钮上的"已挂断"自相矛盾），再复核一次话路。
+                        if (countTv != null) {
+                            countTv.setText(dialResult == Notifier.DIAL_QUEUED
+                                    ? "挂断了，正在拨给女儿"
+                                    : "挂断了，这通电话已结束");
+                            if (countBar != null) countBar.setScaleX(0f);
+                        }
+                        final Button hb = hangBtn;
+                        verifyHangup = new Runnable() {
+                            @Override
+                            public void run() {
+                                verifyHangup = null;
+                                if (view == null) return;          // 已经撤屏了，说明电话真断了
+                                if (!Hangup.inCall(ctx)) return;   // 话路已断，等 Guard 撤屏
+                                // 系统说挂断成功，可 5 秒后还在通话中 —— 那就是没挂掉。
+                                // 用 5 秒不是为了保守：Guard 看到通话结束也要 3 秒才撤屏，
+                                // 2.5 秒会误伤"已经断了、屏还没撤"的正常情况。
+                                Log.w(TAG, "endCall() 返回 true，但 5 秒后仍在通话中（该 ROM 收了请求不执行）");
+                                if (hangTries >= 2) {
+                                    // 两次都白按：不再让老人跟这块红屏较劲
+                                    Log.w(TAG, "连续两次挂断无效，撤屏并把操作权还给老人");
+                                    if (hb != null) hb.setText("挂不掉");
+                                    fallbackExit(ctx);
+                                    return;
+                                }
+                                if (hb != null) {
+                                    hb.setText("还没挂断");
+                                    hb.setEnabled(true);
+                                }
+                                if (countTv != null) countTv.setText("电话还没断，再按一次");
+                            }
+                        };
+                        handler.postDelayed(verifyHangup, 5000);
                     } else {
                         hangBtn.setText("没能挂断");
                         hangBtn.setEnabled(true);

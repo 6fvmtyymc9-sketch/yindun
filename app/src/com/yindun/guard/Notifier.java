@@ -320,7 +320,13 @@ public class Notifier {
      *       子女回拨走的是"呼叫等待"，能在骗子还在说话的时候就插进去，
      *       这比我们拨出去有用得多。
      */
-    public static void callChild(Context ctx) {
+    /** callChild 的四种结果。红屏要照着这个如实写按钮上的字，不能一律写"已呼叫" */
+    public static final int DIAL_NONE = 0;    // 没拨成（没权限 / 系统拒绝 / 异常）
+    public static final int DIAL_SENT = 1;    // 拨号已经发出去了
+    public static final int DIAL_QUEUED = 2;  // 正在通话中，排着队等这通挂了再拨
+    public static final int DIAL_MANUAL = 3;  // 没设紧急联系人，已打开拨号盘让她自己拨
+
+    public static int callChild(Context ctx) {
         if (!canDial(ctx)) {
             // 真机未设置紧急联系人：打开拨号盘，让老人自己拨，并提示去设置
             Log.w(TAG, "未设置紧急联系人，不自动拨号，改为打开拨号盘");
@@ -328,15 +334,16 @@ public class Notifier {
                 Intent d = new Intent(Intent.ACTION_DIAL);
                 d.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 ctx.startActivity(d);
+                return DIAL_MANUAL;
             } catch (Exception ignored) {
+                return DIAL_NONE;
             }
-            return;
         }
         if (CallSession.inCall()) {
             queueChildCall(ctx);
-            return;
+            return DIAL_QUEUED;
         }
-        dialChild(ctx);
+        return dialChild(ctx) ? DIAL_SENT : DIAL_NONE;
     }
 
     /**
@@ -456,7 +463,11 @@ public class Notifier {
     }
 
     /** 真正的拨号动作。只有确认"此刻没在通话中"才会走到这里 */
-    private static void dialChild(Context ctx) {
+    /**
+     * 真的把号拨出去。
+     * @return true = 拨号请求已发出；false = 被系统拒了或抛异常
+     */
+    private static boolean dialChild(Context ctx) {
         String num = dialTarget(ctx);
         if (!childBound(ctx)) {
             Log.w(TAG, "模拟器上未绑定子女号码，改用演示号码拨出 " + num);
@@ -485,8 +496,10 @@ public class Notifier {
                 pushToBackend(ctx, K_CALL_CHILD, "high", "银盾已自动呼叫家人",
                         (childBound(ctx) ? "已自动拨出" : "未绑定家人号码，演示号码拨出") + "：" + num);
             }
+            return true;
         } catch (Exception e) {
             Log.e(TAG, "自动拨号失败（缺 CALL_PHONE 权限？）", e);
+            return false;
         }
     }
 

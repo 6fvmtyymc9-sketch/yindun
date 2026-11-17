@@ -51,9 +51,14 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- 拨号：阻断级要自动拨给子女。
-         注意：这不是"替老人打电话给骗子"，是打给她女儿。
-         骗子那通电话我们挂不掉（第三方没权限），这一点答辩要说清。 -->
+         注意：这不是"替老人打电话给骗子"，是打给她女儿。 -->
     <uses-permission android:name="android.permission.CALL_PHONE" />
+
+    <!-- 挂断通话：红屏盖住整屏时，系统通话界面的挂断键也一起被盖住了，
+         老人想挂掉骗子那通电话根本摸不到按键。Android 9（API 28）起
+         TelecomManager.endCall() 给了普通应用挂断的能力，凭这条权限。
+         这是危险权限，要运行时申请；个别 ROM 只放行默认拨号器，那时会如实失败。 -->
+    <uses-permission android:name="android.permission.ANSWER_PHONE_CALLS" />
 
     <!-- 引导用户把我们从电池优化名单里去掉（真正保命的一步） -->
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />

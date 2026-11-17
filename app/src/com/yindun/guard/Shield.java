@@ -166,14 +166,6 @@ public class Shield {
         }
     };
 
-    /** 按钮按下后 2.5 秒把"正在拨号…"改成拨出结果，别让老人盯着一个假状态 */
-    private static final Runnable dialDone = new Runnable() {
-        @Override
-        public void run() {
-            updateButtonText("已呼叫女儿，等待接听");
-        }
-    };
-
     /** 兜底撤屏（2 分钟到点自己走） */
     private static final Runnable safetyHide = new Runnable() {
         @Override
@@ -190,17 +182,58 @@ public class Shield {
      * 【为什么单独抽一个方法】
      * 以前自动拨和手动按各写一遍，结果只改了一处文案，
      * 屏幕上就出现"正在拨给女儿…"挂了十分钟不动——电话根本没拨。
+     *
+     * 【2026-11-17 改：按实际结果写字】
+     * 原来不管拨没拨出去，2.5 秒后一律写"已呼叫女儿，等待接听"。
+     * 可红屏出现的那一幕，老人本来就正在和骗子通话 ——
+     * 安卓不允许同时存在第三通电话，这通"打给女儿"根本没拨出去，
+     * 只是排进了队列等这通挂了再拨。屏幕上却写着"已呼叫、等待接听"。
+     * 那是让她盯着一个从未发生的状态。现在照 Notifier 返回的真实结果写。
      */
     private static void dialNow(Context ctx, boolean auto) {
         dialed = true;
         handler.removeCallbacks(autoDial);
-        handler.removeCallbacks(dialDone);
-        Notifier.callChild(ctx);      // 没绑定号码也会拨演示号码，绝不空转
-        if (auto) {
-            updateButtonText("已呼叫女儿，等待接听");
-        } else {
-            updateButtonText("正在呼叫…");
-            handler.postDelayed(dialDone, 2500);
+        int r = Notifier.callChild(ctx);     // 没绑定号码也会拨演示号码，绝不空转
+        dialResult = r;
+        String txt = dialResultText(r);
+        updateButtonText(txt);
+        // 倒计时那一行也要跟着改：倒计时走完之后它就不再自己刷新了
+        if (countTv != null) {
+            countTv.setText(dialBarText(r));
+            if (countBar != null) countBar.setScaleX(0f);
+        }
+    }
+
+    /** 把拨号的真实结果翻成老人看得懂的一句话 */
+    private static String dialResultText(int r) {
+        switch (r) {
+            case Notifier.DIAL_SENT:
+                return "已拨出，等女儿接听";
+            case Notifier.DIAL_QUEUED:
+                // 她正通着骗子的电话，第三通拨不出去。挂断后 3 秒会自动补拨
+                return "挂断这通，就拨给女儿";
+            case Notifier.DIAL_MANUAL:
+                return "请在拨号盘里拨给女儿";
+            default:
+                return "没拨出去，请手动打给女儿";
+        }
+    }
+
+    /**
+     * 倒计时那一行拨号后显示什么。
+     * 和按钮上那句刻意错开：两行挨在一起，同一个句子并排出现两次，
+     * 看着像界面做坏了，信息量却没有增加。
+     */
+    private static String dialBarText(int r) {
+        switch (r) {
+            case Notifier.DIAL_SENT:
+                return "已拨出给女儿";
+            case Notifier.DIAL_QUEUED:
+                return "已排队，挂了这通就拨";
+            case Notifier.DIAL_MANUAL:
+                return "请自己拨给女儿";
+            default:
+                return "没拨出去";
         }
     }
 
@@ -317,6 +350,7 @@ public class Shield {
 
             // 6 秒无人操作自动拨（没设置紧急联系人的真机不自动拨，倒计时也不显示）
             dialed = false;
+            dialResult = Notifier.DIAL_NONE;
             if (Notifier.canDial(ctx)) handler.postDelayed(autoDial, AUTO_DIAL_MS);
 
             // 兜底：万一电话一直没挂（或系统没回调），2 分钟后自己撤。
@@ -335,7 +369,6 @@ public class Shield {
         countTv = null;
         countBar = null;
         handler.removeCallbacks(autoDial);
-        handler.removeCallbacks(dialDone);
         handler.removeCallbacks(safetyHide);
         // 屏幕撤了还继续振（还继续晃），就是纯骚扰了
         Vibrate.stop();
@@ -348,6 +381,7 @@ public class Shield {
         }
         view = null;
         dialed = false;
+        dialResult = Notifier.DIAL_NONE;
         wmRef = null;      // 窗口已经没了，别让抖动还拿着引用
         lpRef = null;
         Log.i(TAG, "盖屏已撤");
@@ -371,12 +405,14 @@ public class Shield {
     private static TextView countTv = null;
     private static View countBar = null;
     private static long countStart = 0;
+    /** 最近一次拨号请求的真实结果（Notifier.DIAL_*），倒计时那一行照它写字 */
+    private static int dialResult = Notifier.DIAL_NONE;
     private static final Runnable countTick = new Runnable() {
         @Override
         public void run() {
             if (view == null || countTv == null) return;
             if (dialed) {
-                countTv.setText("正在呼叫女儿");
+                countTv.setText(dialBarText(dialResult));
                 if (countBar != null) countBar.setScaleX(0f);
                 return;
             }
@@ -536,14 +572,75 @@ public class Shield {
             btn.setText("打开拨号盘");
         }
 
-        // ---------- 第二个出口：只停振动，不撤屏幕 ----------
-        // 振动一直不停，老人急了会去抠电池/长按关机，保护就断了。
-        // 给她一个"别响了"的按钮，屏幕留着，"打给女儿"也还在。
+        // ---------- 下面两个出口：挂断这通电话 / 只停振动 ----------
+        //
+        // 【2026-11-17 加"挂断"】
+        // 红屏是一层全屏悬浮窗，把系统通话界面上的挂断键一起盖住了。
+        // 老人想挂掉骗子那通电话，手指摸不到任何按键 —— 只能等对方自己挂，
+        // 或者干等 2 分钟兜底撤屏。这不是"防护严格"，是把她的手机变成了砖头。
+        //
+        // 【为什么出口是"挂断"而不是"关闭"】
+        // 如果只做一个"退出"按钮，红屏撤了、通话还在、支付宝还在前面，
+        // 她照样能接着转账 —— 等于给骗子留了一句现成话术：
+        // "屏幕上那个红色的东西，点右下角就没了"。
+        // 所以这个出口的动作必须是挂断本身：电话断了，红屏才跟着撤。
+        //
+        // 只有真的在通话里才显示它。家人远程锁转账那种情况没有通话，
+        // 挂断无从谈起，给了按钮反而让人困惑。
+        LinearLayout exits = new LinearLayout(ctx);
+        exits.setOrientation(LinearLayout.HORIZONTAL);
+        exits.setGravity(Gravity.CENTER_VERTICAL);
+
+        boolean canHangup = Hangup.inCall(ctx);
+
+        if (canHangup) {
+            final Button hangBtn = new Button(ctx);
+            hangBtn.setTag("hangup");
+            hangBtn.setText("挂断这通电话");
+            hangBtn.setAllCaps(false);
+            hangBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 21);
+            hangBtn.setTextColor(0xFFFFFFFF);
+            hangBtn.setTypeface(null, android.graphics.Typeface.BOLD);
+            GradientDrawable hangBg = new GradientDrawable();
+            hangBg.setColor(0x1FFFFFFF);
+            hangBg.setCornerRadius(dp(ctx, 20));
+            hangBg.setStroke(dp(ctx, 2), 0xF2FFFFFF);   // 比"停止振动"更亮：这是真正解决问题的那个
+            hangBtn.setBackground(hangBg);
+            hangBtn.setStateListAnimator(null);
+            LinearLayout.LayoutParams ph = new LinearLayout.LayoutParams(0, dp(ctx, 62), 1.15f);
+            ph.rightMargin = dp(ctx, 10);
+            exits.addView(hangBtn, ph);
+            hangBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    hangBtn.setEnabled(false);
+                    if (!Hangup.permitted(ctx)) {
+                        // 权限没给，就如实说没挂成，绝不住屏幕上写"已挂断"
+                        Log.w(TAG, "老人按了挂断，但没有 ANSWER_PHONE_CALLS 权限");
+                        hangBtn.setText("没有挂断权限");
+                        hangBtn.setEnabled(true);
+                        fallbackExit(ctx);
+                        return;
+                    }
+                    boolean ok = Hangup.endCall(ctx);
+                    Log.i(TAG, "老人按了「挂断这通电话」，系统返回 " + ok);
+                    if (ok) {
+                        hangBtn.setText("已挂断");
+                        // 通话一断，Guard 那边会回调，3 秒后自动撤屏（见 Guard.onCallEnded 分支）
+                    } else {
+                        hangBtn.setText("没能挂断");
+                        hangBtn.setEnabled(true);
+                        fallbackExit(ctx);
+                    }
+                }
+            });
+        }
+
         final Button stopBtn = new Button(ctx);
         stopBtn.setTag("stop");
         stopBtn.setText("停止振动");
         stopBtn.setAllCaps(false);
-        stopBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+        stopBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, canHangup ? 19 : 20);
         stopBtn.setTextColor(0xFFFFFFFF);
         stopBtn.setTypeface(null, android.graphics.Typeface.BOLD);
         GradientDrawable stopBg = new GradientDrawable();
@@ -552,9 +649,12 @@ public class Shield {
         stopBg.setStroke(dp(ctx, 2), 0x99FFBEB4);
         stopBtn.setBackground(stopBg);
         stopBtn.setStateListAnimator(null);
-        LinearLayout.LayoutParams ps = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 60));
-        ps.topMargin = dp(ctx, 18);
-        root.addView(stopBtn, ps);
+        exits.addView(stopBtn, canHangup
+                ? new LinearLayout.LayoutParams(0, dp(ctx, 62), 1f)
+                : new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 60)));
+        LinearLayout.LayoutParams pe = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        pe.topMargin = dp(ctx, 18);
+        root.addView(exits, pe);
         stopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -572,9 +672,15 @@ public class Shield {
         //   有通话（sub 为空，是通话中拦下的）→ 通话结束会自动关
         //   没通话（sub 有值，是家人远程锁的）→ 只能点上面那个按钮关
         // 之前两种情况都写"通话结束后自动关闭"，远程锁定时就成了一句假话。
-        String footText = (sub == null)
-                ? "此界面由银盾安全防护触发\n通话结束后将自动关闭"
-                : "此界面由银盾安全防护触发\n2 分钟后自动关闭";
+        String footText;
+        if (canHangup) {
+            // 她现在真的有挂断这个动作可做了，就说这条 —— 比笼统的"通话结束后"更能指路
+            footText = "此界面由银盾安全防护触发\n挂断这通电话后自动关闭";
+        } else if (sub == null) {
+            footText = "此界面由银盾安全防护触发\n通话结束后将自动关闭";
+        } else {
+            footText = "此界面由银盾安全防护触发\n2 分钟后自动关闭";
+        }
         TextView foot = text(ctx, footText, 16, 0xBFFFE1DC, false);
         foot.setGravity(Gravity.CENTER);
         foot.setLineSpacing(dp(ctx, 4), 1f);
@@ -587,6 +693,36 @@ public class Shield {
         shakeTarget = root;
 
         return outer;
+    }
+
+    /**
+     * 挂不断时的兜底。
+     *
+     * 走到这一步说明这台手机不让我们挂电话（有些 ROM 只放行默认拨号器）。
+     * 继续把红屏盖着，她既挂不掉这通电话、也什么都做不了 —— 手机彻底成了砖头，
+     * 下一步就是长按电源键重启，防护一样断掉。
+     * 所以退一步：撤掉红屏，把操作权还给她，并把"怎么挂"说清楚。
+     *
+     * 【注意】这里撤屏是"挂断失败"的降级，不是"点一下就能退出"的常规出口。
+     * 常规情况下挂断成功，屏幕靠通话结束回调自然撤掉。
+     */
+    private static void fallbackExit(final Context ctx) {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (view == null) return;
+                Log.w(TAG, "没能挂断，撤屏并把操作权还给老人");
+                hide(ctx);
+                // 打开拨号盘：通话中它会显示通话条，老人点进去就能看到红色挂断键
+                try {
+                    Intent d = new Intent(Intent.ACTION_DIAL);
+                    d.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    ctx.startActivity(d);
+                } catch (Exception ignored) {
+                }
+                TipBar.show(ctx, "warn", "没能替你挂断", "请在拨号界面点红色的挂断键");
+            }
+        }, 1200);
     }
 
     private static TextView text(Context ctx, String s, int sp, int color, boolean bold) {

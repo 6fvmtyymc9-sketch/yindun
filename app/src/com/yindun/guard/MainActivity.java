@@ -59,7 +59,8 @@ public class MainActivity extends Activity {
             Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.READ_CALL_LOG,
             Manifest.permission.READ_CONTACTS,
-            Manifest.permission.CALL_PHONE      // 阻断级自动拨给子女要用
+            Manifest.permission.CALL_PHONE,     // 阻断级自动拨给子女要用
+            Manifest.permission.ANSWER_PHONE_CALLS  // 红屏上"挂断这通电话"要用
     };
 
     @Override

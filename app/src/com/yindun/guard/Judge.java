@@ -416,6 +416,7 @@ public class Judge {
         String noticeWhy = noticeOf(text, who);
         if (noticeWhy != null) {
             r.score = score;
+            r.ruleScore = score;
             r.stage = "S0";
             r.level = "none";
             r.exempt = "publicity";
@@ -446,6 +447,7 @@ public class Judge {
 
         // ---------- 4. 定阶段、定级别 ----------
         r.score = score;
+        r.ruleScore = score;          // 模型进来之前先留一份，同号累计只用它
         r.stage = stageOf(score, topStage, topRank);
         r.level = levelOf(score, r.stage);
         // 通讯录里的号码最多"提醒"，不盖屏 —— 除非已经明确走到要钱(S4)。
@@ -717,6 +719,46 @@ public class Judge {
         return 0;
     }
 
+    // ==========================================================
+    //  六之三、同号连发合并（docs/真机验证清单.md 遗留项）
+    // ==========================================================
+    /**
+     * 把同一号码连发的几条短信合成一次判定。
+     *
+     * <p>【为什么要有这个】实测 2026-11-16：老人收到同一个陌生号码三条短信 ——
+     * 「我是警察」「赚钱」「转钱」。单条 65 / 15 / 35 分，只有一条过线。
+     * 三条连起来是「亮身份 → 抛诱饵 → 催转账」的完整剧本，
+     * 拆开发每条都能压在报警线以下，这是系统的结构性漏洞，不是阈值没调好。
+     *
+     * <p>【为什么只抬不降】合并分低于单条分时不调用本方法，调用方会挡掉。
+     *
+     * @param base      合并后的总分（各条实质分 + 陌生号码基础分 + 连发加成）
+     * @param stageRank 各条里最高的阶段序号 0..4
+     * @param note      追加到 why 末尾的说明，给子女端看的
+     */
+    public Result mergeBurst(Result r, int base, int stageRank, String note) {
+        if (r == null) return null;
+        int rank = stageRankOf(r.stage);
+        String stage = r.stage;
+        if (stageRank > rank) stage = "S" + stageRank;
+        r.score = base;
+        r.ruleScore = base;   // 合并后的分数本身就是纯规则分，模型没参与
+        r.stage = stage;
+        r.level = levelOf(base, stage);
+        r.hint = hintOf(stage);
+        if (r.why == null || r.why.length() == 0) {
+            r.why = note;
+        } else {
+            r.why = r.why + "；" + note;
+        }
+        return r;
+    }
+
+    /** 阶段序号 0..4，给外部（同号累计）用 */
+    public int rankOfStage(String stage) {
+        return stageRankOf(stage);
+    }
+
     /** 阶段高低序：用来在一堆命中词里挑出"骗子走到的最远那一步" */
     private int stageRankOf(String stage) {
         if (stage == null || stage.length() < 2) return 0;
@@ -800,6 +842,18 @@ public class Judge {
         public String stage = "S0";   // S0..S4
         public String level = "none"; // none / watch / warn / high / block
         public int score = 0;
+        /**
+         * 纯规则分：模型没参与时它等于 score；模型把级别抬上去之后，这里仍留规则原值。
+         *
+         * <p>【为什么必须分开】2026-11-17 实测踩到的坑：一条正常快递短信
+         * 「请及时取件」，规则判 0 分（反例词全命中），端侧小模型却给了 94%，
+         * 把这条抬到 warn（45 分）。如果同号累计拿 score 去加，模型这一次误报
+         * 会被当成"实质证据"滚进累计，三条正常快递短信合起来就凑到 60 分报警。
+         *
+         * <p>模型只回答"这一句像不像诈骗"，它说不出"这是一个剧本"。
+         * 而累计要的恰恰是剧本证据 —— 所以只用规则分。
+         */
+        public int ruleScore = 0;
         public String why = "";       // 命中了什么（内部用 + 子女端展示）
         public String hint = "";      // 给老人看的一句话
         public String exempt = null;  // 非空表示被豁免，值为 "publicity"（官方宣传短信）

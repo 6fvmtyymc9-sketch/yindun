@@ -125,8 +125,14 @@ public class SmsReceiver extends BroadcastReceiver {
         // ---------- 3. 交给判定引擎打分 ----------
         Judge.Result r = Judge.get(ctx).judgeSms(text, who, isCode);
         Stats.sms(ctx);
+
+        // ---------- 3.5 同一号码连发多条，合起来再看一次 ----------
+        // 放在推界面之前：后面每一步（子女端预警、老人浮条、AI 复核门槛）
+        // 用的都是 r，所以这里改完，下游自动是合并后的结论。
+        r = poolRepeat(ctx, from, who, isCode, text, time, r);
+
         Log.i(TAG, "短信 from=" + from + " who=" + who + " 验证码=" + isCode
-                + " 分数=" + r.score + " 阶段=" + r.stage + " 级别=" + r.level
+                + " 分数=" + r.score + " 规则分=" + r.ruleScore + " 阶段=" + r.stage + " 级别=" + r.level
                 // 端侧模型分：-1 表示这台机器上模型缺席（架构不支持/加载失败），不是"判了0分"
                 + " 模型分=" + (r.modelScore < 0 ? "缺席" : String.format(java.util.Locale.CHINA, "%.4f", r.modelScore))
                 + " 命中=" + r.why);
@@ -262,6 +268,61 @@ public class SmsReceiver extends BroadcastReceiver {
         if (shouldReview(ctx, who, r, text)) {
             aiReview(ctx.getApplicationContext(), text, who, r.score);
         }
+    }
+
+    /**
+     * 同一个号码在 10 分钟内连发多条时，把各条合起来再判一次。
+     *
+     * <p>【为什么这是必须的】2026-11-16 真机实测：同一个陌生号码发来三条 ——
+     * 「我是警察」「赚钱」「转钱」。单条只有 65 分过线，后两条分别是 15 分和 35 分，
+     * 一声不响。可这三条合起来就是「亮身份 → 抛诱饵 → 催转账」的完整剧本。
+     *
+     * <p>系统按条独立判分，剧本被切碎成三份，骗子只要把话拆开发，
+     * 每条都能压在报警线以下。这不是阈值调得不对，是结构上的洞。
+     *
+     * <p>【为什么不累计所有人】
+     * <ul>
+     *   <li>通讯录里的号连发三条，是家常事，不是剧本；</li>
+     *   <li>服务号连发三条，是业务通知（银行动账、快递进度）；</li>
+     *   <li>验证码按「谁发的」单独判，混进累计会互相污染；</li>
+     *   <li>官方宣传短信已经豁免，不该再被翻旧账。</li>
+     * </ul>
+     * 剩下的就只有一种情况：<b>陌生人反复发</b>。这本身就是一个信号。
+     *
+     * <p>【只抬不降】合并分没有超过单条分时原样返回，
+     * 免得把一条已经明确高危的短信"平均"下来。
+     */
+    private static Judge.Result poolRepeat(Context ctx, String from, String who,
+                                           boolean isCode, String text, long time,
+                                           Judge.Result r) {
+        if (r == null) return null;
+        if (r.exempt != null) return r;                              // 官方宣传短信
+        if (!NumberInfo.STRANGER.equals(who)) return r;               // 只累计陌生人
+        if (isCode) return r;                                        // 验证码单独走
+
+        Judge j = Judge.get(ctx);
+
+        // 单条的「实质分」：扣掉陌生号码那 +15。
+        // 不扣的话三条各白拿一次 15 分，合起来凭空多 45 分，等于没调阈值就降了线。
+        //
+        // 用 ruleScore 而不是 score：score 可能已经被端侧模型抬过一次。
+        // 实测踩过 —— 正常快递短信被模型判 94%，那条的"分"里没有一条规则证据，
+        // 拿它去累计，三条正常短信就能凑到报警线。
+        int substantive = Math.max(0, r.ruleScore - 15);
+
+        RepeatSms.Verdict v = RepeatSms.record(ctx, from, substantive,
+                j.rankOfStage(r.stage), text, time > 0 ? time : System.currentTimeMillis());
+
+        if (!v.burst) return r;                       // 还没到连发门槛，保持原判
+
+        int pooled = v.pooled(15);
+        if (pooled <= r.score) return r;               // 合起来不比单条高，不动
+
+        String note = "同一号码 10 分钟内第 " + v.count + " 条";
+        Log.w(TAG, "★ 同号连发合并：" + from + " 第 " + v.count + " 条，"
+                + "单条 " + r.score + " → 合并 " + pooled + " 分");
+
+        return j.mergeBurst(r, pooled, v.topRank, note);
     }
 
     /**

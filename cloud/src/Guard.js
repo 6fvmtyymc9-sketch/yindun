@@ -157,15 +157,25 @@ class Guard {
   }
 
   /** 熟人标记：只影响"要不要弹询问"，绝不参与判级 */
-  async markKnown(elderId, minutes = 15) {
+  /**
+   * 记下"老人说这个号码是认识的"。
+   *
+   * 【2026-11-17 去掉 15 分钟窗口 —— 码道审查第 6 条，判断成立】
+   * 原来这里写 until = now + 15 分钟，看上去就是一个"免打扰窗口"。
+   * 查遍了判定链：没有任何地方读 known（云端判定只吃事件流和分数），
+   * 所以行为上并没有真的违反铁律；但一个叫 known、带 until 的字段摆在那儿，
+   * 早晚有人把它接进判定 —— 那时候「点认识不能关防护」就在云端被推翻了，
+   * 而且不会有任何报错提示我们。
+   * 现在只留审计：谁、什么时候、点了认识。没有到期时间，也就没有可被利用的窗口。
+   *
+   * @param {string} elderId
+   * @param {number} [_unusedMinutes] 兼容旧调用方的占位参数，已不再生效
+   */
+  async markKnown(elderId, _unusedMinutes) {
     const st = await this.state.get(elderId);
-    st.known = {
-      marked: true,
-      at: Date.now(),
-      until: Date.now() + minutes * 60000,
-    };
+    st.known = { marked: true, at: Date.now() };
     await this.state.set(elderId, st);
-    // 注意：这里不修改 lastRank，也不撤销已发出的任何预警
+    // 这里不修改 lastRank，也不撤销已发出的任何预警 —— 提醒过了就是提醒过了
     return st.known;
   }
 }

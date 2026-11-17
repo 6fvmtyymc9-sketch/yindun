@@ -266,7 +266,7 @@ public class SmsReceiver extends BroadcastReceiver {
         //   绝不能因为模型一句"不是"，就把本地已经报出去的警报撤回来。
         //   这是安全产品的铁律：宁可多报，不可错放。
         if (shouldReview(ctx, who, r, text)) {
-            aiReview(ctx.getApplicationContext(), text, who, r.score);
+            aiReview(ctx.getApplicationContext(), text, who, r.score, r.level);
         }
     }
 
@@ -445,18 +445,28 @@ public class SmsReceiver extends BroadcastReceiver {
      *   都不像 → 至少别说她做不到的事，回到"先问家里人"
      */
     private static String tipSubFor(String text) {
-        if (text == null || text.length() == 0) return "别按短信里说的做，先问家里人";
+        if (text == null || text.length() == 0) return "别按短信里说的做，先问问家里人";
         String t = text.toLowerCase();
-        if (containsAny(t, "http", "www.", "t.cn", ".cn/", ".com/", ".top", ".cc/", "点此", "点击")) {
+        // 【2026-11-17 二修，码道审查第 10 条】
+        // 上午那版把"点击""点此"也算成"有链接"。码道指出病根没除：
+        // 「请点击屏幕上的确认按钮」正文里根本没有网址，却被判成钓鱼，
+        // 浮条照样写"请勿点击短信中的链接"——她低头找链接，找不到，
+        // 于是认定软件在瞎说。只是把"一律这么说"换成了"含点击就这么说"。
+        // 链接只认链接本身的形式，不拿动词去猜。
+        if (containsAny(t, "http", "www.", "t.cn", ".cn/", ".com/", ".top",
+                ".cc/", ".xyz/", ".net/", ".vip/")) {
             return "请勿点击短信中的链接";
         }
-        if (containsAny(t, "转账", "转钱", "转这", "汇款", "打款", "打钱", "借钱", "借点", "先转", "把钱")) {
-            return "先打电话跟本人核实，别急着转钱";
-        }
-        if (containsAny(t, "拨打", "回拨", "致电", "打电话", "联系电话")) {
-            return "别回拨这个号码，先问家里人";
-        }
-        return "别按短信里说的做，先问家里人";
+        boolean wantsMoney = containsAny(t, "转账", "转钱", "转这", "汇款", "打款", "打钱",
+                "借钱", "借点", "先转", "把钱", "打到这个", "打到卡");
+        boolean wantsCall  = containsAny(t, "拨打", "回拨", "致电", "打电话", "联系电话", "客服电话");
+        // 又要钱、又让她打电话 —— 这时候"先打电话核实"等于帮她走进骗子的门。
+        // 「请拨打 021-xxxx 核实您的账户」里那个号码就是骗子留的。
+        // 所以两者同时出现时，不给"去核实"这种可执行动作，只给"先问家里人"。
+        if (wantsMoney && wantsCall) return "别按短信说的做，先问问家里人";
+        if (wantsMoney) return "先问问家里人，别急着转钱";
+        if (wantsCall) return "别回拨这个号码，先问家里人";
+        return "别按短信里说的做，先问问家里人";
     }
 
     // ---------- 浮条节流 ----------
@@ -508,13 +518,21 @@ public class SmsReceiver extends BroadcastReceiver {
     //  华为云盘古大模型：灰区复审
     // ==========================================================
     private void aiReview(final Context ctx, final String body,
-                          final String who, final int score) {
+                          final String who, final int score, final String localLevel) {
         Pangu.reviewSms(ctx, body, who, score, new Pangu.Callback() {
             @Override
             public void ok(String reply) {
                 try {
                     JSONObject o = new JSONObject(extractJson(reply));
-                    boolean scam  = o.optBoolean("scam", false);
+                    // 【2026-11-17 加兼容，码道审查第 7 条】
+                    // 码道说这里读 scam、云端 /api/review 返回 isFraud，字段名对不上会让整层失效。
+                    // 它看错了一处：App 现在是直连 MaaS，提示词里要的就是 scam（见 Pangu.reviewSms），
+                    // 所以当下是对得上的。但它提醒的隐患是真的：将来若改走云端 /api/review，
+                    // 那边序列化的是 isFraud，这里会静默拿到 false —— 云端复核一层全废，还不报错。
+                    // 与其等那天再踩，不如现在两个名字都认。
+                    boolean scam = o.has("scam")
+                            ? o.optBoolean("scam", false)
+                            : o.optBoolean("isFraud", false);
                     String stage  = saneStage(o.optString("stage", "S0"), score);
                     String reason = o.optString("reason", "");
 
@@ -534,9 +552,22 @@ public class SmsReceiver extends BroadcastReceiver {
                     // 就会看到"得分 65"，以为模型算出了 65，这是我们自己造的假数据。
                     // 传 -1 表示"这条没有分数"：界面要么不显示，要么直接写"AI 研判可疑"。
                     // （接云端真实概率那条路要动 Pangu.riskSms + 重新部署，等部署窗口一起做。）
-                    EventBus.pushAlert("warn", "AI 复审：" + reason, stage, -1);
+                    //
+                    // 【2026-11-17 加的一道闸，码道审查第 4 条】
+                    // 本地连 watch 都没到就被送来复审的，几乎全是"陌生人发的长消息"：
+                    // 快递取件、社区体检通知、医院预约。留出集里这类正常短信被模型打出
+                    // 0.711 / 0.996 / 0.980 —— 模型对"陌生人主动联系、事情本身正常"不可靠。
+                    // 一旦它的误判直接弹到老人脸上，老人几次就烦了，
+                    // 会去关悬浮窗权限 —— 那正是红屏依赖的同一个权限，关掉等于整条防线废掉。
+                    // 所以本地毫无把握时，只把线索交给子女，由人来判断，不打扰老人。
+                    boolean quiet = "none".equals(localLevel);
+                    if (!quiet) {
+                        EventBus.pushAlert("warn", "AI 复审：" + reason, stage, -1);
+                    } else {
+                        Log.i(TAG, "本地判 none、模型说可疑 —— 只推子女，不弹老人（分数 " + score + "）");
+                    }
                     Notifier.alertChild(ctx, Notifier.K_SMS, "warn",
-                            "妈妈收到一条可疑短信",
+                            quiet ? "妈妈收到一条短信，AI 觉得可疑" : "妈妈收到一条可疑短信",
                             "AI 复核判定为可疑：" + reason
                                     + "。原文：" + brief(body));
 

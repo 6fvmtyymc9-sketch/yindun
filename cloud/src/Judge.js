@@ -89,17 +89,12 @@ class Judge {
 
     const found = [];
     for (const m of (cfg.markers || [])) {
-      // text 在上面已经 toLowerCase 过了，所以标记也必须转小写再比 ——
-      // 与端侧 Judge.java 的 text.contains(m.toLowerCase()) 对齐。
-      // 当前 markers 全是中文，toLowerCase 对中文是恒等变换，两种写法结果一样；
-      // 但将来只要有人加一个带大写的英文标记（"AntiFraud"），
-      // 这里会静默匹配不到，同一短信两端判出完全不同的级别。先对齐，不留这个坑。
-      if (text.includes(m.toLowerCase())) found.push(m);
+      if (text.includes(String(m).toLowerCase())) found.push(m);
     }
     if (found.length < (cfg.minMarkers || 2)) return null;
 
     for (const v of (cfg.veto || [])) {
-      if (text.includes(v.toLowerCase())) return null;
+      if (text.includes(String(v).toLowerCase())) return null;
     }
     return `官方宣传(${found.join('、')})`;
   }
@@ -141,20 +136,34 @@ class Judge {
    * @returns {{score:number, hits:Array, stage:string, level:string, why:string}}
    */
   scoreSms(body, who, isCode) {
-    // 与 App 端 Judge.java 对齐：统一转小写再比较（"APP"/"app"、"ETC"/"etc" 算同一个词）
+    // 【2026-11-17 补 toLowerCase，码道审查第 2 条】
+    // App 端一直是 String text = body.toLowerCase() 再逐词 contains，
+    // 这里原来没有小写化：一条「您的 ETC 已停用」在 Java 端能命中词表里的 "etc"，
+    // 在 JS 端命中不了，两端分数直接不同。
+    // 双端同源是这套设计的卖点，任何一处不同都会让"规则只有一份"变成空话。
     const text = String(body || '').toLowerCase();
     let score = 0;
     const hits = [];
 
     // ---------- 1. 正向词加权 ----------
+    // 2026-11-17 与 App 端（Judge.java）同步：被更长命中词吞掉的短词不再重复计分。
+    // 词表里「我是警察」与「警察」、「点击链接」与「点击」是包含关系，
+    // 一条短信会被这两个词各算一次，分数虚高 —— 子女端看到的严重度跟着虚高。
+    const matched = [];
     for (const k of this.keywords) {
       // isCode 已确认是真验证码短信时，"验证码"这个词必然出现，按发送方已经在第 4 步处理过，
       // 词库不再重复计分 —— 否则银行正常验证码短信会被 "验证码+S4" 直接推到盖屏。
       if (isCode && k.word === '验证码') continue;
-      if (text.includes(k.word.toLowerCase())) {
-        score += k.weight;
-        hits.push({ word: k.word, weight: k.weight, tag: k.tag });
-      }
+      // 词表里「ETC」是大写，text 已经小写化了 —— 两边都得小写才能碰上。
+      if (text.includes(k.word.toLowerCase())) matched.push(k);
+    }
+    for (const k of matched) {
+      const swallowed = matched.some(o =>
+        o !== k && o.word.length > k.word.length
+        && o.word.toLowerCase().includes(k.word.toLowerCase()));
+      if (swallowed) continue;
+      score += k.weight;
+      hits.push({ word: k.word, weight: k.weight, tag: k.tag });
     }
 
     // ---------- 2. 反例词减分（压低误报的关键） ----------
@@ -198,7 +207,9 @@ class Judge {
       if (who === 'service') {
         hits.push({ word: '服务号验证码(+0)', weight: 0, tag: null });
       } else {
-        // v3.4：+30 → +45。正规验证码只来自服务号；个人号码发来的"验证码"本身就够得上要钱阶段
+        // 2026-11-17：30 → 45，与 App 端 Judge.java 对齐
+        // App 端 v3.4 就从 30 提到了 45（注释写着"与云端一致"），云端却一直停在 30，
+        // 于是同一条陌生号验证码短信在手机上判 block、在云端判 high。
         score += 45;
         hits.push({ word: '非服务号发验证码', weight: 45, tag: 'S4' });
       }
@@ -219,15 +230,15 @@ class Judge {
       };
     }
 
-    // 【2026-11-16 改：分数不再出现负值，与端侧 Judge.java 同步】
-    // 反例词是会扣分的（"取件码""驿站"各 -15），原来没有下限，
-    // 一条正常快递短信能判到 -45。判级不受影响（仍是 S0/none），但：
-    //   ① 分数会显示给用户看，"-45 分"没人看得懂；
-    //   ② 骗子在诈骗短信里塞反例词就能白拿负分。
-    // 钳到 0：反例最多把可疑度归零。端侧同一位置也钳，两端分数仍然对得上。
+    // ---------- 5.5 分数不许为负（与 App 端 Judge.java 460~476 行对齐） ----------
+    // 【2026-11-17 补，码道审查第 2 条差异 3】
+    // Java 端早就把负分钳到 0，JS 端一直没有。后果不只是"数字难看"：
+    // 一条正常快递短信会被扣到 -45，子女端看到"-45 分"只会困惑；
+    // 而骗子在诈骗短信里塞"取件码""驿站"能白拿分数，虽然压不过安全线，但这是白送的。
+    // 之前撤掉钳位的原因正是"两端不一致、对拍永远报差异"——现在两端一起改，能对上了。
     if (score < 0) {
       score = 0;
-      hits.push({ word: '反例扣分已触底', weight: 0, tag: null });
+      hits.push({ word: '反例扣分已触底(0)', weight: 0, tag: null });
     }
 
     const stage = this.stageOf(score, hits);
@@ -336,11 +347,8 @@ class Judge {
     switch (stage) {
       case 'S4': return 'block';
       case 'S3': return score >= (L.high || 70) ? 'block' : 'high';
-      // v3.4：同一阶段里信号叠得多，也要升级 —— 只按阶段定级会让
-      //   "涉嫌洗钱+配合调查+公安局"（100 分、还在吓唬阶段）只得到一个普通提醒，
-      //   "换手机号+猜猜我是谁+有急事"（多个弱信号）完全不提醒。
-      case 'S2': return score >= (L.high || 70) ? 'high' : 'warn';
-      case 'S1': return score >= (L.warn || 45) ? 'warn' : 'watch';
+      case 'S2': return 'warn';
+      case 'S1': return 'watch';
       default: return 'none';
     }
   }

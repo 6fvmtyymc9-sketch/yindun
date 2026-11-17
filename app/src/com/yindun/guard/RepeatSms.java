@@ -201,8 +201,24 @@ public class RepeatSms {
 
     // ------------------------------------------------------------
 
+    /**
+     * 连发加成：从第 3 条起每条 +15，但封顶。
+     *
+     * 【2026-11-17 加封顶，码道审查第 9 条】
+     * 原来是纯线性：(count - 3 + 1) * 15，发到第 8 条就 +90。
+     * 一个陌生人（比如刚加上的快递员、房东、装修工）连发八条正常消息，
+     * 每条只要沾一点"急""快""帮忙"这类弱词，累计就能被推到 block —— 盖屏。
+     * 条数多不等于危险，危险的是分数高。
+     *
+     * 封顶取 60（相当于最多认四条额外加成）：三条起算的剧本已经足够露馅，
+     * 再往上加只是把"话多"当成"可疑"。超过 60 之后，分数只由各条实质分决定。
+     */
+    private static final int BONUS_CAP = 60;
+
     private static int bonusOf(int count) {
-        return count >= MIN_BURST ? (count - MIN_BURST + 1) * PER_EXTRA : 0;
+        if (count < MIN_BURST) return 0;
+        int b = (count - MIN_BURST + 1) * PER_EXTRA;
+        return Math.min(b, BONUS_CAP);
     }
 
     private static int clampRank(int r) {

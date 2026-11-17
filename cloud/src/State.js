@@ -99,7 +99,9 @@ function blank() {
     a11y: { granted: false },
     // 熟人标记。注意：这个字段绝对不许参与 block 判级，
     // 它只能影响"要不要弹询问"，不能关掉防护。
-    known: { marked: false, at: 0, until: 0 },
+    // 2026-11-17：去掉 until —— 留着到期时间等于留了一个"免打扰窗口"的形状，
+    // 现在只记"点过认识，什么时候点的"，没有可被利用的时限。
+    known: { marked: false, at: 0 },
   };
 }
 

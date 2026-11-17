@@ -261,6 +261,8 @@ svg{display:block}
     <span class="tx"><b>自启动管理</b><span id="autoSet">防止系统在后台把银盾清掉</span></span>
     <span class="go">前往设置</span>
   </button>
+  <!-- 这一行是给现场排障用的：真机上分不清手里是哪个包，吃过一次亏 -->
+  <div id="verLine" style="text-align:center;color:#8A93A6;font-size:12px;padding:14px 0 2px">构建 — · 安装 —</div>
 </div>
 
 <!-- 首次设置向导：第一次打开自动出现，之后可在「设置」里重新进入 -->
@@ -388,6 +390,12 @@ function fixPerm(name){ call('openSetting', name || 'app'); }
 
 function openSheet(){
   document.getElementById('childNum').value = call('childNumber') || '';
+  var v = document.getElementById('verLine');
+  if (v) {
+    var s = call('buildStamp') || '';
+    var p = s.split('|');
+    v.textContent = '构建 ' + (p[0] || '未知') + ' · 安装 ' + (p[1] || '未知');
+  }
   document.getElementById('mask').className = 'mask on';
   document.getElementById('sheet').className = 'sheet on';
 }

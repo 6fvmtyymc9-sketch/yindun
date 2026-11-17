@@ -150,7 +150,34 @@ public class MainActivity extends Activity {
         String page = "elder".equals(role) ? "guard.html" : "index.html";
         String url = "file:///android_asset/" + page + "?role=" + role;
         Log.i(TAG, "加载界面 " + url);
+        // 顺手把这一版的身份打进日志。真机排查时最常问的第一个问题就是
+        // "你装的是哪一版"，界面上看不出来就只能靠猜，已经因此白查过一次。
+        Log.i(TAG, "版本 构建 " + buildStamp());
         web.loadUrl(url);
+    }
+
+    /** 这一版是什么时候编的、什么时候装上的，格式：构建 MM-dd HH:mm | 安装 MM-dd HH:mm */
+    private String buildStamp() {
+        String built = "";
+        try {
+            java.util.zip.ZipFile z = new java.util.zip.ZipFile(getPackageCodePath());
+            java.util.zip.ZipEntry e = z.getEntry("classes.dex");
+            if (e != null && e.getTime() > 0) built = fmtTime(e.getTime());
+            z.close();
+        } catch (Exception ignored) {
+        }
+        long inst = 0;
+        try {
+            inst = getPackageManager().getPackageInfo(getPackageName(), 0).lastUpdateTime;
+        } catch (Exception ignored) {
+        }
+        return (built.length() == 0 ? "未知" : built) + "|"
+                + (inst > 0 ? fmtTime(inst) : "未知");
+    }
+
+    private String fmtTime(long ms) {
+        return new java.text.SimpleDateFormat("MM-dd HH:mm", java.util.Locale.CHINA)
+                .format(new java.util.Date(ms));
     }
 
     // ==========================================================
@@ -277,6 +304,18 @@ public class MainActivity extends Activity {
                 if (checkSelfPermission(p) != PackageManager.PERMISSION_GRANTED) return false;
             }
             return true;
+        }
+
+        /**
+         * 这一版是什么时候编的、什么时候装上的。
+         *
+         * 【为什么要在界面上显示出来】
+         * versionName 一直写死 "0.1"，真机上根本分不清手里装的是哪一次编译的包。
+         * 实测已经因此浪费过一轮：用户报的 bug 在旧包里，我却在最新代码里找原因。
+         */
+        @JavascriptInterface
+        public String buildStamp() {
+            return MainActivity.this.buildStamp();
         }
 
         /** 网页问：悬浮窗权限开了吗？没开就盖不住屏，这是阻断级的前提 */

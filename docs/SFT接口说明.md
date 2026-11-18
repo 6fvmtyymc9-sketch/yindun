@@ -7,13 +7,13 @@
 
 | 项 | 值 |
 |---|---|
-| 地址 | `http://10.8.110.32:31949` |
+| 地址 | `http://10.8.110.32:44855` |
 | 可访问范围 | **仅校园网**（10.x 内网地址，线上 ECS 访问不到） |
 | 鉴权 | **无**。不要把地址发到群外或公开文档 |
 | 运行位置 | 学校 AI 实训平台（10.8.110.3）→ 实训工具 → 容器，镜像 `cuda-cudnn全装好` |
-| 硬件 | NVIDIA L40（46 GB），实际占用约 17.8 GB 显存 |
+| 硬件 | NVIDIA L40（46 GB），实际占用约 17.8 GB 显存；容器配置 16 核 / 64 GB 内存 |
 
-⚠️ **地址不是固定的。** `31949` 是平台给容器分配的外放端口（对应容器内 8000）。
+⚠️ **地址不是固定的。** `44855` 是平台给容器分配的外放端口（对应容器内 8000）。
 容器关掉重开后端口可能变化，到平台容器页右侧「外放端口：port-8000:xxxxx」查看新值，
 然后同步改 `cloud/.env` 的 `SFT_URL`。
 
@@ -29,7 +29,7 @@
 ## 三、GET /health
 
 ```bash
-curl http://10.8.110.32:31949/health
+curl http://10.8.110.32:44855/health
 ```
 
 ```json
@@ -98,7 +98,7 @@ curl http://10.8.110.32:31949/health
 **curl（文本）**
 
 ```bash
-curl -X POST http://10.8.110.32:31949/risk \
+curl -X POST http://10.8.110.32:44855/risk \
   -H 'Content-Type: application/json' \
   -d '{"text":"喂，您好，我是市公安局的，您名下银行卡涉嫌洗钱"}'
 ```
@@ -107,7 +107,7 @@ curl -X POST http://10.8.110.32:31949/risk \
 
 ```bash
 printf '{"audio_b64":"%s","name":"call.mp3"}' "$(base64 < call.mp3 | tr -d '\n')" \
-  | curl -X POST http://10.8.110.32:31949/risk -H 'Content-Type: application/json' -d @-
+  | curl -X POST http://10.8.110.32:44855/risk -H 'Content-Type: application/json' -d @-
 ```
 
 **Python**
@@ -115,7 +115,7 @@ printf '{"audio_b64":"%s","name":"call.mp3"}' "$(base64 < call.mp3 | tr -d '\n')
 ```python
 import base64, json, urllib.request
 
-def sft_risk(path=None, text=None, url="http://10.8.110.32:31949/risk"):
+def sft_risk(path=None, text=None, url="http://10.8.110.32:44855/risk"):
     body = {"text": text} if text else {
         "audio_b64": base64.b64encode(open(path, "rb").read()).decode(),
         "name": path,
@@ -135,7 +135,7 @@ print(sft_risk("demo/calls/13900001111_20261109103015.mp3"))
 在**校园网内**运行的云端，`cloud/.env` 里填：
 
 ```bash
-SFT_URL=http://10.8.110.32:31949
+SFT_URL=http://10.8.110.32:44855
 SFT_TIMEOUT=120000   # 单次请求超时（毫秒）
 SFT_WAIT_MS=60000    # 通话复盘最多等第三票多久，超时就只用规则 + DeepSeek
 ```
@@ -192,5 +192,6 @@ cd ~/yindun && SFT_DEVICE=cuda ANTIFRAUD_DIR=$HOME/models/JimmyMa99/AntiFraud-SF
 - `SFT_DEVICE=cuda` 必须设置，不设就跑在 CPU 上（默认值，为兼容本机运行）
 - 容器环境：Python 3.10、torch 2.3.1+cu121、transformers 4.4x（安装时限定 `>=4.45,<4.50`）。
   ModelScope 要用 `<1.30` 的版本，新版有 `HubConfig._logged_out` 的 bug，下载会直接报错
-- **不用时在平台上关闭容器**，把 GPU 让给其他人。权重在容器磁盘里，关掉后是否保留取决于平台设置；
-  如果没保留，重新下载约 10 分钟
+- **不用时在平台上关闭容器**，把 GPU 让给其他人。
+  ⚠️ **已实测：「删除实验」后容器磁盘会清空**（权重、代码、训练结果全没了）。重建后要重新下载权重（约 10 分钟），
+  重要的东西删除前先拷出来。SSH 登录方法见 [GPU 容器 SSH 使用说明](GPU容器SSH使用说明.md)

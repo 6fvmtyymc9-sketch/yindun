@@ -28,6 +28,7 @@ const { Drill } = require('./Drill');
 const { RateLimit, clientIp } = require('./RateLimit');
 const { registerCallAudio } = require('./CallAudio');
 const { Sft } = require('./Sft');
+const { Ocr } = require('./Ocr');
 const { registerVoice } = require('./Voice');
 const { registerPairs } = require('./Pairs');
 
@@ -141,6 +142,17 @@ const pangu = new Pangu();
  * 在能跑推理的机器上起 tools/sft_server.py，把地址填进 .env 就接上了。
  */
 const sft = new Sft();
+/**
+ * 文字识别（OCR）：把"老人只发一张截图、不打字"这条路接回规则层。
+ *
+ * 【为什么现在必须有它】规则只认文字。截图上报原本全靠多模态大模型看图，
+ * 一旦 MaaS 拿掉（老师方案 B 段），云端就没有任何模块能读懂图片，
+ * `local` 会是 null，"只发截图"这个入口直接变成"什么都没识别出来"。
+ * OCR 补的就是这块：截图 → 文字 → 同一条规则链。
+ *
+ * 没配 AK/SK 时 enabled=false，报告链路行为与接入前完全一致（不报错、不降级）。
+ */
+const ocr = new Ocr();
 const state = new State(null);   // 等 redis 连上后再注入
 const db = new Db(null);
 const drill = new Drill({ pangu, db });   // AI 模拟演练（定期）
@@ -246,6 +258,7 @@ app.get('/api/health', async (req, res) => {
     storage: { rds: db.online, redis: !!redis },
     model: { enabled: pangu.enabled, model: pangu.model },
     sft: sftSt,
+    ocr: ocr.status(),   // 截图上报能不能转成文字，看这里；enabled 只表示配了 AK/SK，不发真请求
     limits: { reportPerDay: REPORT_PER_DAY, drillTurnPerDay: DRILL_TURN_PER_DAY, trustProxy: TRUST_PROXY },
     voice: { families: voice.stats() },   // 有多少位老人的家人录过提醒语音
     stats,
@@ -544,13 +557,19 @@ app.post('/api/report', async (req, res) => {
     return res.status(413).json({ ok: false, msg: '图片太大（超过 6MB），请压缩后再传' });
   }
 
-  // ---------- 第一层：本地规则先算一遍（不联网、毫秒级）----------
-  // 有文字才算得出来；只有图片时本地无能为力，这正是模型该上场的地方。
-  // who 传空：上传的短信号码归属未知，不能默认按"陌生人"加 15 分，否则正常快递短信也会被抬高。
-  const local = text ? judge.scoreSms(text, '', false) : null;
-
-  // ---------- 第二层：模型复核 ----------
+  // ---------- 第零层：有截图就先 OCR（和模型并行发，不额外加时）----------
+  // 规则只认文字，纯图在没有大模型的情况下判不了 —— 这正是 OCR 要补的位置。
+  // 两路并行：总耗时取较慢的那一个，不会因为多接一路变成两份等待。
   const t0 = Date.now();
+  const ocrP = (img && ocr.enabled)
+    ? ocr.recognize({ imageBase64: img.b64, mime: img.mime }).catch((e) => {
+        // OCR 挂了不能让整条上报挂掉：退回"只按文字判"，和接入前的行为一致
+        console.warn('[report] OCR 失败，退回只看文字：', e.message);
+        return null;
+      })
+    : Promise.resolve(null);
+
+  // ---------- 第一层：模型复核 ----------
   const ai = await pangu.analyzeSms({
     text,
     imageBase64: img ? img.b64 : null,
@@ -559,9 +578,19 @@ app.post('/api/report', async (req, res) => {
   const ms = Date.now() - t0;
   const cost = pangu.lastCost || 0;
 
+  const ocrOut = await ocrP;
+  const ocrText = ocrOut ? ocrOut.text : '';
+  // 用户自己打的字 + 截图里识别出的字一起送进规则。
+  // scoreSms 对每个关键词只计一次（遍历词表判 contains），同一句话出现两遍不会翻倍计分。
+  const judgeText = [text, ocrText].filter(Boolean).join('\n');
+
+  // ---------- 第二层：本地规则算一遍（不联网、毫秒级）----------
+  // who 传空：上传的短信号码归属未知，不能默认按"陌生人"加 15 分，否则正常快递短信也会被抬高。
+  const local = judgeText ? judge.scoreSms(judgeText, '', false) : null;
+
   // 模型挂了就用本地结论兜底 —— 服务不能因为模型挂了就不能用
   if (!ai && !local) {
-    return res.status(503).json({ ok: false, msg: '模型不可用，且没有可判定的文字。请检查 MAAS_KEY，或改用粘贴文字的方式。' });
+    return res.status(503).json({ ok: false, msg: '模型不可用，截图里也没识别出文字。请检查 MAAS_KEY，或改用粘贴文字的方式。' });
   }
 
   const stage = ai ? ai.stage : ({ S0: 0, S1: 1, S2: 2, S3: 3, S4: 4 }[local.stage] || 0);
@@ -574,6 +603,11 @@ app.post('/api/report', async (req, res) => {
     reason: ai ? ai.reason : local.why,
     advice: ai ? ai.advice : (isFraud ? '先别转账，打电话确认一下' : '看起来没问题，正常处理即可'),
     signals: ai ? ai.signals : (local.hits || []).slice(0, 4).map(h => h.word),
+    // 把 OCR 实况带回去：演示时能当场证明"截图是 OCR 转成文字再判的"，
+    // 而不是又偷偷交给大模型看图。没截图或没开通 OCR 时不出现这个字段。
+    ...(img ? { ocr: ocrOut
+      ? { ok: true, chars: ocrOut.chars, ms: ocrOut.ms, sender: ocrOut.sender || [] }
+      : { ok: false, msg: ocr.enabled ? 'OCR 调用失败，本次只按文字判定' : '未配置 OCR' } } : {}),
   };
 
   // ---------- 落库 + 号码信誉 ----------
@@ -581,7 +615,9 @@ app.post('/api/report', async (req, res) => {
     await db.addReport({
       elderId, reporter, number,
       source: img ? 'image' : 'text',
-      excerpt: text || '(图片)',
+      // 存下来的应该是"能看懂的内容"：用户打的字优先，其次 OCR 认出来的字，
+      // 都没有才落 '(图片)' —— 否则子女端详情里只有三个字，看不出老人发了什么。
+      excerpt: text || (ocrText ? ocrText.slice(0, 200) : '(图片)'),
       imageBytes,
       isFraud, stage: result.stage, type: result.type,
       reason: result.reason, advice: result.advice,

@@ -162,11 +162,21 @@ function registerCallAudio(app, deps) {
 
     // ---------- 2.5 第三票：专用模型听音频 ----------
     //
-    // 【融合规矩：只抬不降】这条不是随便定的。
-    //   · 它能抬：p≥0.85 说明模型从语气、语速、背景音里听出了转写稿丢掉的东西，
-    //     这时哪怕规则和大模型都说没事，也该让子女知道一声。
-    //   · 它不能单独降：模型只听到几十秒，没听到要钱那一段就会给低分。
-    //     让它拿低分否决规则 + 大模型的一致结论，等于给骗子留了个后门。
+    // 【2026-11-18 改：单票不再直接告警，要有人附和】
+    //   原来这里只判 p≥0.85 就把 stage 抬到 2（= warn），随即入库并推子女端。
+    //   老师的计划里指出了一个事实：这等于"SFT 一票就能让老人收到警告"。
+    //   「只抬不降」挡住的是漏报，挡不住误报 —— 两件事不一样。
+    //   已有的证据：1,070 条诈骗文本里 96.5% 超过 0.85，而 15 条正常短信里
+    //   也有 10 条超过 0.85；三段真实录音里那段正常的物业停水拿到 0.706。
+    //   按这个分布，单票直接告警会制造大量假警报。假警报的代价不是"多响一声"，
+    //   是子女反复扑空后开始不看，那时候真警报也一起失效。
+    //
+    //   所以现在分两种：
+    //     · 大模型也判到"可疑"（ai.stage ≥ 1）→ 两票一致，抬到 warn，正常推送
+    //     · 只有 SFT 一家高分 → 不抬分、不推送，但在结果里留标记（basis += '+sft-hint'），
+    //       子女端复盘能看到"专用模型认为可疑"，由人判断
+    //   仍然保留"它不能单独降"：模型只听到几十秒，没听到要钱那段就会给低分，
+    //   让它拿低分否决规则 + 大模型的一致结论，等于给骗子留后门。
     let sftOut = null;
     if (sftTask) {
       sftOut = await Promise.race([
@@ -174,15 +184,22 @@ function registerCallAudio(app, deps) {
         new Promise(r => setTimeout(() => r(null), sftWaitMs)),
       ]);
     }
-    if (sftOut && typeof sftOut.p === 'number' && sftOut.p >= 0.85 && stage < 2) {
-      stage = 2;
-      basis += '+sft';
-    }
+    // 融合判定抽成纯函数 mergeSft()，四种组合都有单测（test/fusion-rule-test.js）
+    const merged = mergeSft(stage, ai && ai.stage, sftOut ? sftOut.p : null);
+    stage = merged.stage;
+    if (merged.mark) basis += '+' + merged.mark;
+    const sftHint = merged.mark === 'sft-hint';
+    const sftSeconded = merged.mark === 'sft';
 
     const level = LEVEL_OF_STAGE[stage];
     const isFraud = stage >= 2;
     const sftState = (!sft || !sft.enabled) ? '未接入'
       : (!sftTask ? '已关闭' : (sftOut ? '已判定' : '超时或失败'));
+
+    if (sftHint) {
+      console.log(`[CallAudio] 专用模型 p=${sftOut.p.toFixed(2)} 判可疑，但大模型没附和`
+        + `（S${(ai && ai.stage) || 0}）→ 只留痕，不推送`);
+    }
 
     const localWords = (local.hits || []).filter(h => h.weight > 0).map(h => h.word).slice(0, 4);
     const result = {
@@ -205,7 +222,14 @@ function registerCallAudio(app, deps) {
         ms: asrMs,
       },
       // 第三票的原始结论，如实给出去；没接入 / 超时就写 null，不编造
-      sft: sftOut ? { p: Number(sftOut.p.toFixed(3)), verdict: sftOut.verdict || '', ms: sftOut.ms || 0 } : null,
+      // hint=true 表示"只有专用模型一家说可疑"，没够成告警，供子女端在复盘里人工判断
+      sft: sftOut ? {
+        p: Number(sftOut.p.toFixed(3)),
+        verdict: sftOut.verdict || '',
+        ms: sftOut.ms || 0,
+        hint: sftHint,
+        seconded: sftSeconded,
+      } : null,
       sftState,
     };
 
@@ -341,6 +365,36 @@ function clean(s) {
   return String(s == null ? '' : s).replace(/[<>&"'`]/g, '');
 }
 
+// ==========================================================
+//  第三票融合规则（纯函数，便于单测）
+// ==========================================================
+/** 专用模型给到多高才算"可疑"。0.85 这个数不是拍的，见 docs/SFT接入记录.md 的阈值表 */
+const SFT_HIGH = 0.85;
+
+/**
+ * 把专用模型的音频结论合进当前阶段。
+ *
+ * 规矩（2026-11-18 定，来自老师计划第 0 步）：
+ *   · 单票不够：只有 SFT 高分、DeepSeek 没附和时，不告警，只留痕
+ *   · 两票才抬：DeepSeek 也判到可疑（stage ≥ 1）时，才抬到 S2（warn）
+ *   · 只抬不降：永远不因为 SFT 分低而降低阶段 —— 它只听得到几十秒，
+ *     没听到要钱那一段就会给低分，让它否决另外两票等于给骗子留后门
+ *
+ * @param {number} stage    当前阶段（规则 + 大模型的合议结果）
+ * @param {number} aiStage  大模型的阶段；没结论时传 null
+ * @param {number} sftP     专用模型的概率；缺席、超时、未接入时传 null
+ * @returns {{stage: number, mark: '' | 'sft' | 'sft-hint'}}
+ */
+function mergeSft(stage, aiStage, sftP) {
+  if (typeof sftP !== 'number' || !isFinite(sftP) || sftP < SFT_HIGH) {
+    return { stage, mark: '' };                    // 它没说话，或说没事
+  }
+  if (stage >= 2) return { stage, mark: '' };      // 已经是告警，不必再抬
+  const seconded = Number(aiStage) >= 1;           // 大模型也判到"可疑"及以上
+  if (seconded) return { stage: 2, mark: 'sft' };
+  return { stage, mark: 'sft-hint' };
+}
+
 function rank(level) {
   return { none: 0, watch: 1, warn: 2, high: 3, block: 4 }[level] || 0;
 }
@@ -352,4 +406,4 @@ function fmtDur(sec) {
   return m ? `${m} 分 ${s} 秒` : `${s} 秒`;
 }
 
-module.exports = { registerCallAudio };
+module.exports = { registerCallAudio, mergeSft, SFT_HIGH };

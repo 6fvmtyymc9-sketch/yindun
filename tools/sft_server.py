@@ -40,6 +40,7 @@ import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+DEV = os.environ.get("SFT_DEVICE", "cpu")
 MODEL_DIR = os.environ.get("ANTIFRAUD_DIR", r"D:\models\AntiFraud-SFT")
 
 AUDIO_PROMPT = (
@@ -73,7 +74,7 @@ def _load():
             MODEL_DIR,
             torch_dtype=torch.bfloat16,
             low_cpu_mem_usage=True,
-            device_map={"": "cpu"},
+            device_map={"": DEV},
         )
         _model.eval()
 
@@ -128,17 +129,19 @@ def _probe(text, audio):
             {"type": "text", "text": AUDIO_PROMPT},
         ]}]
         chat = _processor.apply_chat_template(conv, add_generation_prompt=True, tokenize=False)
-        inputs = _processor(text=chat, audio=[audio], sampling_rate=16000,
-                            return_tensors="pt", padding=True)
+        # transformers <4.50 的参数名是 audios，新版改成 audio；传错名字会被静默忽略
+        import inspect
+        akey = "audios" if "audios" in inspect.signature(_processor.__call__).parameters else "audio"
+        inputs = _processor(text=chat, sampling_rate=16000, return_tensors="pt",
+                            padding=True, **{akey: [audio]})
     else:
         conv = [{"role": "user", "content": TEXT_PROMPT.format(text=text)}]
         chat = _processor.apply_chat_template(conv, add_generation_prompt=True, tokenize=False)
-        inputs = _processor(text=chat, return_tensors="pt", padding=True)
-        inputs.pop("input_features", None)          # 纯文本，别带空的音频特征
-        inputs.pop("feature_attention_mask", None)
+        # 纯文本直接走分词器：transformers <4.50 的处理器不给音频会报 len(None)
+        inputs = _processor.tokenizer(chat, return_tensors="pt", padding=True)
 
     with torch.no_grad():
-        out = _model(**inputs)
+        out = _model(**{k: (v.to(DEV, _model.dtype) if v.is_floating_point() else v.to(DEV)) for k, v in inputs.items()})
 
     logits = out.logits[0, -1, :].float()
     yes_id = _yes_no["yes"][0]

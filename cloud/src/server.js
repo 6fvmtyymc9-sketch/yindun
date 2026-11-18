@@ -26,6 +26,10 @@ const { Pangu } = require('./Pangu');
 const { Guard } = require('./Guard');
 const { Drill } = require('./Drill');
 const { RateLimit, clientIp } = require('./RateLimit');
+const { registerCallAudio } = require('./CallAudio');
+const { Sft } = require('./Sft');
+const { registerVoice } = require('./Voice');
+const { registerPairs } = require('./Pairs');
 
 const PORT = Number(process.env.PORT || 8080);
 
@@ -34,9 +38,6 @@ const PORT = Number(process.env.PORT || 8080);
 // 一天录几遍视频也够；真被脚本刷，一天最多也就花掉几十块钱，兜得住。
 const REPORT_PER_DAY = Number(process.env.RATE_REPORT_PER_DAY || 60);
 const DRILL_TURN_PER_DAY = Number(process.env.RATE_DRILL_TURN_PER_DAY || 300);
-// /api/risk 是手机自动触发的，量比手动上传大得多：灰区短信一条一次、
-// 通话复盘一通一次。600 是按"一天 200 条短信里有 3 成落灰区"估的，够用。
-const RISK_PER_DAY = Number(process.env.RATE_RISK_PER_DAY || 600);
 const TRUST_PROXY = String(process.env.TRUST_PROXY || '') === '1';
 const ROOT = path.join(__dirname, '..');
 
@@ -134,6 +135,12 @@ function initPool() {
 // ============================================================================
 
 const pangu = new Pangu();
+/**
+ * 反诈专用模型（AntiFraud-SFT）：听音频的第三票。
+ * SFT_URL 留空就是不启用 —— 它 16GB、要 GPU，ECS 那台 2 核 2GB 放不下。
+ * 在能跑推理的机器上起 tools/sft_server.py，把地址填进 .env 就接上了。
+ */
+const sft = new Sft();
 const state = new State(null);   // 等 redis 连上后再注入
 const db = new Db(null);
 const drill = new Drill({ pangu, db });   // AI 模拟演练（定期）
@@ -162,7 +169,18 @@ const guard = new Guard({
 // ============================================================================
 
 const app = express();
-app.use(express.json({ limit: '12mb' }));   // 要收 base64 截图，默认 256kb 不够
+// 身份识别（老人端密钥 / 子女端配对凭证）+ 配对接口：必须最先注册
+const pairing = registerPairs(app, express);
+
+// 通话录音复盘：自带 40mb 的 body 上限，必须注册在全局 express.json 之前
+registerCallAudio(app, { getJudge: () => judge, pangu, db, pushTo, sft });
+
+app.use(express.json({ limit: '12mb' }));
+app.use(pairing.guard);   // body 里的 elderId 不能冒充别的老人   // 要收 base64 截图，默认 256kb 不够
+
+// 亲情语音盾：子女录的那一句话。必须放在 pairing.guard 之后 ——
+// 老人端只能取自己配对的那份，elderId 由身份中间件改写，不认 query 里填的
+const voice = registerVoice(app, { dir: path.join(ROOT, 'data', 'voice') });
 app.use(express.static(path.join(ROOT, 'public'), { etag: false }));
 
 // ============================================================================
@@ -212,17 +230,24 @@ async function withinQuota(req, res, bucket, perDay, label, tip) {
 
 // ---------- 健康检查（部署后第一个要打的接口）----------
 app.get('/api/health', async (req, res) => {
-  const [rulesVer, stats] = await Promise.all([
+  const [rulesVer, stats, sftSt] = await Promise.all([
     db.latestRules().catch(() => null),
     db.stats('demo').catch(() => ({ events: 0, alerts: 0 })),
+    sft.ping(),   // 专用模型的真实状态：没配就说没配，不要装作有
   ]);
+  // 【为什么不回 SFT_URL】这个接口没有鉴权，谁都能打。而专用模型跑在校内 GPU 上，
+  // 地址本身就是不该出现在公网响应里的东西（脱了校区也访问不到，但没必要白给）。
+  // 要核对地址有没有填对，看服务启动日志或 .env，或用 /api/callaudio/ping 的 enabled。
+  delete sftSt.url;
   res.json({
     ok: true,
     time: new Date().toISOString(),
     rules: { version: (rulesVer && rulesVer.version) || currentRules.version || 'file', keywords: currentRules.sms_keywords.length },
     storage: { rds: db.online, redis: !!redis },
     model: { enabled: pangu.enabled, model: pangu.model },
-    limits: { reportPerDay: REPORT_PER_DAY, drillTurnPerDay: DRILL_TURN_PER_DAY, riskPerDay: RISK_PER_DAY, trustProxy: TRUST_PROXY },
+    sft: sftSt,
+    limits: { reportPerDay: REPORT_PER_DAY, drillTurnPerDay: DRILL_TURN_PER_DAY, trustProxy: TRUST_PROXY },
+    voice: { families: voice.stats() },   // 有多少位老人的家人录过提醒语音
     stats,
   });
 });
@@ -262,22 +287,56 @@ app.post('/api/event', async (req, res) => {
  *   手机端每次上报都是 404，又被 catch 静默吞掉 —— 表现就是
  *   "手机上明明弹了预警，电脑上的子女端一条也收不到"。
  */
+/** 时间戳 → HH:MM；不是今天就带上月-日。用于"补发"标注。 */
+function stampOf(ts) {
+  const d = new Date(ts);
+  const now = new Date();
+  const hm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  const sameDay = d.getFullYear() === now.getFullYear()
+    && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+  return sameDay ? hm : `${d.getMonth() + 1}-${d.getDate()} ${hm}`;
+}
+
 app.post('/api/alert', async (req, res) => {
   const b = req.body || {};
   const elderId = b.elderId || 'demo';
   const LEVELS = ['watch', 'warn', 'high', 'block'];
   const level = LEVELS.indexOf(String(b.level)) >= 0 ? String(b.level) : 'watch';
   const title = String(b.title || '').slice(0, 120);
-  const body = String(b.body || '').slice(0, 500);
   const why = String(b.why || '').slice(0, 500);
   const channel = b.channel === 'push+call' ? 'push+call' : 'push';
+
+  // ---------- 事件归组（功能⑤ 事件回放）----------
+  // callId：老人端在通话开始时生成，这一场里的每条上报都带着它。
+  // kind：事件类型，子女端据此决定时间轴上的图标和顺序。
+  // 两个都做白名单校验：这是会被渲染到页面上的字段，不接受任意字符串。
+  const rawCallId = String(b.callId || '');
+  const callId = /^[A-Za-z0-9_-]{4,40}$/.test(rawCallId) ? rawCallId : null;
+  const KINDS = ['ring', 'offhook', 'ask5', 'code', 'bank', 'shield',
+                 'call_child', 'review', 'judge', 'sms', 'install'];
+  const kind = KINDS.indexOf(String(b.kind)) >= 0 ? String(b.kind) : null;
+
+  // ---------- 断网补发 ----------
+  // 手机上报失败会存本地队列，联网后重发，并带上事件真正发生的时间戳 at。
+  // 【为什么必须标出来】补发到达时，子女端如果不加说明，看起来就是
+  // "妈妈刚刚打开了手机银行"——那是没发生的事。真实情况是十几分钟前发生的。
+  // 【为什么 at 要做边界检查】手机时间可能被改过（老人机常见）。
+  // 只接受"过去 7 天内、未来 5 分钟以内"的时间戳，超出就当没传，用服务器时间。
+  const rawAt = Number(b.at) || 0;
+  const now = Date.now();
+  const at = (rawAt > now - 7 * 24 * 3600e3 && rawAt < now + 5 * 60e3) ? rawAt : 0;
+  const lagMs = at > 0 ? now - at : 0;
+  const lateNote = lagMs > 60000 ? `（断网补发，实际发生于 ${stampOf(at)}）` : '';
+  let body = String(b.body || '').slice(0, 500);
+  if (lateNote) body = body.slice(0, 460) + lateNote;
 
   if (!title && !body) {
     return res.status(400).json({ ok: false, msg: 'title 和 body 不能都为空' });
   }
 
   try {
-    const id = await db.addAlert({ elderId, level, title, body, why, channel });
+    // 补发的旧消息按真实发生时间入库，子女端时间线才不会把 18:42 的事排到 21:00
+    const id = await db.addAlert({ elderId, level, title, body, why, channel, at, callId, kind });
     const d = new Date();
     const hhmm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
 
@@ -285,6 +344,9 @@ app.post('/api/alert', async (req, res) => {
     pushTo(elderId, {
       type: 'alert', alertId: id, level, title, body,
       summary: null, why, channel, time: hhmm,
+      // 带上归组信息，子女端才能立刻给"正在发生"的这场显示时间轴，
+      // 不用等用户刷新页面
+      callId, kind,
     });
 
     // ---------- 阻断/高危：补一句 AI 人话 ----------
@@ -344,9 +406,65 @@ app.get('/api/alerts', async (req, res) => {
   res.json({ ok: true, list: await db.listAlerts(elderId, limit) });
 });
 
+// ============================================================================
+//  子女远程干预：把子女的动作变成老人手机上立刻发生的事
+// ----------------------------------------------------------------------------
+//  两个动作：
+//    nudge —— 老人手机全屏弹蓝屏「女儿正在联系您，请先不要操作」+ 持续振动
+//    lock  —— 开一个 30 分钟的风险窗口，这段时间老人打开手机银行就盖红屏
+//
+//  【为什么指令也要留一份】推送是"尽力而为"：老人手机可能刚好在电梯里、
+//    后台被国产 ROM 杀了、SSE 断着。子女按了按钮却什么都没发生，是最糟的体验 ——
+//    她会以为"我已经提醒过妈妈了"，然后放心地不再打电话。
+//    所以每条指令都存下来，老人端上线后靠 /api/command/poll 把没收到过的补齐。
+//
+//  【身份】子女端必须带配对凭证（X-Yd-Child），只能指挥自己配对的那位老人。
+// ============================================================================
+const commands = new Map();      // elderId -> [{id, action, minutes, at}]
+let cmdSeq = 1;
+
+app.post('/api/command', async (req, res) => {
+  const b = req.body || {};
+  const elderId = req.yd.elderId || b.elderId || 'demo';
+  const action = String(b.action || '').trim();
+  if (action !== 'nudge' && action !== 'lock') {
+    return res.status(400).json({ ok: false, msg: 'action 只能是 nudge（提醒）或 lock（锁定转账）' });
+  }
+  // 时间夹在 5~120 分钟：太短起不到作用，太长等于把老人的手机锁死
+  const minutes = Math.min(120, Math.max(5, Number(b.minutes) || 30));
+  // 老人屏幕上那句"X 正在联系您"里的 X。子女端不填就叫"家人" ——
+  // 我们不知道对面是女儿还是儿子，猜一个就是替用户编造。
+  const from = String(b.from || '').trim().slice(0, 12) || '家人';
+  const cmd = { id: cmdSeq++, action, minutes, at: Date.now(), from };
+  const list = commands.get(elderId) || [];
+  list.push(cmd);
+  while (list.length > 20) list.shift();   // 只留最近 20 条，内存不涨
+  commands.set(elderId, list);
+
+  const online = (streams.get(elderId) || new Set()).size;
+  pushTo(elderId, { type: 'command', id: cmd.id, action, minutes, at: cmd.at, from });
+  console.log(`[command] ${elderId} ← ${action}${action === 'lock' ? ' ' + minutes + ' 分钟' : ''}（在线端 ${online}）`);
+
+  res.json({
+    ok: true, id: cmd.id, action, minutes, online,
+    // 这句是给子女端原样显示的：不能明明没送到还说"已提醒"
+    msg: online > 0 ? '已送达老人手机' : '已下达，老人手机当前不在线，联网后会自动执行',
+  });
+});
+
+/** 老人端兜底轮询：把 after 之后没收到过的指令取走 */
+app.get('/api/command/poll', (req, res) => {
+  const elderId = req.yd.elderId || req.query.elderId || 'demo';
+  const after = Number(req.query.after || 0) || 0;
+  const list = (commands.get(elderId) || []).filter(c => c.id > after);
+  res.json({ ok: true, list, now: Date.now() });
+});
+
 // ---------- 熟人标记 ----------
 app.post('/api/known', async (req, res) => {
   const elderId = (req.body && req.body.elderId) || 'demo';
+  // 不再传 15 分钟：那是"免打扰窗口"，与「点认识不能关防护」的铁律冲突。
+  // 现在只记审计（谁、何时、点了认识），没有任何到期时间可被利用。
   const k = await guard.markKnown(elderId);
   res.json({ ok: true, known: k, hint: '已记录。不设免打扰：子女照收提醒，动钱照样阻断。' });
 });
@@ -524,80 +642,86 @@ app.post('/api/report', async (req, res) => {
 });
 
 /** 查某个号码的举报次数（号码信誉库） */
-// ---------- AI 风险评分：把"判不判"交给模型，规则退到安全网 ----------
-/**
- * POST /api/risk
- * ------------------------------------------------------------------
- * 和 /api/report 的区别：
- *   /api/report   用户主动上传 → 给一份可读的研判报告（人要看的）
- *   /api/risk     手机自动触发 → 只回一个概率（机器要用的）
- *
- * 为什么手机端不直连 MaaS：
- *   1. Key 埋在 APK 里，反编译就能拿走，谁都能刷你的账单；
- *   2. 走云端才能记日志、限额、换模型不用发版；
- *   3. 赛题要的"云上部署"也因此变成链路里真的一环，不是摆设。
- *
- * body: { kind:'sms'|'call', text?, who?, score?, events?:[], dur? }
- * 返回: { ok:true, p, score, level, type, stage, why, hit, ms, model }
- * 模型不可用 / 额度用完 → ok:false，调用方回退本地规则（绝不阻断判定）
- */
-app.post('/api/risk', async (req, res) => {
-  if (!await withinQuota(req, res, 'risk', RISK_PER_DAY,
-      'AI 研判', '这段时间先按本地规则判断，遇到陌生链接和要验证码的一律不要理会。')) return;
-
-  const b = req.body || {};
-  const kind = b.kind === 'call' ? 'call' : 'sms';
-  const t0 = Date.now();
-
-  let r = null;
-  if (kind === 'sms') {
-    const text = String(b.text || '').trim().slice(0, 400);
-    if (!text) return res.status(400).json({ ok: false, msg: '缺少短信正文' });
-    r = await pangu.riskSms(text, String(b.who || ''), Number(b.score) || 0);
-  } else {
-    const events = Array.isArray(b.events) ? b.events : [];
-    if (!events.length) return res.status(400).json({ ok: false, msg: '缺少动作序列' });
-    r = await pangu.riskCall(events, { who: b.who, dur: Number(b.dur) || 0 });
-  }
-  const ms = Date.now() - t0;
-
-  // 模型没给结论：明确告诉客户端"没算出来"，让它用规则分，而不是当成 0 风险
-  if (!r) {
-    return res.json({
-      ok: false,
-      code: 'AI_UNAVAILABLE',
-      msg: pangu.enabled ? '模型这次没给出结论，已按本地规则判断' : '云端未配置模型，已按本地规则判断',
-      ms,
-    });
-  }
-
-  // 概率 → 百分制，方便和规则分直接比大小
-  const score = Math.round(r.p * 100);
-  res.json({
-    ok: true,
-    kind,
-    p: r.p,
-    score,
-    type: r.type,
-    stage: 'S' + r.stage,
-    why: r.why,
-    hit: r.hit,
-    ms,
-    model: pangu.model,
-  });
-});
-
 app.get('/api/report/stats', async (req, res) => {
   const number = String(req.query.number || '').trim();
   if (!number) return res.status(400).json({ ok: false, msg: '缺少 number' });
-  const count = await db.countReports(number).catch(() => 0);
-  res.json({ ok: true, number, count, blacklisted: count >= 3 });
+  // 分开数：user = 人举报的，shield = 银盾录音复盘判定的。
+  // count 保留成两者之和，是为了老版本 App 不用改也能用。
+  const s = await db.countReportsSplit(number).catch(() => ({ user: 0, shield: 0, total: 0 }));
+  const count = s.total || 0;
+  res.json({
+    ok: true, number, count,
+    user: s.user || 0,
+    shield: s.shield || 0,
+    blacklisted: count >= 3,
+    // 只有"银盾自己判了 ≥3 次"才升级红色：群众举报 3 次也可能是同一件事被三个人转述
+    redAlert: (s.shield || 0) >= 3,
+  });
 });
 
 /** 最近的上报记录 */
 app.get('/api/reports', async (req, res) => {
   const limit = Number(req.query.limit || 20);
   res.json({ ok: true, list: await db.listReports(limit) });
+});
+
+/**
+ * 一次事件的完整过程（功能⑤ 事件回放）。
+ *
+ *   GET /api/call/events?callId=c1a2b3c4x7z
+ *
+ * 【为什么路径不叫 /api/event】同名的 POST /api/event 是"老人端事件推流"，
+ * 两个语义完全不同，路径撞在一起以后排查会因为看错方法而走冤枉路。
+ *
+ * 一次诈骗不是一条预警，是七八件事：陌生号响铃 → 接通 → 满 5 分钟复问
+ * → 通话中收到验证码 → 挂断后打开手机银行 → 红屏拦住 → 自动打给女儿。
+ * 老人端在通话开始时生成 callId，这一场里的每条上报都带上它，
+ * 这里按 id 正序返回，子女端就能按发生顺序画一条时间轴。
+ *
+ * 【谁能查】不再相信调用方传的 elderId。带凭证的只能查自己配对的那位，
+ * 匿名的只能查 demo。细节见下面实现处的注释。
+ */
+app.get('/api/call/events', async (req, res) => {
+  const callId = String(req.query.callId || '').trim();
+  if (!/^[A-Za-z0-9_-]{4,40}$/.test(callId)) {
+    return res.status(400).json({ ok: false, msg: 'callId 格式不对' });
+  }
+
+  // 【2026-11-11 修·码道审查第 1 条：越权】
+  //
+  // 原来这里直接用 req.query.elderId，默认 'demo'。配合上 callId 的
+  // "36 进制时间戳 + 3 位随机"格式，攻击成本低到不合理：
+  // 时间戳可以猜（误差几分钟内），随机段只有 46656 种，
+  // 填个任意 elderId 就能把别人家一整通电话的过程拉走 ——
+  // 里面有什么？几时接到陌生来电、聊了多久、收了几条验证码、
+  // 挂断后打开过哪个银行、子女的称呼和号码。
+  //
+  // 现在分两种情况：
+  //   · 已认证（带 X-Yd-Child / X-Yd-Elder）：中间件已经把
+  //     req.query.elderId 强制覆写成"凭证所属的那位老人"，
+  //     调用方在 URL 里写什么都不作数。子女端 App 走的就是这条。
+  //   · 匿名：只认 demo。demo 是本机演示数据，公开可读没有风险；
+  //     真实家庭的数据匿名一律查不到（返回空列表，不返回 403，
+  //     免得这个接口变成"某个 callId 是否存在"的探针）。
+  //
+  // 为什么不干脆要求必须认证：子女端网页（public/index.html）是纯静态页，
+  // 演示现场不配对也要能点开时间轴，堵死了会让答辩时那段最直观的演示做不出来。
+  const authed = req.yd && (req.yd.role === 'child' || req.yd.role === 'elder');
+  const elderId = authed ? req.yd.elderId : 'demo';
+
+  const list = await db.listEvent(elderId, callId).catch(() => []);
+  // 这一场里最高的级别，子女端用来决定时间轴的主题色
+  const ORDER = { watch: 1, warn: 2, high: 3, block: 4 };
+  const peak = list.reduce((m, a) => Math.max(m, ORDER[a.level] || 0), 0);
+  const level = ['', 'watch', 'warn', 'high', 'block'][peak] || 'watch';
+  res.json({
+    ok: true,
+    callId,
+    elderId,
+    level,
+    count: list.length,
+    list,
+  });
 });
 
 // ============================================================================

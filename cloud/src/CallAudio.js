@@ -59,8 +59,26 @@ function registerCallAudio(app, deps) {
   // 必须在全局 express.json（12mb）之前注册，自己的 body 上限才生效
   const bigJson = express.json({ limit: '40mb' });
 
-  app.get('/api/callaudio/ping', checkToken, (req, res) => {
-    res.json({ ok: true, asr: asr.mode, llm: pangu.enabled ? pangu.model : null, tokenRequired: !!token });
+  app.get('/api/callaudio/ping', checkToken, async (req, res) => {
+    // 第三票的真实状态一起报出来。接入 SFT 时最常犯的错是"填了地址但模型没加载好"
+    // 或"地址变了还是旧的"，只看 enabled 会以为接上了，跑完一通才发现 p 一直是 null。
+    // Sft.ping() 无论成败都返回对象（失败写 msg），不会把自检接口带崩。
+    const s = sft ? await sft.ping() : { enabled: false, msg: '未装配' };
+    res.json({
+      ok: true,
+      asr: asr.mode,
+      llm: pangu.enabled ? pangu.model : null,
+      sft: {
+        enabled: !!s.enabled,          // .env 里填了 SFT_URL
+        model: s.model || null,
+        ready: !!s.ok,                 // /health 说模型已加载完
+        loading: !!s.loading,
+        runs: s.runs || 0,
+        msg: s.msg || s.error || null, // 没配 / 连不上 / 加载失败，原因照实说
+      },
+      sftWaitMs,
+      tokenRequired: !!token,
+    });
   });
 
   app.post('/api/callaudio', checkToken, bigJson, async (req, res) => {

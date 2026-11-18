@@ -63,6 +63,23 @@ body{
 .btn.active .n{background:var(--accent); color:#001018}
 .btn.reset{border-color:#475569}
 .btn.reset:hover{border-color:#f87171; background:rgba(248,113,113,.12)}
+/* 远程干预：和演示步骤不是一类东西 —— 这两个按钮真的会给老人手机下指令 */
+.cmdbar{
+  flex-shrink:0; display:flex; align-items:center; gap:8px;
+  padding:6px 20px; border-bottom:1px solid var(--line);
+  background:rgba(248,113,113,.04);
+}
+.cmdbar .lab{
+  font-size:12px; color:#f87171; font-weight:700; letter-spacing:1px;
+  margin-right:4px;
+}
+.btn.remote{border-color:rgba(248,113,113,.55); background:rgba(248,113,113,.12)}
+.btn.remote:hover{background:rgba(248,113,113,.22); border-color:#f87171}
+.btn.remote.busy{opacity:.55; pointer-events:none}
+.btn.voice{border-color:rgba(34,211,238,.55); background:rgba(34,211,238,.12)}
+.btn.voice:hover{background:rgba(34,211,238,.22); border-color:var(--accent)}
+.btn.voice.busy{opacity:.55; pointer-events:none}
+.cmd-note{font-size:12px; color:var(--txt3); white-space:nowrap}
 
 /* ===== 中间舞台 ===== */
 .stage{
@@ -571,7 +588,7 @@ body.role-child .child-big{
   <div class="brand" data-page-node-id="P9x5eGTznz5mTUNZsYb8gK">
     <div class="logo" data-page-node-id="T9rgywWBoh5T6icpA28rsj">🛡️</div>
     <div class="name" data-page-node-id="l8v1s12JVrQ652JJ9aRvxm"><b data-page-node-id="PHk5fyhmlNo0bS0ar3eQ0e">银盾</b> · 反诈守护</div>
-    <div class="sub" data-page-node-id="pr382DjhDAoAPqXNfqw8Cl">不听您说什么，只看您做什么 · <span id="netState" data-page-node-id="HNR2j7WtgqV0YvG4rbV2GS">检测中…</span></div>
+    <div class="sub" data-page-node-id="pr382DjhDAoAPqXNfqw8Cl">通话中只看动作，挂断后经授权复盘 · <span id="netState" data-page-node-id="HNR2j7WtgqV0YvG4rbV2GS">检测中…</span></div>
   </div>
   <div class="steps" data-page-node-id="RsUij2naT78lKaX0YNUg8F">
     <button class="btn" data-step="1" data-page-node-id="F1hZ51sEF6iEbNah6JE5B9"><span class="n" data-page-node-id="mXFXwc4mAhEiszdw7jP6ve">1</span>陌生来电</button>
@@ -585,6 +602,19 @@ body.role-child .child-big{
     <button class="btn" data-step="lock" title="锁屏状态下的振动提醒：证明息屏也照振" data-page-node-id="lockBtn"><span class="n" data-page-node-id="lockNum">🔒</span>息屏也振</button>
     <button class="btn reset" data-step="0" data-page-node-id="78bez8QtkWNA2Fj3hY5sdY"><span class="n" data-page-node-id="LqTYgIJNLDKqraA1eGdiYx">↻</span>重置</button>
   </div>
+</div>
+
+<!-- ============================================================================
+     远程干预条：上面那排是「演示步骤」，这两个是真指令。
+     分开一条是因为性质不同 —— 点上面只是在本页画动画，点这里会真的让老人手机响起来。
+     ============================================================================ -->
+<div class="cmdbar">
+  <span class="lab">远程干预</span>
+  <button class="btn remote" id="btnNudge" title="立即在老人手机上弹一张全屏提醒：家人正在联系您"><span class="n">👩</span>提醒妈妈</button>
+  <button class="btn remote" id="btnLock" title="30 分钟内老人打开手机银行会先被拦一下"><span class="n">⛔</span>锁定转账 30 分钟</button>
+  <button class="btn voice" id="btnVoice" title="先用手机录音机录一句 5~10 秒的话，再把文件选进来；红屏时会用你自己的声音放给妈妈听"><span class="n">🎙</span>上传提醒语音</button>
+  <span class="cmd-note" id="cmdNote"></span>
+  <input type="file" id="voiceFile" accept="audio/*" style="display:none">
 </div>
 
 <div class="stage" data-page-node-id="AskJYxAezsicMrfHKHpzuW">
@@ -663,7 +693,7 @@ body.role-child .child-big{
         <div class="child-top" data-page-node-id="ktb9RgOgRLLiscEOcb5F1c">
           <div class="ct-l">
             <div class="ttl" data-page-node-id="JC8VD5FPGPlqOT6ND6JcgR">📱 <b data-page-node-id="E3l0NhgovbVwal038GDngI">爸爸</b> 的守护动态</div>
-            <div class="sub" data-page-node-id="Hj2tuOJxzzGLXPqB0UKhSF">实时行为推送 · 不含通话内容</div>
+            <div class="sub" data-page-node-id="Hj2tuOJxzzGLXPqB0UKhSF">实时行为推送 · 复盘需老人授权</div>
           </div>
           <button class="ct-call" id="childCall" title="一键回拨爸爸" aria-label="一键回拨爸爸" data-page-node-id="JBUs1zRUivsfg22UrmplnJ">📞</button>
         </div>
@@ -679,7 +709,7 @@ body.role-child .child-big{
         <div class="bi">📱</div>
         <div>
           <div class="bt"><b>爸爸</b> 的守护动态</div>
-          <div class="bs">实时行为推送 · 不含通话内容</div>
+          <div class="bs">实时行为推送 · 复盘需老人授权</div>
         </div>
         <div class="bstat">
           <div>
@@ -742,7 +772,7 @@ body.role-child .child-big{
 <div class="judge" data-page-node-id="7kaP0ql5oUr1syLYSn1cLx">
   <div class="hd" data-page-node-id="yxC7UGRDC2omhXHkQm0dfC">
     <div class="t" data-page-node-id="ROVJgKXjwkl9Z3qLMUtY5P">⚖️ 行为判据看板 · <b data-page-node-id="I4vIKykaa0A5bRowN7koai">9 条</b></div>
-    <div class="hint" data-page-node-id="6XPFpJXLz696TTggFGYN3s">我们听不到骗子说什么，但<b data-page-node-id="KbPKuDHvseKYFS0whdkq6W">他要爸爸动手机</b> —— 这 9 件事，手机上全看得见</div>
+    <div class="hint" data-page-node-id="6XPFpJXLz696TTggFGYN3s">通话中听不到内容，但<b data-page-node-id="KbPKuDHvseKYFS0whdkq6W">他要爸爸动手机</b> —— 这 9 件事手机上全看得见，挂断后还能经授权复盘录音</div>
   </div>
   <div class="judge-grid" id="judgeGrid" data-page-node-id="rwBth1uHVajjpUOvOJGdbT"></div>
 </div>
@@ -1044,8 +1074,15 @@ function setBadge(level){
 
 /* 把云端返回的 alert 画到两端屏幕上
    opt.silent —— 历史回填用：只画卡片，不放动画、不盖屏、不再响铃 */
+/* 云端推来的文字可能含短信原文、通话原话 —— 一律转义后再拼进 innerHTML，
+   否则骗子发一条带 <img onerror=...> 的短信就能在子女的浏览器里执行脚本 */
+function escH(s){
+  return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
 function renderAlert(a, opt){
   if(!a) return;
+  a = Object.assign({}, a, { title: escH(a.title), body: escH(a.body), why: escH(a.why) });
   opt = opt || {};
   const cls=LV_CLS[a.level]||'l1', ic=LV_IC[a.level]||'📞';
   const alertId = (a.alertId!=null) ? a.alertId : a.id;
@@ -1057,6 +1094,10 @@ function renderAlert(a, opt){
   const card = addNoti(cls, a.title, a.body,
       a.channel==='push+call'?'已自动回拨，接通中':'', alertId, src, a.why);
   if(a.summary) attachSummary(card, a.summary);   // 历史卡片自带摘要，直接贴上
+  /* ⑤ 事件回放：这条属于某次通话时，给一个入口把整场串起来看。
+     实时推来的用 callId（驼峰），历史接口给的是 call_id（下划线），两个都认。 */
+  const callId = a.callId || a.call_id || null;
+  if(callId) attachEventLink(card, callId);
   if(!opt.silent){
     if(a.why) hitJ(hitByWhy(a.why));
     if(a.level==='block'){
@@ -1102,6 +1143,7 @@ function subscribe(){
 /* 把 AI 摘要贴到指定那张卡片里。已贴过就不重复 */
 function attachSummary(card, text){
   if(!card || !text) return;
+  text = escH(text);
   if(card.querySelector('.ai-sum')) return;
   const d=document.createElement('div');
   d.className='ai-sum';
@@ -1121,6 +1163,172 @@ function attachSummary(card, text){
       bigLineEl.scrollTop=bigLineEl.scrollHeight;
     }
   }
+}
+
+/* ==========================================================================
+   ⑤ 事件回放：把一通电话里的七八件事串成一条时间轴
+   ==========================================================================
+   为什么按 callId 拉，而不是"用这张卡附近的时间猜"：
+     一场事件中间可能插进来一条无关短信或另一通电话，按时间猜会把别人的事
+     混进来。callId 是老人端在响铃那一刻生成的，这一场的每条上报都带着它。
+
+   为什么这比一张张卡片有用：
+     单看「妈妈收到一条验证码短信」只是一条提醒；串起来才能看出
+     "陌生号打进来 → 聊了 5 分钟 → 她要验证码 → 她要转账 → 被拦住 → 女儿电话响了"
+     这是一条完整的作案链，也是评委唯一能一眼看懂的叙事。
+
+   注意：历史接口给的是 call_id（下划线），实时推送给的是 callId（驼峰）。
+   这里只认调用方传进来的字符串，兼容由 renderAlert 处理。 */
+const EV_META = {
+  ring:       { ic: '🚨', t: '陌生号码打进来' },
+  offhook:    { ic: '📞', t: '接通' },
+  ask5:       { ic: '❓', t: '通话满 5 分钟，再次确认' },
+  code:       { ic: '🔑', t: '收到验证码短信' },
+  bank:       { ic: '🏦', t: '打开手机银行' },
+  judge:      { ic: '⚖️', t: '银盾判定风险升级' },
+  shield:     { ic: '🛡️', t: '红屏拦截' },
+  call_child: { ic: '☎️', t: '自动呼叫家人' },
+  review:     { ic: '🎧', t: '通话录音复盘' },
+  sms:        { ic: '💬', t: '收到可疑短信' },
+  install:    { ic: '📦', t: '装了非官方应用' },
+};
+let evMask = null;
+
+function evInjectCss(){
+  if(document.getElementById('ev-css')) return;
+  const s = document.createElement('style');
+  s.id = 'ev-css';
+  s.textContent = `
+.ev-mask{position:fixed;inset:0;background:rgba(3,6,14,.74);display:none;align-items:center;
+  justify-content:center;z-index:9999;padding:24px}
+.ev-mask.show{display:flex}
+.ev-panel{width:min(680px,94vw);max-height:84vh;display:flex;flex-direction:column;
+  background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  box-shadow:0 24px 64px rgba(0,0,0,.65)}
+.ev-hd{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;
+  padding:14px 16px;border-bottom:1px solid var(--line);background:var(--panel2)}
+.ev-hd .ev-title{font-size:14px;font-weight:800;color:var(--txt);letter-spacing:.3px}
+.ev-x{background:none;border:1px solid var(--line);color:var(--txt2);font-size:11px;
+  padding:5px 11px;border-radius:8px;cursor:pointer;font-family:inherit}
+.ev-x:hover{color:var(--txt);border-color:var(--accent)}
+.ev-sub{padding:10px 16px;font-size:11px;color:var(--txt3);border-bottom:1px solid var(--line);flex-shrink:0}
+.ev-body{padding:14px 16px 4px;overflow:auto;flex:1}
+.ev-row{display:flex;gap:10px;padding-bottom:14px;position:relative}
+.ev-rail{width:14px;display:flex;justify-content:center;position:relative;flex-shrink:0}
+.ev-rail:before{content:'';position:absolute;top:15px;bottom:-14px;width:1px;background:var(--line)}
+.ev-row:last-child .ev-rail:before{display:none}
+.ev-dot{width:9px;height:9px;border-radius:50%;background:var(--txt3);margin-top:5px;flex-shrink:0}
+.ev-row.lv-l5 .ev-dot{background:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,.20)}
+.ev-row.lv-l4 .ev-dot{background:#f97316;box-shadow:0 0 0 4px rgba(249,115,22,.18)}
+.ev-row.lv-l2 .ev-dot{background:#22d3ee}
+.ev-time{font-size:10px;color:var(--txt3);width:40px;flex-shrink:0;padding-top:2px;
+  font-variant-numeric:tabular-nums}
+.ev-ic{font-size:14px;line-height:1.5;flex-shrink:0}
+.ev-tx{flex:1;min-width:0}
+.ev-t{font-size:12px;font-weight:700;color:var(--txt);line-height:1.5}
+.ev-d{font-size:10.5px;color:var(--txt2);line-height:1.55;margin-top:2px;white-space:pre-wrap;
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.ev-w{font-size:10px;color:var(--txt3);line-height:1.5;margin-top:3px;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.ev-empty{padding:30px 0;text-align:center;font-size:12px;color:var(--txt3)}
+.ev-foot{padding:10px 16px 14px;font-size:10px;color:var(--txt3);line-height:1.65;
+  border-top:1px solid var(--line);flex-shrink:0}
+.ev-link{margin-top:6px}
+.ev-btn{background:rgba(34,211,238,.10);border:1px solid rgba(34,211,238,.35);color:#67e8f9;
+  font-size:10px;padding:4px 9px;border-radius:7px;cursor:pointer;font-family:inherit}
+.ev-btn:hover{background:rgba(34,211,238,.18)}`;
+  document.head.appendChild(s);
+}
+
+/* 在卡片里放一个入口。不加就直接拼进 .noti —— 它是 flex row，多一个子元素会被挤扁 */
+function attachEventLink(card, callId){
+  if(!card || !callId) return;
+  if(card.querySelector('.ev-link')) return;
+  card.dataset.callId = callId;
+  const d = document.createElement('div');
+  d.className = 'ev-link';
+  d.innerHTML = '<button class="ev-btn" type="button">🔗 这一次的完整过程</button>';
+  d.querySelector('button').addEventListener('click', function(e){
+    e.stopPropagation();
+    openEventTimeline(callId);
+  });
+  (card.querySelector('.ct') || card).appendChild(d);
+}
+
+function buildEvMask(){
+  evInjectCss();
+  evMask = document.createElement('div');
+  evMask.className = 'ev-mask';
+  evMask.innerHTML = `
+    <div class="ev-panel" role="dialog" aria-modal="true" aria-label="这一次的完整过程">
+      <div class="ev-hd">
+        <span class="ev-title">这一次的完整过程</span>
+        <button class="ev-x" type="button">关闭</button>
+      </div>
+      <div class="ev-sub"></div>
+      <div class="ev-body"></div>
+      <div class="ev-foot">按发生顺序回放，数据全部来自老人手机的真实上报。
+        断网期间发生的事会补发上来，显示的时间是它真正发生的时刻。</div>
+    </div>`;
+  evMask.addEventListener('click', function(e){ if(e.target === evMask) evMask.classList.remove('show'); });
+  evMask.querySelector('.ev-x').addEventListener('click', function(){ evMask.classList.remove('show'); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && evMask) evMask.classList.remove('show');
+  });
+  document.body.appendChild(evMask);
+}
+
+function evHM(s){
+  if(!s) return '';
+  const d = new Date(s);
+  if(isNaN(d.getTime())) return '';
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+
+/* 断网补发的记录，正文末尾会被服务端补一句"（断网补发，实际发生于 18:42）"。
+   那句话是给"单张卡片"看的——卡片只显示 HH:MM，读者需要知道时间对不上。
+   时间轴左边已经是真实发生时间，再重复一遍就成了干扰，这里抹掉。 */
+function evStripLate(s){
+  return String(s == null ? '' : s).replace(/（断网补发，实际发生于[^）]*）/g, '').trim();
+}
+
+async function openEventTimeline(callId){
+  if(!evMask) buildEvMask();
+  const body = evMask.querySelector('.ev-body');
+  const sub  = evMask.querySelector('.ev-sub');
+  body.innerHTML = '<div class="ev-empty">正在读取这一场的过程…</div>';
+  sub.textContent = '';
+  evMask.classList.add('show');
+
+  const r = await api('/api/call/events?elderId=demo&callId=' + encodeURIComponent(callId));
+  if(!r || !r.ok || !Array.isArray(r.list) || !r.list.length){
+    body.innerHTML = '<div class="ev-empty">这一场暂时读不到记录。<br>可能上报时断了网，或者记录已被清理。</div>';
+    return;
+  }
+  sub.textContent = r.list.length + ' 步 · 最高级别：' + (LV_TXT[r.level] || '提醒');
+  body.innerHTML = r.list.map(function(a){
+    const m  = EV_META[a.kind] || { ic: '📌', t: '' };
+    const hm = evHM(a.created_at);
+    const cls = LV_CLS[a.level] || 'l1';
+    /* kind 认得出来就用固定标题（"陌生号码打进来"），认不出来退回服务端给的原标题 ——
+       老版本 App 不带 kind，也能正常显示。
+       服务端标题只在没有正文时补一句：标题和正文本来就是一件事的两种说法，
+       两条都摆出来会读成"重复播报"。 */
+    const head = m.t || a.title || '';
+    // 有正文时不再重复服务端标题；没有正文才用它兜一句，否则这一步会空着
+    const detail = m.t ? (a.body ? '' : (a.title || '')) : '';
+    return '<div class="ev-row ' + cls + '">'
+      +   '<div class="ev-rail"><span class="ev-dot"></span></div>'
+      +   '<div class="ev-time">' + escH(hm) + '</div>'
+      +   '<div class="ev-ic">' + m.ic + '</div>'
+      +   '<div class="ev-tx">'
+      +     '<div class="ev-t">' + escH(head) + '</div>'
+      +     (detail ? '<div class="ev-d">' + escH(detail) + '</div>' : '')
+      +     (a.body  ? '<div class="ev-d">' + escH(evStripLate(a.body)) + '</div>' : '')
+      +     (a.why   ? '<div class="ev-w">' + escH(evStripLate(a.why)) + '</div>' : '')
+      +   '</div>'
+      + '</div>';
+  }).join('');
 }
 
 /* 拉历史预警。
@@ -1410,20 +1618,18 @@ function ghostHint(msg){
 }
 
 function showAcquaint(){
-  // 2026-11-17 去掉「15 分钟内不再询问」的抑制。
-  // 【为什么必须去掉】产品铁律是「点认识不能关防护」，App 端 11-07 就已经拆掉了
-  // 15 分钟免打扰；只有这个演示页还留着。留着有两个害处：
-  //   ① 评委点过「认识」再重跑一遍流程，第 1 步的弹层就不出来了，
-  //      现场看起来就是"点按钮没反应"——报名表里记的那个缺陷就是这么来的；
-  //   ② 页面上写着"15 分钟内不再询问"，与我们对外说的铁律自相矛盾。
-  // 同一次响铃只问一次由 App 端负责，演示页不需要也不该模拟"免打扰"。
+  // 【2026-11-18 恢复时保留的修正】原先这里有一句
+  //   if(knownMark && Date.now()-knownMark < 15*60*1000) return;
+  // 点过一次「认识」，15 分钟内的询问卡就静默不弹。两处不对：
+  //   1. 产品铁律是「点认识不能关防护」，一个按时间消失的窗口就是后门；
+  //   2. 演示时点完按钮再点回去，页面看着像卡死了。
   acquaintEl.classList.add('show');
 }
 function hideAcquaint(){acquaintEl.classList.remove('show');}
 function markKnown(){
   knownMark=Date.now(); hideAcquaint(); knownRecordEl.classList.add('show');
   addNoti('l2','父亲说这个陌生号码是熟人','138****6621 · 通话 3 分钟 · 他点了「是认识的」 —— 但仍请您确认一下');
-  // 告知云端：只留一条记录，不设免打扰、不撤销任何防护
+  // 告知云端：只记审计，不设免打扰窗口，也不撤销任何防护
   api('/api/known',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({elderId:'demo'})}).then(r=>{
       if(r&&r.hint) ghostHint(r.hint);
@@ -1561,7 +1767,99 @@ async function go(n){
   }
 }
 
-document.querySelectorAll('.btn').forEach(b=>b.addEventListener('click',()=>go(b.dataset.step)));
+// 演示步骤按钮：只有带 data-step 的才是
+document.querySelectorAll('.btn[data-step]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.step)));
+
+/* ==========================================================================
+   远程干预：这两个按钮不是演示，是真下指令
+   —— 走 /api/command，云端用 SSE 推给老人手机；老人手机不在线时不会假装成功。
+   —— "from" 传的是这页面上写的身份（父亲 / 女儿），文案直接引用，不做猜测。
+   ========================================================================== */
+const cmdNote = document.getElementById('cmdNote');
+let cmdNoteTimer = null;
+function sayCmd(msg, bad){
+  cmdNote.textContent = msg;
+  cmdNote.style.color = bad ? '#f87171' : 'var(--txt3)';
+  if(cmdNoteTimer) clearTimeout(cmdNoteTimer);
+  cmdNoteTimer = setTimeout(()=>{ cmdNote.textContent=''; }, 8000);
+}
+
+async function sendCommand(action, btn){
+  const body = {action, from:'女儿'};
+  if(action==='lock') body.minutes = 30;
+  btn.classList.add('busy');
+  sayCmd('正在下发…');
+  const r = await api('/api/command',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  btn.classList.remove('busy');
+  if(!r || !r.ok){
+    // 接口不通就说接口不通。不能写"已通知到妈妈"——我们并不知道。
+    sayCmd('下发失败，请检查网络', true);
+    return;
+  }
+  if(!r.online){
+    sayCmd('指令已记录，但老人手机现在不在线', true);
+    return;
+  }
+  sayCmd(action==='nudge' ? '已推送到妈妈手机' : '已锁定转账 30 分钟');
+  if(typeof addEv === 'function'){
+    addEv('l1', action==='nudge' ? '👩' : '⛔',
+      action==='nudge' ? '女儿提醒妈妈先别操作手机' : '女儿远程锁定了 30 分钟转账',
+      '由子女端发起，已推送到父亲手机。');
+  }
+}
+
+document.getElementById('btnNudge').addEventListener('click', function(){ sendCommand('nudge', this); });
+document.getElementById('btnLock').addEventListener('click', function(){ sendCommand('lock', this); });
+
+/* ==========================================================================
+   亲情语音盾：女儿录的那一句
+   —— 红屏响的是她本人的声音，不是机器合成音。骗子没法解释"为什么你闺女在骂你"。
+   —— 这里只负责"上传"；老人手机是提前缓存好的（见 App 端 FamilyVoice），
+      拦截那一刻不现下载 —— 网慢两秒，钱就转出去了。
+   ========================================================================== */
+const voiceFile = document.getElementById('voiceFile');
+const btnVoice  = document.getElementById('btnVoice');
+
+btnVoice.addEventListener('click', function(){ voiceFile.click(); });
+
+voiceFile.addEventListener('change', function(){
+  const f = voiceFile.files && voiceFile.files[0];
+  if (!f) return;
+  if (f.size > 4 * 1024 * 1024) { sayCmd('音频太大，请控制在 10 秒以内', true); return; }
+  btnVoice.classList.add('busy');
+  sayCmd('正在上传…');
+  const rd = new FileReader();
+  rd.onload = async function(){
+    const r = await api('/api/voice', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ elderId:'demo', from:'女儿', mime:f.type || 'audio/mp4', audio: rd.result })
+    });
+    btnVoice.classList.remove('busy');
+    voiceFile.value = '';                 // 同一个文件能再传一次
+    if(!r || !r.ok){ sayCmd('上传失败：' + ((r&&r.msg) || '网络不通'), true); return; }
+    sayCmd('已上传，妈妈手机下次联网就会换成你的声音');
+    if(typeof addEv === 'function'){
+      addEv('l1','🎙','女儿录了一句提醒语音',
+        '红屏拦截时放的会是这句话，不再是机器合成音。');
+    }
+  };
+  rd.onerror = function(){ btnVoice.classList.remove('busy'); sayCmd('读取文件失败', true); };
+  rd.readAsDataURL(f);
+});
+
+/* 页面上先说清楚现在有没有录过 —— 不猜，问云端 */
+(async function(){
+  const m = await api('/api/voice/meta?elderId=demo');
+  if(m && m.ok && m.exists){
+    const mins = Math.max(1, Math.round((Date.now() - m.at)/60000));
+    sayCmd('提醒语音：' + (m.from||'家人') + '已录（' + mins + ' 分钟前）');
+  }
+})();
 document.getElementById('aqYes').addEventListener('click',markKnown);
 document.getElementById('aqNo').addEventListener('click',markUnknown);
 releaseBtn.addEventListener('mousedown',startHold);

@@ -1,0 +1,9632 @@
+[
+ {
+  "i": 0,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 693,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 1,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 715,
+  "p": 0.5927,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 2,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 1017,
+  "p": 0.974,
+  "hit": true,
+  "ms": 76
+ },
+ {
+  "i": 3,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 991,
+  "p": 0.982,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 4,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 725,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 5,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 745,
+  "p": 0.977,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 6,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 842,
+  "p": 0.989,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 7,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 821,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 8,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 823,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 9,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 752,
+  "p": 0.989,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 10,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 886,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 11,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 830,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 12,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 1025,
+  "p": 0.974,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 13,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 813,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 14,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 786,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 15,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 712,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 16,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 1160,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 17,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 946,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 18,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 1102,
+  "p": 0.9325,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 19,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 961,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 76
+ },
+ {
+  "i": 20,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 1008,
+  "p": 0.7549,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 21,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 878,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 22,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 867,
+  "p": 0.977,
+  "hit": true,
+  "ms": 76
+ },
+ {
+  "i": 23,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 93,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 31
+ },
+ {
+  "i": 24,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 93,
+  "p": 0.9466,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 25,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 140,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 35
+ },
+ {
+  "i": 26,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 105,
+  "p": 0.9988,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 27,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 95,
+  "p": 0.9983,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 28,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 83,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 29,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 86,
+  "p": 0.999,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 30,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 87,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 31,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 66,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 32,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 60,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 31
+ },
+ {
+  "i": 33,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 73,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 34,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 60,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 31
+ },
+ {
+  "i": 35,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 92,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 36,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 80,
+  "p": 0.9992,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 37,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 69,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 38,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 81,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 39,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 62,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 40,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 84,
+  "p": 0.852,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 41,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 78,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 42,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 75,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 43,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 74,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 44,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 67,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 45,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 119,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 46,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 128,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 47,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 125,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 48,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 70,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 49,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 120,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 50,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 118,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 51,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 120,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 52,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 95,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 53,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 77,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 54,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 108,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 55,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 98,
+  "p": 0.9994,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 56,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 118,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 57,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 106,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 58,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 84,
+  "p": 0.999,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 59,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 117,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 60,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 84,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 61,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 92,
+  "p": 0.9997,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 62,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 128,
+  "p": 0.8933,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 63,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 100,
+  "p": 0.9399,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 64,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 112,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 31
+ },
+ {
+  "i": 65,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 109,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 31
+ },
+ {
+  "i": 66,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 129,
+  "p": 0.974,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 67,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 106,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 31
+ },
+ {
+  "i": 68,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 93,
+  "p": 0.9991,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 69,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 100,
+  "p": 0.9998,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 70,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 107,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 71,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 85,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 72,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 85,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 73,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 90,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 74,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 114,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 31
+ },
+ {
+  "i": 75,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 115,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 31
+ },
+ {
+  "i": 76,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 72,
+  "p": 0.852,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 77,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 141,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 33
+ },
+ {
+  "i": 78,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 118,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 79,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 132,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 33
+ },
+ {
+  "i": 80,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 124,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 81,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 158,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 36
+ },
+ {
+  "i": 82,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 167,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 35
+ },
+ {
+  "i": 83,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 88,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 31
+ },
+ {
+  "i": 84,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 59,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 85,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 256,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 36
+ },
+ {
+  "i": 86,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 118,
+  "p": 0.989,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 87,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 112,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 31
+ },
+ {
+  "i": 88,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 132,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 89,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 157,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 35
+ },
+ {
+  "i": 90,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 167,
+  "p": 0.9241,
+  "hit": true,
+  "ms": 35
+ },
+ {
+  "i": 91,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 190,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 35
+ },
+ {
+  "i": 92,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 139,
+  "p": 0.989,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 93,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 158,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 35
+ },
+ {
+  "i": 94,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 203,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 35
+ },
+ {
+  "i": 95,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 180,
+  "p": 0.9993,
+  "hit": true,
+  "ms": 35
+ },
+ {
+  "i": 96,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 69,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 30
+ },
+ {
+  "i": 97,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 111,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 98,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 105,
+  "p": 0.9988,
+  "hit": true,
+  "ms": 31
+ },
+ {
+  "i": 99,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 140,
+  "p": 0.9988,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 100,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 103,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 31
+ },
+ {
+  "i": 101,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 177,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 35
+ },
+ {
+  "i": 102,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 119,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 103,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 129,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 104,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 99,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 31
+ },
+ {
+  "i": 105,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 126,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 106,
+  "cat": "network friendship",
+  "sub": "network friendship",
+  "chars": 114,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 32
+ },
+ {
+  "i": 107,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 852,
+  "p": 0.9241,
+  "hit": true,
+  "ms": 76
+ },
+ {
+  "i": 108,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 747,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 109,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 730,
+  "p": 0.7311,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 110,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 874,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 111,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 698,
+  "p": 0.867,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 112,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 712,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 113,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 813,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 114,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 685,
+  "p": 0.9526,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 115,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 732,
+  "p": 0.8176,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 116,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 800,
+  "p": 0.9325,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 117,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 696,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 118,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 770,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 119,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 830,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 120,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 746,
+  "p": 0.9466,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 121,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 703,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 122,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 643,
+  "p": 0.9325,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 123,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 666,
+  "p": 0.974,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 124,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 804,
+  "p": 0.989,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 125,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 887,
+  "p": 0.977,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 126,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 821,
+  "p": 0.982,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 127,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 849,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 128,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 753,
+  "p": 0.8176,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 129,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 788,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 130,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 779,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 131,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 713,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 132,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 861,
+  "p": 0.6792,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 133,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 881,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 134,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 700,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 135,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 702,
+  "p": 0.7549,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 136,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 896,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 137,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 725,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 138,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 664,
+  "p": 0.9399,
+  "hit": true,
+  "ms": 76
+ },
+ {
+  "i": 139,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 743,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 140,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 693,
+  "p": 0.9325,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 141,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 749,
+  "p": 0.9466,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 142,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 707,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 143,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 928,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 83
+ },
+ {
+  "i": 144,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 811,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 145,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 864,
+  "p": 0.977,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 146,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 707,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 147,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 715,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 148,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 724,
+  "p": 0.9526,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 149,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 782,
+  "p": 0.9047,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 150,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 764,
+  "p": 0.9466,
+  "hit": true,
+  "ms": 64
+ },
+ {
+  "i": 151,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 752,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 152,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 862,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 153,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 722,
+  "p": 0.852,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 154,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 736,
+  "p": 0.9399,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 155,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 728,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 156,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 731,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 157,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 1015,
+  "p": 0.977,
+  "hit": true,
+  "ms": 83
+ },
+ {
+  "i": 158,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 1009,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 159,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 545,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 160,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 677,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 161,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 696,
+  "p": 0.9526,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 162,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 655,
+  "p": 0.9047,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 163,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 816,
+  "p": 0.6514,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 164,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 919,
+  "p": 0.982,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 165,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 788,
+  "p": 0.6792,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 166,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 709,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 167,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 826,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 168,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 613,
+  "p": 0.9047,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 169,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 777,
+  "p": 0.977,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 170,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 769,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 171,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 841,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 172,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 629,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 173,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 829,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 174,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 959,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 175,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 783,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 176,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 779,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 177,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 738,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 178,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 808,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 179,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 789,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 180,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 999,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 181,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 776,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 182,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 704,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 183,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 746,
+  "p": 0.8933,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 184,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 659,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 185,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 703,
+  "p": 0.989,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 186,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 816,
+  "p": 0.9241,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 187,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 701,
+  "p": 0.9466,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 188,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 788,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 189,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 808,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 190,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 775,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 191,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 916,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 192,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 712,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 193,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 646,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 194,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 866,
+  "p": 0.9526,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 195,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 724,
+  "p": 0.9047,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 196,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 769,
+  "p": 0.9325,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 197,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 782,
+  "p": 0.852,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 198,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 872,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 199,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 1007,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 200,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 810,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 201,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 802,
+  "p": 0.977,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 202,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 897,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 203,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 790,
+  "p": 0.989,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 204,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 891,
+  "p": 0.9466,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 205,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 802,
+  "p": 0.6792,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 206,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 733,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 207,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 659,
+  "p": 0.6792,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 208,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 677,
+  "p": 0.977,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 209,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 997,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 210,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 768,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 211,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 898,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 212,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 729,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 213,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 844,
+  "p": 0.9241,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 214,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1134,
+  "p": 0.974,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 215,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 888,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 216,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 935,
+  "p": 0.989,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 217,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 948,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 218,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1246,
+  "p": 0.982,
+  "hit": true,
+  "ms": 112
+ },
+ {
+  "i": 219,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1032,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 220,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1114,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 111
+ },
+ {
+  "i": 221,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1034,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 222,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1378,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 113
+ },
+ {
+  "i": 223,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1110,
+  "p": 0.9526,
+  "hit": true,
+  "ms": 111
+ },
+ {
+  "i": 224,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 996,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 225,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 966,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 226,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1037,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 227,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 972,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 228,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1209,
+  "p": 0.974,
+  "hit": true,
+  "ms": 112
+ },
+ {
+  "i": 229,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1016,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 230,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 933,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 231,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 917,
+  "p": 0.9466,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 232,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1231,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 111
+ },
+ {
+  "i": 233,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 919,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 234,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 936,
+  "p": 0.9399,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 235,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1144,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 96
+ },
+ {
+  "i": 236,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1116,
+  "p": 0.989,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 237,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1638,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 143
+ },
+ {
+  "i": 238,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 792,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 239,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 946,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 240,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1201,
+  "p": 0.989,
+  "hit": true,
+  "ms": 110
+ },
+ {
+  "i": 241,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1019,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 242,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1033,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 243,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1304,
+  "p": 0.989,
+  "hit": true,
+  "ms": 113
+ },
+ {
+  "i": 244,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1009,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 245,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1082,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 246,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1192,
+  "p": 0.989,
+  "hit": true,
+  "ms": 111
+ },
+ {
+  "i": 247,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 992,
+  "p": 0.982,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 248,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1091,
+  "p": 0.9325,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 249,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1195,
+  "p": 0.982,
+  "hit": true,
+  "ms": 114
+ },
+ {
+  "i": 250,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 928,
+  "p": 0.9399,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 251,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 991,
+  "p": 0.989,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 252,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1072,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 111
+ },
+ {
+  "i": 253,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1256,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 127
+ },
+ {
+  "i": 254,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1029,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 255,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1021,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 256,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1026,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 257,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1099,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 258,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1102,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 111
+ },
+ {
+  "i": 259,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1276,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 113
+ },
+ {
+  "i": 260,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1219,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 113
+ },
+ {
+  "i": 261,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1092,
+  "p": 0.9047,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 262,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1195,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 114
+ },
+ {
+  "i": 263,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1037,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 264,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1222,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 117
+ },
+ {
+  "i": 265,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 939,
+  "p": 0.9241,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 266,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1048,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 267,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 888,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 268,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 698,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 269,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 988,
+  "p": 0.982,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 270,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 700,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 271,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 769,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 272,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 855,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 273,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 721,
+  "p": 0.982,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 274,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 875,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 275,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 1458,
+  "p": 0.977,
+  "hit": true,
+  "ms": 113
+ },
+ {
+  "i": 276,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 1079,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 277,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 875,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 278,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 855,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 279,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 1018,
+  "p": 0.7311,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 280,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 954,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 281,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 1267,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 111
+ },
+ {
+  "i": 282,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 700,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 283,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 1058,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 284,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 753,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 285,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 806,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 286,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 929,
+  "p": 0.977,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 287,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 999,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 83
+ },
+ {
+  "i": 288,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 1231,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 289,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 814,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 290,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 822,
+  "p": 0.9241,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 291,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 786,
+  "p": 0.7982,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 292,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 827,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 293,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 985,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 294,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 605,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 295,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 768,
+  "p": 0.9987,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 296,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 1095,
+  "p": 0.5312,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 297,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 972,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 298,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 913,
+  "p": 0.989,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 299,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 838,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 65
+ },
+ {
+  "i": 300,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 755,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 301,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 660,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 302,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 730,
+  "p": 0.9987,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 303,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 913,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 304,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 850,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 305,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 697,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 306,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 1181,
+  "p": 0.8176,
+  "hit": true,
+  "ms": 96
+ },
+ {
+  "i": 307,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 959,
+  "p": 0.982,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 308,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 735,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 309,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 1179,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 310,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 1096,
+  "p": 0.8933,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 311,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 753,
+  "p": 0.7773,
+  "hit": true,
+  "ms": 64
+ },
+ {
+  "i": 312,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 629,
+  "p": 0.9466,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 313,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 984,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 314,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 994,
+  "p": 0.977,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 315,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 712,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 316,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 552,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 317,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 900,
+  "p": 0.9047,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 318,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 991,
+  "p": 0.7549,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 319,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 889,
+  "p": 0.5927,
+  "hit": true,
+  "ms": 83
+ },
+ {
+  "i": 320,
+  "cat": "phishing",
+  "sub": "phishing email",
+  "chars": 760,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 65
+ },
+ {
+  "i": 321,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 743,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 322,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 641,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 323,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 693,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 324,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 830,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 325,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 668,
+  "p": 0.9988,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 326,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 695,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 327,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 566,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 328,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 768,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 329,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 579,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 330,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 710,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 331,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 737,
+  "p": 0.977,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 332,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 626,
+  "p": 0.989,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 333,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 772,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 334,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 743,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 335,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 627,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 336,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 745,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 337,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 584,
+  "p": 0.852,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 338,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 808,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 339,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 653,
+  "p": 0.999,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 340,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 688,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 341,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 716,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 342,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 663,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 343,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 850,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 344,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 553,
+  "p": 0.8933,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 345,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 648,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 346,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 561,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 347,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 558,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 348,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 549,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 349,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 598,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 350,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 606,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 351,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 517,
+  "p": 0.9988,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 352,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 588,
+  "p": 0.9994,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 353,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 827,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 354,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 610,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 355,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 730,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 356,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 572,
+  "p": 0.852,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 357,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 672,
+  "p": 0.9987,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 358,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 712,
+  "p": 0.9325,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 359,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 670,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 360,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 602,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 361,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 569,
+  "p": 0.9996,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 362,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 627,
+  "p": 0.982,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 363,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 667,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 364,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 598,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 365,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 534,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 366,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 630,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 367,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 963,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 368,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 513,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 369,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 703,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 370,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 626,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 371,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 459,
+  "p": 0.9996,
+  "hit": true,
+  "ms": 51
+ },
+ {
+  "i": 372,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 580,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 373,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 577,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 374,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 981,
+  "p": 0.982,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 375,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 541,
+  "p": 0.9983,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 376,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 577,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 377,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 776,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 378,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 779,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 379,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 551,
+  "p": 0.8176,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 380,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 704,
+  "p": 0.999,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 381,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 571,
+  "p": 0.7058,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 382,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 908,
+  "p": 0.9466,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 383,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 628,
+  "p": 0.9399,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 384,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 435,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 385,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 639,
+  "p": 0.8808,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 386,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 692,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 387,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 681,
+  "p": 0.9325,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 388,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 492,
+  "p": 0.9466,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 389,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 554,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 390,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 660,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 391,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 639,
+  "p": 0.5,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 392,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 510,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 393,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 538,
+  "p": 0.982,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 394,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 572,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 395,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 716,
+  "p": 0.4378,
+  "hit": false,
+  "ms": 62
+ },
+ {
+  "i": 396,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 703,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 397,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 448,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 398,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 613,
+  "p": 0.977,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 399,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 643,
+  "p": 0.8933,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 400,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 573,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 401,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 558,
+  "p": 0.982,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 402,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 757,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 403,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 528,
+  "p": 0.977,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 404,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 617,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 405,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 520,
+  "p": 0.974,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 406,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 631,
+  "p": 0.977,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 407,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 471,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 408,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 494,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 409,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 527,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 410,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 652,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 411,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 595,
+  "p": 0.852,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 412,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 546,
+  "p": 0.852,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 413,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 679,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 414,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 616,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 415,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 765,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 416,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 738,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 64
+ },
+ {
+  "i": 417,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 543,
+  "p": 0.982,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 418,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 610,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 419,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 616,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 420,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 754,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 421,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 548,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 422,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 526,
+  "p": 0.6225,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 423,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 557,
+  "p": 0.8933,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 424,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 558,
+  "p": 0.9987,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 425,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 829,
+  "p": 0.9241,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 426,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 478,
+  "p": 0.5312,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 427,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 715,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 428,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 739,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 429,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 837,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 430,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 598,
+  "p": 0.989,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 431,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 666,
+  "p": 0.982,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 432,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 594,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 433,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 700,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 434,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 556,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 435,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 606,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 436,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 511,
+  "p": 0.989,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 437,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 520,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 438,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 646,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 439,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 633,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 440,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 700,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 441,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 849,
+  "p": 0.9047,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 442,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 584,
+  "p": 0.977,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 443,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 829,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 444,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 622,
+  "p": 0.999,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 445,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 783,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 446,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 581,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 447,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 715,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 448,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 600,
+  "p": 0.9241,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 449,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 833,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 450,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 721,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 451,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 933,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 452,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 1023,
+  "p": 0.852,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 453,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 701,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 454,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 755,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 455,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 624,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 456,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 684,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 457,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 601,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 458,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 661,
+  "p": 0.989,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 459,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 549,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 460,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 695,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 461,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 690,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 64
+ },
+ {
+  "i": 462,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 709,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 463,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 704,
+  "p": 0.9325,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 464,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 601,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 465,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 491,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 466,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 694,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 467,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 673,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 468,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 629,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 469,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 790,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 470,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 671,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 471,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 677,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 472,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 633,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 473,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 699,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 474,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 709,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 475,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 614,
+  "p": 0.9994,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 476,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 575,
+  "p": 0.989,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 477,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 583,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 478,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 651,
+  "p": 0.977,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 479,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 730,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 480,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 489,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 481,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 640,
+  "p": 0.9399,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 482,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 632,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 483,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 571,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 484,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 575,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 485,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 731,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 486,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 621,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 487,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 713,
+  "p": 0.9988,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 488,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 570,
+  "p": 0.9987,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 489,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 818,
+  "p": 0.5,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 490,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 714,
+  "p": 0.9983,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 491,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 606,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 492,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 737,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 493,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 469,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 52
+ },
+ {
+  "i": 494,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 749,
+  "p": 0.9241,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 495,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 528,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 496,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 790,
+  "p": 0.867,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 497,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 815,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 498,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 701,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 499,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 710,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 500,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 570,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 501,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 600,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 502,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 563,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 503,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 829,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 504,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 925,
+  "p": 0.8808,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 505,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 794,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 506,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 736,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 507,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 670,
+  "p": 0.9987,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 508,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 585,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 509,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1063,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 510,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 865,
+  "p": 0.8933,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 511,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1012,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 512,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 980,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 96
+ },
+ {
+  "i": 513,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 826,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 514,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1406,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 118
+ },
+ {
+  "i": 515,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1425,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 118
+ },
+ {
+  "i": 516,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 692,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 517,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 978,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 97
+ },
+ {
+  "i": 518,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1052,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 519,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 937,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 520,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1042,
+  "p": 0.974,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 521,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1060,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 522,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1015,
+  "p": 0.8808,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 523,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 896,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 524,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 967,
+  "p": 0.9526,
+  "hit": true,
+  "ms": 96
+ },
+ {
+  "i": 525,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 997,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 526,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 831,
+  "p": 0.977,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 527,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 767,
+  "p": 0.982,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 528,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 921,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 529,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 928,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 530,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1055,
+  "p": 0.982,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 531,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1028,
+  "p": 0.977,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 532,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 850,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 533,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1083,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 112
+ },
+ {
+  "i": 534,
+  "cat": "phishing",
+  "sub": "fraud email",
+  "chars": 1097,
+  "p": 0.9399,
+  "hit": true,
+  "ms": 111
+ },
+ {
+  "i": 535,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 757,
+  "p": 0.9241,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 536,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 749,
+  "p": 0.9325,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 537,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 811,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 538,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 762,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 539,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 843,
+  "p": 0.977,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 540,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 688,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 541,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 772,
+  "p": 0.974,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 542,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 808,
+  "p": 0.7549,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 543,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 596,
+  "p": 0.8933,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 544,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 679,
+  "p": 0.974,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 545,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 806,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 546,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 880,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 547,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 658,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 548,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 818,
+  "p": 0.989,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 549,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 750,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 550,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 859,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 551,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 778,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 552,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 805,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 553,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 856,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 554,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 728,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 65
+ },
+ {
+  "i": 555,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 758,
+  "p": 0.9526,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 556,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 875,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 557,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 732,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 558,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 889,
+  "p": 0.989,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 559,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 878,
+  "p": 0.9047,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 560,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 735,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 561,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 819,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 562,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 819,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 563,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 718,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 564,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 820,
+  "p": 0.974,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 565,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 836,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 566,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 766,
+  "p": 0.9241,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 567,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 665,
+  "p": 0.982,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 568,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 670,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 569,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 700,
+  "p": 0.852,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 570,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 720,
+  "p": 0.977,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 571,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 787,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 572,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 747,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 573,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 750,
+  "p": 0.974,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 574,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 776,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 575,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 831,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 576,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 699,
+  "p": 0.7311,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 577,
+  "cat": "fake job posting",
+  "sub": "fake job posting",
+  "chars": 613,
+  "p": 0.4688,
+  "hit": false,
+  "ms": 60
+ },
+ {
+  "i": 578,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1129,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 579,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1016,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 580,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 907,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 581,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1215,
+  "p": 0.974,
+  "hit": true,
+  "ms": 97
+ },
+ {
+  "i": 582,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1222,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 583,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 775,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 584,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 838,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 585,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 782,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 586,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1083,
+  "p": 0.5312,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 587,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 797,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 588,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 961,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 83
+ },
+ {
+  "i": 589,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 832,
+  "p": 0.982,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 590,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 965,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 83
+ },
+ {
+  "i": 591,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1269,
+  "p": 0.982,
+  "hit": true,
+  "ms": 111
+ },
+ {
+  "i": 592,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 911,
+  "p": 0.977,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 593,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1031,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 594,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1386,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 595,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 758,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 596,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1007,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 96
+ },
+ {
+  "i": 597,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 795,
+  "p": 0.982,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 598,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 563,
+  "p": 0.9526,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 599,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1280,
+  "p": 0.977,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 600,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1117,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 601,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1136,
+  "p": 0.8933,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 602,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 966,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 603,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 867,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 604,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 920,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 605,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 912,
+  "p": 0.982,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 606,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 905,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 607,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1016,
+  "p": 0.9325,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 608,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 961,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 609,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 933,
+  "p": 0.9987,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 610,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 923,
+  "p": 0.9399,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 611,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1089,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 612,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 995,
+  "p": 0.8933,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 613,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1273,
+  "p": 0.974,
+  "hit": true,
+  "ms": 96
+ },
+ {
+  "i": 614,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1265,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 112
+ },
+ {
+  "i": 615,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 961,
+  "p": 0.989,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 616,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 692,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 617,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 690,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 618,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 956,
+  "p": 0.974,
+  "hit": true,
+  "ms": 83
+ },
+ {
+  "i": 619,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 955,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 83
+ },
+ {
+  "i": 620,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 840,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 621,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1203,
+  "p": 0.852,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 622,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 680,
+  "p": 0.9241,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 623,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1010,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 83
+ },
+ {
+  "i": 624,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1252,
+  "p": 0.8808,
+  "hit": true,
+  "ms": 97
+ },
+ {
+  "i": 625,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 914,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 626,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 934,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 84
+ },
+ {
+  "i": 627,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1290,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 114
+ },
+ {
+  "i": 628,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1465,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 117
+ },
+ {
+  "i": 629,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 938,
+  "p": 0.974,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 630,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 902,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 631,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 915,
+  "p": 0.999,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 632,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 909,
+  "p": 0.867,
+  "hit": true,
+  "ms": 84
+ },
+ {
+  "i": 633,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 832,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 634,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1107,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 635,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1444,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 114
+ },
+ {
+  "i": 636,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1129,
+  "p": 0.9466,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 637,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 951,
+  "p": 0.989,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 638,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 914,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 639,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1004,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 84
+ },
+ {
+  "i": 640,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1060,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 96
+ },
+ {
+  "i": 641,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1169,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 642,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 525,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 643,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 575,
+  "p": 0.982,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 644,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 622,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 645,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 567,
+  "p": 0.9987,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 646,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 817,
+  "p": 0.989,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 647,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 479,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 648,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 602,
+  "p": 0.982,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 649,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 573,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 650,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 476,
+  "p": 0.989,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 651,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 529,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 652,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 797,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 653,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 618,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 654,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 667,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 655,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 549,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 51
+ },
+ {
+  "i": 656,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 568,
+  "p": 0.977,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 657,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 688,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 658,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 766,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 659,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 682,
+  "p": 0.9992,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 660,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 558,
+  "p": 0.9983,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 661,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 565,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 662,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 479,
+  "p": 0.982,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 663,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 659,
+  "p": 0.9996,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 664,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 593,
+  "p": 0.9466,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 665,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 659,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 666,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 575,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 64
+ },
+ {
+  "i": 667,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 612,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 668,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 694,
+  "p": 0.9994,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 669,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 566,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 670,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 575,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 671,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 672,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 672,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 524,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 673,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 559,
+  "p": 0.974,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 674,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 630,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 675,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 724,
+  "p": 0.9994,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 676,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 781,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 64
+ },
+ {
+  "i": 677,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 623,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 678,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 663,
+  "p": 0.8808,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 679,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 651,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 680,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 651,
+  "p": 0.9241,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 681,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 428,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 682,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 625,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 683,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 655,
+  "p": 0.9988,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 684,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 650,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 685,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 485,
+  "p": 0.852,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 686,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 443,
+  "p": 0.9399,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 687,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 579,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 688,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 474,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 689,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 933,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 690,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 584,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 64
+ },
+ {
+  "i": 691,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 745,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 692,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 614,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 693,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 560,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 694,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 656,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 695,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 493,
+  "p": 0.7058,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 696,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 578,
+  "p": 0.9399,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 697,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 630,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 698,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 683,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 699,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 610,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 700,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 662,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 701,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 652,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 702,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 767,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 703,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 676,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 704,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 571,
+  "p": 0.9325,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 705,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 637,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 706,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 583,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 707,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 621,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 708,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 807,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 83
+ },
+ {
+  "i": 709,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 701,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 65
+ },
+ {
+  "i": 710,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 793,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 711,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 579,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 64
+ },
+ {
+  "i": 712,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 690,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 713,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 627,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 64
+ },
+ {
+  "i": 714,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 559,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 715,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 731,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 716,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 522,
+  "p": 0.9994,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 717,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 439,
+  "p": 0.9994,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 718,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 628,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 719,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 561,
+  "p": 0.867,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 720,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 524,
+  "p": 0.9047,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 721,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 685,
+  "p": 0.9988,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 722,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 696,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 723,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 636,
+  "p": 0.9466,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 724,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 727,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 725,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 588,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 726,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 621,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 727,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 832,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 728,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 529,
+  "p": 0.9399,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 729,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 584,
+  "p": 0.989,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 730,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 655,
+  "p": 0.9987,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 731,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 476,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 732,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 612,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 733,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 597,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 734,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 680,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 735,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 589,
+  "p": 0.9987,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 736,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 562,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 737,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 655,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 738,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 629,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 739,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 473,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 51
+ },
+ {
+  "i": 740,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 527,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 741,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 571,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 742,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 644,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 743,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 631,
+  "p": 0.9997,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 744,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 576,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 745,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 560,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 746,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 697,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 747,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 558,
+  "p": 0.9526,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 748,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 720,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 749,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1047,
+  "p": 0.9399,
+  "hit": true,
+  "ms": 97
+ },
+ {
+  "i": 750,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1102,
+  "p": 0.9983,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 751,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1145,
+  "p": 0.989,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 752,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1129,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 753,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1249,
+  "p": 0.982,
+  "hit": true,
+  "ms": 112
+ },
+ {
+  "i": 754,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1162,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 755,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1291,
+  "p": 0.9987,
+  "hit": true,
+  "ms": 112
+ },
+ {
+  "i": 756,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 914,
+  "p": 0.9992,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 757,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1094,
+  "p": 0.7311,
+  "hit": true,
+  "ms": 95
+ },
+ {
+  "i": 758,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 929,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 759,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1134,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 83
+ },
+ {
+  "i": 760,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 756,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 761,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 687,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 762,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 979,
+  "p": 0.8355,
+  "hit": true,
+  "ms": 84
+ },
+ {
+  "i": 763,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 1122,
+  "p": 0.9241,
+  "hit": true,
+  "ms": 98
+ },
+ {
+  "i": 764,
+  "cat": "phishing",
+  "sub": "commercial spam",
+  "chars": 682,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 765,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 729,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 766,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 607,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 767,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 645,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 768,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 592,
+  "p": 0.9987,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 769,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 698,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 770,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 723,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 771,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 655,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 772,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 824,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 773,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 754,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 774,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 749,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 775,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 602,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 776,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 819,
+  "p": 0.9466,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 777,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 509,
+  "p": 0.9994,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 778,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 787,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 779,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 835,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 780,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 704,
+  "p": 0.9992,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 781,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 674,
+  "p": 0.9988,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 782,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 577,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 783,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 724,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 784,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 694,
+  "p": 0.9526,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 785,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 677,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 786,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 500,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 787,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 634,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 788,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 693,
+  "p": 0.982,
+  "hit": true,
+  "ms": 64
+ },
+ {
+  "i": 789,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 752,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 790,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 831,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 791,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 652,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 792,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 718,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 793,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 651,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 794,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 568,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 795,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 538,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 796,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 591,
+  "p": 0.867,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 797,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 658,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 798,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 487,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 799,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 750,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 800,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 649,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 801,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 775,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 802,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 524,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 803,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 714,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 804,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 671,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 805,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 765,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 806,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 847,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 807,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 815,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 808,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 657,
+  "p": 0.9992,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 809,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 696,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 810,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 772,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 811,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 558,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 812,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 733,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 813,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 619,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 814,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 642,
+  "p": 0.9991,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 815,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 679,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 816,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 750,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 817,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 749,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 818,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 664,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 819,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 877,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 820,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 677,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 821,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 731,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 64
+ },
+ {
+  "i": 822,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 816,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 823,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 1027,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 96
+ },
+ {
+  "i": 824,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 697,
+  "p": 0.989,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 825,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 721,
+  "p": 0.9988,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 826,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 554,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 827,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 665,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 828,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 582,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 829,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 658,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 830,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 795,
+  "p": 0.989,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 831,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 673,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 832,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 612,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 833,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 542,
+  "p": 0.9994,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 834,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 544,
+  "p": 0.9988,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 835,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 702,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 836,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 572,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 837,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 723,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 838,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 487,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 839,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 659,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 840,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 841,
+  "p": 0.989,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 841,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 773,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 842,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 596,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 843,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 576,
+  "p": 0.989,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 844,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 748,
+  "p": 0.999,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 845,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 603,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 846,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 729,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 847,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 650,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 848,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 708,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 849,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 646,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 850,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 632,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 851,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 673,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 852,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 805,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 853,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 557,
+  "p": 0.974,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 854,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 735,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 855,
+  "cat": "fraudulent service",
+  "sub": "investment and financial management",
+  "chars": 736,
+  "p": 0.8808,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 856,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 482,
+  "p": 0.8355,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 857,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 544,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 858,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 719,
+  "p": 0.9997,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 859,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 669,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 860,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 576,
+  "p": 0.9241,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 861,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 628,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 862,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 500,
+  "p": 0.867,
+  "hit": true,
+  "ms": 51
+ },
+ {
+  "i": 863,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 520,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 864,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 721,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 865,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 621,
+  "p": 0.9983,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 866,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 761,
+  "p": 0.999,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 867,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 572,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 868,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 547,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 869,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 560,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 870,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 502,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 871,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 680,
+  "p": 0.9707,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 872,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 729,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 873,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 603,
+  "p": 0.9466,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 874,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 438,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 875,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 496,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 876,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 607,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 877,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 537,
+  "p": 0.982,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 878,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 643,
+  "p": 0.9997,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 879,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 411,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 880,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 753,
+  "p": 0.9995,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 881,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 929,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 882,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 633,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 883,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 540,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 884,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 505,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 885,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 639,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 886,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 619,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 887,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 559,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 888,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 632,
+  "p": 0.9987,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 889,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 659,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 890,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 682,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 891,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 719,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 892,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 571,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 893,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 642,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 894,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 688,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 895,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 865,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 83
+ },
+ {
+  "i": 896,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 719,
+  "p": 0.9241,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 897,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 542,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 898,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 626,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 899,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 814,
+  "p": 0.9526,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 900,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 768,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 901,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 627,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 902,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 516,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 903,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 635,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 904,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 733,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 905,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 778,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 906,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 708,
+  "p": 0.977,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 907,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 789,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 908,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 900,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 84
+ },
+ {
+  "i": 909,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 577,
+  "p": 0.999,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 910,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 872,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 911,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 724,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 912,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 675,
+  "p": 0.989,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 913,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 757,
+  "p": 0.977,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 914,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 499,
+  "p": 0.9399,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 915,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 758,
+  "p": 0.9526,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 916,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 987,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 917,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 854,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 918,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 602,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 919,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 758,
+  "p": 0.9996,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 920,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 395,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 921,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 626,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 922,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 740,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 923,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 706,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 924,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 539,
+  "p": 0.9987,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 925,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 715,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 926,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 747,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 927,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 853,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 93
+ },
+ {
+  "i": 928,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 774,
+  "p": 0.9983,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 929,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 521,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 930,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 684,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 931,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 585,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 932,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 830,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 933,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 914,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 934,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 727,
+  "p": 0.982,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 935,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 607,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 936,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 629,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 937,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 675,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 938,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 703,
+  "p": 0.9399,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 939,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 556,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 940,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 697,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 941,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 823,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 84
+ },
+ {
+  "i": 942,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 661,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 943,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 520,
+  "p": 0.9992,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 944,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 727,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 64
+ },
+ {
+  "i": 945,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 634,
+  "p": 0.9983,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 946,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 778,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 947,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 540,
+  "p": 0.9991,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 948,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 519,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 949,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 856,
+  "p": 0.982,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 950,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 667,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 951,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 720,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 952,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 595,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 953,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 726,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 954,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 599,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 955,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 640,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 956,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 580,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 957,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 780,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 83
+ },
+ {
+  "i": 958,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 842,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 94
+ },
+ {
+  "i": 959,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 641,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 960,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 551,
+  "p": 0.9466,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 961,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 726,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 962,
+  "cat": "impersonation",
+  "sub": "public security, prosecution, judiciary, and government agencies",
+  "chars": 853,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 963,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 641,
+  "p": 0.5312,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 964,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 782,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 965,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 592,
+  "p": 0.8355,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 966,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 615,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 967,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 640,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 968,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 550,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 969,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 780,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 970,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 843,
+  "p": 0.9526,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 971,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 659,
+  "p": 0.977,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 972,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 633,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 973,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 527,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 974,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 573,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 975,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 792,
+  "p": 0.9797,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 976,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 724,
+  "p": 0.977,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 977,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 532,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 978,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 579,
+  "p": 0.6792,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 979,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 575,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 980,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 635,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 981,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 814,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 982,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 590,
+  "p": 0.974,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 983,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 457,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 984,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 570,
+  "p": 0.867,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 985,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 704,
+  "p": 0.977,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 986,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 630,
+  "p": 0.9325,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 987,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 790,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 988,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 637,
+  "p": 0.9526,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 989,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 781,
+  "p": 0.974,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 990,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 673,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 991,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 632,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 992,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 726,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 63
+ },
+ {
+  "i": 993,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 577,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 994,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 611,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 995,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 498,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 996,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 831,
+  "p": 0.9992,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 997,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 481,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 998,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 570,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 999,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 909,
+  "p": 0.9988,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 1000,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 1123,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 99
+ },
+ {
+  "i": 1001,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 539,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 1002,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 547,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 1003,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 640,
+  "p": 0.982,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 1004,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 717,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 1005,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 767,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 1006,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 514,
+  "p": 0.9149,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 1007,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 699,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 1008,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 547,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 1009,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 510,
+  "p": 0.6225,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 1010,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 631,
+  "p": 0.9924,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 1011,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 605,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 1012,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 669,
+  "p": 0.9983,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 1013,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 521,
+  "p": 0.9994,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 1014,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 636,
+  "p": 0.9669,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 1015,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 364,
+  "p": 0.9992,
+  "hit": true,
+  "ms": 50
+ },
+ {
+  "i": 1016,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 519,
+  "p": 0.8808,
+  "hit": true,
+  "ms": 49
+ },
+ {
+  "i": 1017,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 414,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 48
+ },
+ {
+  "i": 1018,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 641,
+  "p": 0.9964,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 1019,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 669,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 1020,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 642,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 1021,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 658,
+  "p": 0.9841,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 1022,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 669,
+  "p": 0.9985,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 1023,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 600,
+  "p": 0.9988,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 1024,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 752,
+  "p": 0.9997,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 1025,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 877,
+  "p": 0.9876,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 1026,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 628,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 1027,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 894,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 1028,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 607,
+  "p": 0.9968,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 1029,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 776,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 1030,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 561,
+  "p": 0.9983,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 1031,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 868,
+  "p": 0.9526,
+  "hit": true,
+  "ms": 84
+ },
+ {
+  "i": 1032,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 853,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 82
+ },
+ {
+  "i": 1033,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 728,
+  "p": 0.9997,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 1034,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 727,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 1035,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 749,
+  "p": 0.9914,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 1036,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 858,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 81
+ },
+ {
+  "i": 1037,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 718,
+  "p": 0.9975,
+  "hit": true,
+  "ms": 78
+ },
+ {
+  "i": 1038,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 858,
+  "p": 0.982,
+  "hit": true,
+  "ms": 83
+ },
+ {
+  "i": 1039,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 790,
+  "p": 0.982,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 1040,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 725,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 1041,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 672,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 1042,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 559,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 1043,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 568,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 1044,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 845,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 1045,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 641,
+  "p": 0.9987,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 1046,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 546,
+  "p": 0.9994,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 1047,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 610,
+  "p": 0.9941,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 1048,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 574,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 1049,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 671,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 62
+ },
+ {
+  "i": 1050,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 551,
+  "p": 0.9859,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 1051,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 573,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 1052,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 636,
+  "p": 0.9991,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 1053,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 588,
+  "p": 0.9978,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 1054,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 629,
+  "p": 0.9933,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 1055,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 578,
+  "p": 0.9983,
+  "hit": true,
+  "ms": 59
+ },
+ {
+  "i": 1056,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 612,
+  "p": 0.852,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 1057,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 700,
+  "p": 0.9948,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 1058,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 510,
+  "p": 0.9903,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 1059,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 714,
+  "p": 0.9983,
+  "hit": true,
+  "ms": 79
+ },
+ {
+  "i": 1060,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 707,
+  "p": 0.9996,
+  "hit": true,
+  "ms": 80
+ },
+ {
+  "i": 1061,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 668,
+  "p": 0.9998,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 1062,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 581,
+  "p": 0.9954,
+  "hit": true,
+  "ms": 60
+ },
+ {
+  "i": 1063,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 692,
+  "p": 0.9959,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 1064,
+  "cat": "impersonation",
+  "sub": "acquaintances",
+  "chars": 751,
+  "p": 0.9972,
+  "hit": true,
+  "ms": 64
+ },
+ {
+  "i": 1065,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 595,
+  "p": 0.9627,
+  "hit": true,
+  "ms": 57
+ },
+ {
+  "i": 1066,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 683,
+  "p": 0.9981,
+  "hit": true,
+  "ms": 77
+ },
+ {
+  "i": 1067,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 674,
+  "p": 0.9579,
+  "hit": true,
+  "ms": 61
+ },
+ {
+  "i": 1068,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 542,
+  "p": 0.982,
+  "hit": true,
+  "ms": 58
+ },
+ {
+  "i": 1069,
+  "cat": "fraudulent service",
+  "sub": "e-commerce logistics and shopping",
+  "chars": 554,
+  "p": 0.974,
+  "hit": true,
+  "ms": 58
+ }
+]

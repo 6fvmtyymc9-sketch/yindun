@@ -43,7 +43,19 @@ function registerCallAudio(app, deps) {
   const asr = deps.asr || new Asr();
   /** 第三票：反诈专用模型（听音频）。没配 SFT_URL 就是 null，链路照旧走两路。 */
   const sft = deps.sft || null;
-  /** 第三票最多等多久。手机端读超时是 90 秒（CallRecord.java 第 271 行），这里留余量。 */
+  /**
+   * 第三票最多等多久。手机端读超时是 90 秒（CallRecord.java 第 271 行），这里留余量。
+   *
+   * 【2026-11-18 实测：60 秒这个默认值不能用在 GPU 上】
+   *   GPU 正常时单次 114~148 ms，60 秒是 400 倍余量，等于没设。
+   *   但模型"接得上却不回话"（正在加载权重、显存被别的进程占了、卡在队列里）时，
+   *   实测一通 28.8 秒的录音要等 **63.7 秒**才出结论 —— 老人挂断后一分钟没有任何反应，
+   *   子女端也一直空着；长录音还要叠加切段转写的耗时，很容易撞手机端 90 秒超时，
+   *   而 App 那边超时只写日志、不提示，等于静默失败。
+   *   第三票缺席的代价（少一票）远小于拖 60 秒（整条复盘的结果迟到或丢失），
+   *   所以 GPU 部署把 SFT_WAIT_MS 设成 8000 即可：实测 P99 148 ms，50 倍余量足够。
+   *   CPU 部署另当别论 —— 一次前向 40~80 秒，那边必须设 60000 以上。
+   */
   const sftWaitMs = Math.max(0, Number(process.env.SFT_WAIT_MS || 60000));
   const token = process.env.YD_TOKEN || '';
   if (!token) console.warn('[CallAudio] 未配置 YD_TOKEN，/api/callaudio 不校验身份（仅限演示）');

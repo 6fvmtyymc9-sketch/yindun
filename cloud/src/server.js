@@ -545,6 +545,22 @@ app.post('/api/report', async (req, res) => {
   const number = String(b.number || '').trim().slice(0, 32);
   const text = String(b.text || '').trim().slice(0, 1200);
 
+  /* 【2026-11-19 补】号码身份。
+     App 端本来就知道这条短信来自陌生号还是通讯录，但云端此前一律按空处理，
+     等于「陌生号码 +15 分」「通讯录 −20 分」这两条加权在服务端根本不存在：
+     同一条文本，App 判 S2、云端只判 S1，两边对不上账。
+     白名单外的一律落成空，保证不传 who 的老版本 App 行为完全不变。
+     2026-11-19 实测：1,070 条 Fraud-R1 上，who='' 漏报 18.8%，
+     传 stranger 后只看 S0 的话是 4.2%——差出来的就是这 15 分。 */
+  const who = ['stranger', 'contact', 'service'].includes(b.who) ? b.who : '';
+
+  /* 【2026-11-19 补】试跑模式。
+     评估集跑 1,070 条会把 yd_report/yd_alert 灌满（11-18 就灌了 607 条，
+     还得人工按 elder_id='demo' 清）。dryRun=1 时判定照走、模型照调，
+     但不落库、不生成预警、不推给子女端。
+     配额仍然计次——不然谁加个 dryRun 就能无限刷模型调用。 */
+  const dryRun = b.dryRun === true || b.dryRun === 1 || b.dryRun === '1';
+
   const img = b.image ? parseDataUrl(b.image) : null;
   if (b.image && !img) {
     return res.status(400).json({ ok: false, msg: '图片格式不对，请传 data:image/...;base64,...' });
@@ -585,8 +601,9 @@ app.post('/api/report', async (req, res) => {
   const judgeText = [text, ocrText].filter(Boolean).join('\n');
 
   // ---------- 第二层：本地规则算一遍（不联网、毫秒级）----------
-  // who 传空：上传的短信号码归属未知，不能默认按"陌生人"加 15 分，否则正常快递短信也会被抬高。
-  const local = judgeText ? judge.scoreSms(judgeText, '', false) : null;
+  // who 来自请求体：未知时传空，不硬按"陌生人"加 15 分，
+  // 否则正常快递短信也会被抬高（老版本 App 不传 who，行为与接入前一致）。
+  const local = judgeText ? judge.scoreSms(judgeText, who, false) : null;
 
   // 模型挂了就用本地结论兜底 —— 服务不能因为模型挂了就不能用
   if (!ai && !local) {
@@ -611,58 +628,65 @@ app.post('/api/report', async (req, res) => {
   };
 
   // ---------- 落库 + 号码信誉 ----------
-  try {
-    await db.addReport({
-      elderId, reporter, number,
-      source: img ? 'image' : 'text',
-      // 存下来的应该是"能看懂的内容"：用户打的字优先，其次 OCR 认出来的字，
-      // 都没有才落 '(图片)' —— 否则子女端详情里只有三个字，看不出老人发了什么。
-      excerpt: text || (ocrText ? ocrText.slice(0, 200) : '(图片)'),
-      imageBytes,
-      isFraud, stage: result.stage, type: result.type,
-      reason: result.reason, advice: result.advice,
-      signals: result.signals,
-      localScore: local ? local.score : 0,
-      cost,
-    });
-  } catch (e) { console.warn('[report] 落库失败：', e.message); }
-
-  const reportCount = number ? await db.countReports(number).catch(() => 0) : 0;
-  const blacklisted = reportCount >= 3;   // 同一号码 ≥3 人举报即标红
-
-  // ---------- 高危自动生成一条子女端预警 ----------
+  // dryRun 时整段跳过：判定和花费照走，但不写库、不生成预警、不推给子女端。
+  // 评估集用它跑，生产库就不会被灌（11-18 一轮灌了 607 条上报 + 598 条告警）。
+  let reportCount = 0;
+  let blacklisted = false;
   let alert = null;
-  if (result.isFraud && result.stage >= 3) {
-    alert = {
-      elderId,
-      level: result.stage >= 4 ? 'block' : 'high',
-      title: `有人给妈妈发了一条${result.type || '诈骗'}短信`,
-      body: result.advice,
-      // 身份写进 why：子女端时间线不读额外字段，直接显示这段文案，
-      // 子女看到「我帮爸爸查的那条」和「爸爸自己查的」能分得清
-      why: `${reporter === 'child' ? '子女代传' : '老人上传'} · S${result.stage}${result.stageName} · ${result.reason}`,
-      channel: 'upload',
-    };
+
+  if (!dryRun) {
     try {
-      alert.id = await db.addAlert(alert);
-      /* 【2026-11-09 修】原来这里手写了一条 {type:'alert', alert:{...}} 的嵌套消息，
-         而通话链路用的是扁平结构。前端 renderAlert() 按扁平解析，拿到的
-         level/title 全是 undefined —— 结果是「短信上报推过去了，子女端却渲染成一张空卡」。
-         现在统一走 pushTo，只有一种格式，不再分叉。 */
-      const d0 = new Date();
-      const hhmm0 = String(d0.getHours()).padStart(2, '0') + ':' + String(d0.getMinutes()).padStart(2, '0');
-      pushTo(elderId, {
-        type: 'alert',
-        alertId: alert.id,
-        level: alert.level,
-        title: alert.title,
-        body: alert.body,
-        why: alert.why,
-        channel: alert.channel,
-        summary: null,
-        time: hhmm0,
+      await db.addReport({
+        elderId, reporter, number,
+        source: img ? 'image' : 'text',
+        // 存下来的应该是"能看懂的内容"：用户打的字优先，其次 OCR 认出来的字，
+        // 都没有才落 '(图片)' —— 否则子女端详情里只有三个字，看不出老人发了什么。
+        excerpt: text || (ocrText ? ocrText.slice(0, 200) : '(图片)'),
+        imageBytes,
+        isFraud, stage: result.stage, type: result.type,
+        reason: result.reason, advice: result.advice,
+        signals: result.signals,
+        localScore: local ? local.score : 0,
+        cost,
       });
-    } catch (e) { console.warn('[report] 推预警失败：', e.message); }
+    } catch (e) { console.warn('[report] 落库失败：', e.message); }
+
+    reportCount = number ? await db.countReports(number).catch(() => 0) : 0;
+    blacklisted = reportCount >= 3;   // 同一号码 ≥3 人举报即标红
+
+    // ---------- 高危自动生成一条子女端预警 ----------
+    if (result.isFraud && result.stage >= 3) {
+      alert = {
+        elderId,
+        level: result.stage >= 4 ? 'block' : 'high',
+        title: `有人给妈妈发了一条${result.type || '诈骗'}短信`,
+        body: result.advice,
+        // 身份写进 why：子女端时间线不读额外字段，直接显示这段文案，
+        // 子女看到「我帮爸爸查的那条」和「爸爸自己查的」能分得清
+        why: `${reporter === 'child' ? '子女代传' : '老人上传'} · S${result.stage}${result.stageName} · ${result.reason}`,
+        channel: 'upload',
+      };
+      try {
+        alert.id = await db.addAlert(alert);
+        /* 【2026-11-09 修】原来这里手写了一条 {type:'alert', alert:{...}} 的嵌套消息，
+           而通话链路用的是扁平结构。前端 renderAlert() 按扁平解析，拿到的
+           level/title 全是 undefined —— 结果是「短信上报推过去了，子女端却渲染成一张空卡」。
+           现在统一走 pushTo，只有一种格式，不再分叉。 */
+        const d0 = new Date();
+        const hhmm0 = String(d0.getHours()).padStart(2, '0') + ':' + String(d0.getMinutes()).padStart(2, '0');
+        pushTo(elderId, {
+          type: 'alert',
+          alertId: alert.id,
+          level: alert.level,
+          title: alert.title,
+          body: alert.body,
+          why: alert.why,
+          channel: alert.channel,
+          summary: null,
+          time: hhmm0,
+        });
+      } catch (e) { console.warn('[report] 推预警失败：', e.message); }
+    }
   }
 
   res.json({
@@ -673,6 +697,10 @@ app.post('/api/report', async (req, res) => {
     reportCount,
     blacklisted,
     alert,
+    // 试跑时 alert 是 null，但"这条会不会惊动子女"仍要能看出来，
+    // 否则评估表少一列关键指标（预警命中率）。
+    wouldAlert: !!(result.isFraud && result.stage >= 3),
+    ...(dryRun ? { dryRun: true } : {}),
     meta: { ms, cost, tokens: pangu.lastUsage, model: pangu.model, imageBytes, source: img ? 'image' : 'text' },
   });
 });

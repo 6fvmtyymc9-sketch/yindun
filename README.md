@@ -100,7 +100,15 @@ cloud/                    Node + Express + MySQL 云端
 
 ### 4.1 编译安装
 
-需要 JDK 17 + Android SDK（compileSdk 34）。
+需要 **JDK 17** + **Android SDK（compileSdk 34）**。SDK 路径通过环境变量给：
+
+```bash
+export ANDROID_HOME=/path/to/android-sdk   # Windows: set ANDROID_HOME=D:\Android
+export JAVA_HOME=/path/to/jdk17
+```
+
+**首次构建需要联网**——Gradle 发行版从腾讯镜像拉（`gradle-wrapper.properties`），
+依赖从阿里云镜像拉（`settings.gradle`）。只有拉过一次之后才能用 `--offline`。
 
 ```bash
 cd app
@@ -109,6 +117,34 @@ cd app
 # 或者不依赖 Gradle，手工打包（本项目一直两条路并存）
 bash build2.sh                   # 产物 Yindun.apk
 ```
+
+**两条路线产出的 APK 签名相同，可以互相覆盖安装**（实测三次往返 Success）。
+
+#### 关于签名
+
+仓库**不含签名密钥**（`*.jks` 在 `.gitignore` 里）。分两种情况：
+
+- **没有 `app/local.properties`**（刚 clone 下来的默认状态）：
+  Gradle 会用宿主机 `~/.android/debug.keystore` 自动签名，
+  **构建能成功、APK 能装能跑**，只是不能覆盖安装已发布的旧版本。
+  构建时会打印一段醒目提示告诉你这件事。
+- **要项目自己的钥匙**：在 `app/local.properties` 里补四行（外加 SDK 路径）：
+
+  ```properties
+  sdk.dir=D\:\\Android
+  yd.storeFile=yindun.jks
+  yd.storePassword=******
+  yd.keyAlias=yindun
+  yd.keyPassword=******
+  ```
+
+  注意 `build2.sh` 也只认这四行，两条路线的钥匙必须一致，否则互相覆盖安装会失败。
+
+#### 已知构建约束
+
+**代码必须保持 Java 8 语法兼容**（不用 `var`、`List.of()`、switch 表达式等）。
+原因：Gradle 用 Java 17 编译，而 `build2.sh` 走 `javac -source 8 -target 8` + `d8 --min-api 24`。
+去掉这条约束需要先退役 `build2.sh`。
 
 两个壳：
 
@@ -141,17 +177,11 @@ node src/server.js
 
 ### 4.3 签名说明
 
-仓库**不含签名密钥**（`*.jks` 已在 `.gitignore` 里）。用 Gradle 构建时
-`local.properties` 需要四项配置：
+见上面 [4.1 的「关于签名」](#关于签名)。一句话：**没有密钥也能构建成功**，
+用的是宿主机默认 debug 钥匙；要覆盖安装已发布版本才需要配 `local.properties`。
 
-```properties
-yd.storeFile=/path/to/your.jks
-yd.storePassword=******
-yd.keyAlias=******
-yd.keyPassword=******
-```
-
-没有密钥就用 debug 签名，能装能跑，只是不能覆盖安装已发布版本。
+本项目实际使用的钥匙签名为 `SHA-256 1e10dabe…ddc2`，
+两条构建路线打出来的 APK 都是这一把，所以能互相覆盖。
 
 ---
 

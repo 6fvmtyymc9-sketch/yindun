@@ -76,6 +76,13 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
+    // manifest 里写了 extractNativeLibs="true"（MindSpore Lite 的 .so 要能被解压出来加载），
+    // AGP 8 要求这里显式声明同一个意思，否则打包时刷一条警告。
+    // 2026-11-19 补：原来只有警告、不影响产物，但警告会让人以为配置写错了。
+    packagingOptions {
+        jniLibs.useLegacyPackaging = true
+    }
+
     // 纯 Java 手写 View，没有 XML 布局，不需要 buildFeatures
     lint {
         abortOnError false

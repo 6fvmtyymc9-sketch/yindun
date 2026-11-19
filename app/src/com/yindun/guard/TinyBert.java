@@ -244,7 +244,21 @@ public final class TinyBert {
     }
 
     private static boolean armSupported() {
-        if (Build.SUPPORTED_ABIS == null) return false;
+        if (Build.SUPPORTED_ABIS == null || Build.SUPPORTED_ABIS.length == 0) return false;
+        // 【2026-11-19 修】必须看"主 ABI"，不能只看列表里有没有 arm。
+        //
+        // Android 11 起的 x86_64 模拟器默认开着 ARM 转译
+        // （ro.enable.native.bridge.exec=1），报出来的 SUPPORTED_ABIS 是
+        // "x86_64,x86,arm64-v8a,armeabi-v7a,armeabi" —— 末尾那几个 arm 是
+        // 转译层"能执行"的假象。原写法看到 arm64-v8a 就返回 true，于是去加载
+        // 官方 arm64 so，经 ndk_translation 执行时 JNI 字段类型校验对不上：
+        //   JNI DETECTED ERROR: attempt to access field boolean
+        //   com.mindspore.Model.isModelSharePtr ... with the wrong type int
+        //   at com.yindun.guard.TinyBert.doWarmUp(TinyBert.java:144)
+        // 后果不是"模型不可用"，是整个进程 SIGABRT —— 守护服务被打死，
+        // 银行拦截跟着一起没了。宁可判"没有模型"退回规则，也不能让进程崩。
+        String main = Build.SUPPORTED_ABIS[0];
+        if (main == null || !main.startsWith("arm")) return false;
         for (String abi : Build.SUPPORTED_ABIS) {
             if ("arm64-v8a".equals(abi) || "armeabi-v7a".equals(abi) || "armeabi".equals(abi)) {
                 return true;

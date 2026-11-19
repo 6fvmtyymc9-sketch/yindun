@@ -64,7 +64,8 @@
 node -v
 ```
 
-**必须 ≥ v22.19。** 低于这个数就停，发截图给队长。
+**必须 ≥ v22.19。** 低于这个数**不用停，也不用换地方跑** —— 看下面「二·补」照着做，
+把 Node 装在自己家目录里就行（实测码道是 v22.11.0，2026-11-19 已知会卡在这里）。
 
 ```bash
 npx --yes huaweicloud-devkit@latest doctor
@@ -73,6 +74,103 @@ npx --yes huaweicloud-devkit@latest doctor
 第一次跑会有一堆 `[FAIL]`，**这是正常的**（还没装）。把输出留着，装完要对比。
 
 > ⚠️ 报 `npx: command not found` = Node 没装好，停下找队长。
+
+---
+
+## 二·补：Node 版本不够怎么办（2026-11-19 新增，实测码道是 v22.11.0）
+
+### 先说结论：不能换本地跑
+
+赛题第 2 条原文是"**基于已有智能体和 Skills，进行关联 RDS、Redis 等华为云服务的快速开通创建**"。
+换到本机跑，就没有"智能体调用 Skills"这个过程，第 2 条照样不满足 —— 而且拿别处开的实例冒充，
+属于材料与过程不符，风险最高。**必须在码道里把它弄通。**
+
+### 为什么是硬门槛，不是警告
+
+`huaweicloud-devkit@1.1.14` 的 `engines` 是 `^22.19.0 || >=23.4.0`，
+`setup-cli.mjs` 里 `checkNode()` 直接 `process.exit(1)`，没有跳过开关：
+
+```js
+if (!isSupportedNode(process.versions.node)) {
+  console.error(`Node.js >= 22.19 required (Node 23 requires 23.4+) (current: ${process.version})`);
+  process.exit(1);
+}
+```
+
+原因是它要用 `node:sqlite` 的 `DatabaseSync` 存状态，22.11 上不达标。
+**所以绕不过去，只能把 Node 升上去。**
+
+### 怎么升：装在自己目录里，不动系统 Node
+
+**红线：不要 `sudo apt/yum install nodejs`，不要覆盖 `/usr/bin/node`。**
+码道平台自己的组件跑在 22.11 上，换掉系统 Node 可能把整个会话搞坏，而且大概率没 sudo。
+
+#### 第 1 步：探路（只读，先跑这条）
+
+```bash
+uname -m; node -v; npm -v; echo "HOME=$HOME"; id -un
+```
+
+记下 `uname -m` 的结果：`x86_64` 还是 `aarch64`，下一步要用。
+
+#### 第 2 步：下载官方二进制（不装 SDK，只解压）
+
+**x86_64 用这段：**
+
+```bash
+mkdir -p ~/node22 && cd ~/node22 && \
+curl -fsSLO https://cdn.npmmirror.com/binaries/node/v22.22.0/node-v22.22.0-linux-x64.tar.xz && \
+tar -xf node-v22.22.0-linux-x64.tar.xz --strip-components=1 && \
+~/node22/bin/node -v
+```
+
+**aarch64 把 `linux-x64` 换成 `linux-arm64`**（两个都换，下载和解压是同一个文件名）。
+
+最后一行应该打印 `v22.22.0`。打印不出来就是下载失败，把报错发队长。
+
+#### 第 3 步：只在当前终端生效，先跑通
+
+```bash
+export PATH="$HOME/node22/bin:$PATH"
+which node && node -v
+```
+
+`which node` 必须显示 `/home/xxx/node22/bin/node`，`node -v` 必须 ≥ v22.19。
+**两条都对，才继续。**
+
+#### 第 4 步：在这同一个终端里装
+
+```bash
+npx --yes huaweicloud-devkit@latest install --target codearts
+npx --yes huaweicloud-devkit@latest install-hcloud
+npx --yes huaweicloud-devkit@latest doctor
+```
+
+> 这三条必须在**第 3 步那个终端里连着跑**。新开一个窗口，PATH 就回去了，又会报 Node 版本不够。
+
+#### 第 5 步：让码道以后也用新 Node（关键，别漏）
+
+devkit 写的 MCP 配置里 `command` 是裸的 `node`（走 PATH）。码道下次拉起 MCP 时，
+如果 PATH 里还是系统那个 22.11，MCP 可能起不来。所以要把 PATH 写进 shell 启动文件：
+
+```bash
+echo 'export PATH="$HOME/node22/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc && node -v
+```
+
+再跑一次 `npx --yes huaweicloud-devkit@latest doctor`，这次**新开终端**也要能看到 `v22.22.0`。
+
+#### 如果还是不行
+
+| 现象 | 大概率原因 | 怎么办 |
+|---|---|---|
+| `curl` 下载 404 | 版本号或架构拼错 | 把 `uname -m` 结果发队长 |
+| `tar` 报错 | 下载不完整 | 删掉 `.tar.xz` 重下 |
+| `which node` 还是系统那个 | `export` 没在同一终端 | 重跑第 3 步 |
+| doctor 过但 MCP 起不来 | PATH 没持久化 | 回头看第 5 步 |
+
+**做完这一步，回去接着按第 2 步装 Skills；装完 doctor 应该是 `10 pass, 1 warn, 0 fail`，
+`warn` 那条是沙箱，第 3 步解决。**
 
 ---
 

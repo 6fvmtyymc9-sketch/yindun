@@ -143,5 +143,5 @@ mysql -u root -p"$(sed -n 's/^RDS_PASS=//p' /opt/yindun/.env)" -N \
 ```
 
 > ⚠️ `/api/health` 的 `stats:{alerts,reports}` 是 `WHERE elder_id='demo'` 的计数
-> （`Db.js:426`），不是总条数；对总数只认不带 `WHERE` 的 `SELECT COUNT(*)`。
+> （`Db.js:428`），不是总条数；对总数只认不带 `WHERE` 的 `SELECT COUNT(*)`。
 

@@ -1,0 +1,23 @@
+# 换行符规则
+#
+# 背景：本机 core.autocrlf=true，checkout 时会把文本转成 CRLF。
+# 但 tools/*.sh 是要拷到 Linux（学校 GPU 容器、ECS）直接 bash 跑的，
+# 带 \r 会报 `$'\r': command not found`。所以这几个类型强制 LF。
+#
+# 不加 `* text=auto` 全局规则 —— 那会让所有已有文件重新归一化，
+# 产生一个几千行的假 diff，反而看不清真正的改动。
+
+*.sh   text eol=lf
+*.py   text eol=lf
+*.js   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+
+# 二进制，别碰
+*.png  binary
+*.jpg  binary
+*.jks  binary
+*.apk  binary
+*.zip  binary
+*.wav  binary
+*.mp3  binary

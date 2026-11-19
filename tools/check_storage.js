@@ -25,9 +25,25 @@ const fs = require('fs');
 const path = require('path');
 const { createRequire } = require('module');
 
-// 依赖从 cloud/ 解析（tools/ 自己没装 node_modules）
-const cloudPkg = path.join(__dirname, '..', 'cloud', 'package.json');
-const req = createRequire(cloudPkg);
+// 依赖解析：两套目录结构都要能用
+//   仓库里    tools/check_storage.js   → ../cloud/package.json（node_modules 在 cloud/ 下）
+//   部署机上  /opt/yindun/tools/xxx.js → ../package.json（node_modules 在 /opt/yindun 下）
+function pickPkg() {
+  const cands = [
+    path.join(__dirname, '..', 'cloud', 'package.json'),
+    path.join(__dirname, '..', 'package.json'),
+  ];
+  for (const p of cands) if (fs.existsSync(p)) return p;
+  console.error(`✗ 找不到 package.json（试过 ${cands.join(' / ')}）—— 本脚本要和服务代码放在一起跑`);
+  process.exit(1);
+}
+const req = createRequire(pickPkg());
+
+// .env 默认位置同理：仓库用 cloud/.env，部署机用 /opt/yindun/.env
+function defaultEnv() {
+  const a = path.join(__dirname, '..', 'cloud', '.env');
+  return fs.existsSync(a) ? a : path.join(__dirname, '..', '.env');
+}
 
 // ---------------- 参数 ----------------
 function argOf(name, def) {
@@ -36,7 +52,7 @@ function argOf(name, def) {
   const v = process.argv[i + 1];
   return v && !v.startsWith('--') ? v : true;
 }
-const ENV_FILE = argOf('--env', path.join(__dirname, '..', 'cloud', '.env'));
+const ENV_FILE = argOf('--env', defaultEnv());
 const FORBID_LOCAL = process.argv.includes('--forbid-local');
 const EXPECT_RAW = argOf('--expect', null);
 

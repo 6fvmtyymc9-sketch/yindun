@@ -133,5 +133,15 @@ mysql -h <RDS> -u <管理员> -p yindun < sql/migrate_20261111_event.sql
   漏了不会报错，**录音复盘的上报会被 MySQL 静默截断成空串**，数据直接丢。
 - `migrate_20261111_event.sql` —— 给 `yd_alert` 加 `call_id` / `kind`，事件回放要用。
 
-迁移前基线（2026-11-18 实测，别再抄 353/7 那个旧数）：**告警 428 条、上报 32 条**。
+迁移前基线**一律现查**，不要抄任何文档里的数字（353/7 是 11-16 的、428/32 是 11-18 的，
+11-19 上午已经是 1581/1225——同学乙跑评估集灌的，`elder_id` 全是 `demo`）。
+原则只有一条：**迁移前存档一次，迁移后核对一次，逐项相等即成功。**
+
+```bash
+mysql -u root -p"$(sed -n 's/^RDS_PASS=//p' /opt/yindun/.env)" -N \
+  -e "SELECT 'alerts',COUNT(*) FROM yindun.yd_alert UNION ALL SELECT 'reports',COUNT(*) FROM yindun.yd_report;"
+```
+
+> ⚠️ `/api/health` 的 `stats:{alerts,reports}` 是 `WHERE elder_id='demo'` 的计数
+> （`Db.js:426`），不是总条数；对总数只认不带 `WHERE` 的 `SELECT COUNT(*)`。
 

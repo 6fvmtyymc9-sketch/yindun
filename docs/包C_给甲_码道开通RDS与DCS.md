@@ -212,26 +212,79 @@ npx --yes huaweicloud-devkit@latest doctor
 
 原因：沙箱模式下 KooCLI 写不进 `~/.hcloud/`，会卡在隐私协议那一步。
 
-### 4.2 配 AK/SK
+### 4.2 配 AK/SK（网页版没有终端，走 devkit 官方 import 通道）
 
-AK/SK 队长从微信单独发你，**不要写进任何文件、不要提交进仓库、不要贴群**。
+#### 先说是哪套 AK/SK
 
-```bash
-hcloud configure set --cli-access-key=你的AK --cli-secret-key=你的SK --cli-region=cn-north-4 --cli-profile=default
+队长会在控制台建一个 **IAM 子用户**（名字 `yindun-codearts`），只授 `RDS FullAccess` / `DCS FullAccess` / `VPC ReadOnlyAccess` 三条系统策略，然后把它的 AK/SK 微信单独发你。
+
+**不是队长的主账号密钥** —— 主账号密钥能改 IAM、能开 ECS、能删库，不能外传。子用户归属于队长账号，开出来的实例照样落在队长的 VPC 里，效果与用主账号完全一样。
+
+#### 为什么不能跑 `auth init`
+
+它要交互式读 stdin（`readSecret`）。网页版码道的 stdin 不是 TTY，devkit 会**直接拒绝并退出**：
+
+```
+Cannot read "<prompt>" securely in a non-interactive session.
+Set HW_ACCESS_KEY/HW_SECRET_KEY environment variables instead,
+  or run "npx huaweicloud-devkit auth init" in a real terminal.
 ```
 
-**必须验证真的通了**：
+而 `huaweicloud-devkit` 的 `auth/guidance.mjs` 里，`scenario 3 + codearts` 这条分支**写死了官方流程**，就是下面四步。它比直接传环境变量更彻底：SK 不进对话记录，读完的临时文件会被工具自己删掉。
+
+#### 第 1 步：在自己电脑上建一个 json（这一步不在码道里做）
+
+文件名 `creds-import.json`，内容：
+
+```json
+{"ak":"队长发你的AK","sk":"队长发你的SK","region":"cn-north-4"}
+```
+
+`region` 必须是 `cn-north-4`（华北-北京四）。ECS / RDS / DCS 全在这个区，写错会 403。
+
+#### 第 2 步：把文件放到 `~/.config/huaweicloud/creds-import.json`
+
+**优先**：码道对话里如果有「上传文件 / 附件」入口，直接把 json 传上去，然后跟智能体说：
+
+> 把刚上传的 creds-import.json 复制到 `~/.config/huaweicloud/creds-import.json`，不要打印文件内容。
 
 ```bash
+mkdir -p ~/.config/huaweicloud && \
+cp <上传的文件路径> ~/.config/huaweicloud/creds-import.json && \
+chmod 600 ~/.config/huaweicloud/creds-import.json
+```
+
+**只有码道确实没有上传入口时**，才退到让智能体用 heredoc 写。那样 AK/SK 会留在对话记录里，**做完必须立刻告诉队长把这把密钥删掉**。
+
+#### 第 3 步：让智能体导入
+
+原话：
+
+> 调用 `huaweicloud_auth_switch`，`mode=import`，`action=persist`。
+
+它会读这个文件 → 写进正式凭据位置 → 同步给 KooCLI → **把 `creds-import.json` 删掉**。
+
+#### 第 4 步：验证两件事
+
+```bash
+ls ~/.config/huaweicloud/                    # 不应再有 creds-import.json
 hcloud RDS ListInstances --cli-region=cn-north-4
 ```
 
-**期望**：返回一段 JSON，里面有 `"name": "yindun-demo-1119"`（队长之前开的，能看到就说明凭据对了）。
+**期望**：第二条返回的 JSON 里有 `"name": "yindun-demo-1119"`。
+
+> ⚠️ `yindun-demo-1119` 和 `yindun-redis-1119` 是**线上正在跑的两个实例**。看到它们只说明凭据对了，**不许碰**（见第十节红线 6）。
 
 | 报什么 | 说明 |
 |---|---|
-| `配置文件中不存在配置项` | 上一条 `configure set` 没成功，重跑 |
-| `认证失败` | AK/SK 抄错了，找队长要新的 |
+| `未配置华为云凭证` | import 没执行，或文件不在那个路径 |
+| `凭证已被华为云拒绝` | AK/SK 抄错，或子用户密钥已被队长禁用 |
+| `凭证有效但无权限列出项目` | 子用户策略没授对，找队长补授权 |
+| `缺少 region` | json 里少了 `region` 字段 |
+
+#### 代金券：不用领
+
+码道提示「首次使用插件可领代金券」—— **不领**。华为云官方《代金券使用声明》第 3 条：「不得出售、许可、出租或以其他方式转让」「仅能由您个人或者同一法人的企业多级主体间共享使用」。券绑在领它的账号上，RDS/DCS 开在队长账号下，扣的是队长的钱，你的券抵扣不到。别为这个去实名认证、也别花时间。
 
 ### 4.3 重启会话（关键）
 
@@ -396,10 +449,11 @@ VPC ID    8f452f90-f5bd-4b51-ad48-4eb1d101552f
 
 ## 十、七条红线（每条都是真踩过的）
 
-**1. AK/SK 必须是队长那套**
+**1. AK/SK 必须是队长账号下的（子用户），绝不能用你自己的账号**
 你俩账号各有一个叫 `vpc-default` 的 VPC，ID 不同（队长 `8f452f90`、你的 `b1b68207`）。
 ECS 在队长的 VPC 里，**用你自己的 AK 开，实例落在你的 VPC，内网永远不通**。
 而且 RDS 的 VPC **创建后不能改**，只能删了重开。
+（队长给你的 `yindun-codearts` 子用户属于队长账号，所以 VPC 是对的——别拿自己账号的密钥替换。）
 
 **2. VPC / 子网按 ID 核对，不按名字选**
 两个账号都有同名 `vpc-default`。名字可以一样，**ID 必须完全一致**。
@@ -418,8 +472,11 @@ RDS `Yd2026Skill#a7`、Redis `Yd2026Skill#b8`。改了我这边连不上，只�
 **6. 只开不删、只开不迁**
 你删任何实例，线上立刻断。
 
-**7. 不让 AK/SK 落地**
-码道会生成 `~/.hcloud/config.json`，那是本机配置，**不要拷进仓库、不要发给任何人**。
+**7. 临时凭据文件必须确认已经消失**
+`auth_switch mode=import` 正常跑完会删掉 `~/.config/huaweicloud/creds-import.json`。
+**自己 `ls` 一眼确认它不在了**；还在就手动删。任何情况下都不要把 AK/SK
+拷进仓库、贴群、或者发给第三人。
+另：`~/.hcloud/config.json` 是 KooCLI 的本机配置（SK 加密存储），同样不外传。
 
 ---
 

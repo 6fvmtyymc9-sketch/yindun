@@ -424,7 +424,10 @@ class Db {
     };
   }
 
-  /** 统计，答辩时用来展示"跑了多少条" */
+  /** 统计，答辩时用来展示"跑了多少条"。
+      注意：带 elder_id 过滤。health 里传的是 'demo'，所以它查的只是演示账号那一条；
+      清掉 demo 评估数据之后这里会全变 0 —— 那是对的，不是丢了数据。
+      要核对"库里的总数"，用下面的 statsAll()。 */
   async stats(elderId) {
     if (this.online) {
       try {
@@ -441,6 +444,26 @@ class Db {
       events: mem.event.filter(x => x.elder_id === elderId).length,
       alerts: mem.alert.filter(x => x.elder_id === elderId).length,
       reports: mem.report.filter(x => x.elder_id === elderId).length,
+    };
+  }
+
+  /** 全库计数，不带 elder_id 过滤。【2026-11-19 补】
+      为什么需要它：迁移 RDS 的验收方法是"迁前查一次、迁后查一次、逐项相等"，
+      而 stats('demo') 在清完 demo 评估数据后恒为 0，等于失去判别力
+      （迁前 0、迁后 0 也算相等，出事了看不出来）。全库口径才是能对账的那把尺。 */
+  async statsAll() {
+    if (this.online) {
+      try {
+        const [[ev]] = await this.pool.execute(`SELECT COUNT(*) AS n FROM yd_event`);
+        const [[al]] = await this.pool.execute(`SELECT COUNT(*) AS n FROM yd_alert`);
+        const [[rp]] = await this.pool.execute(`SELECT COUNT(*) AS n FROM yd_report`);
+        return { events: ev.n, alerts: al.n, reports: rp.n };
+      } catch (e) { /* 落下去走内存 */ }
+    }
+    return {
+      events: mem.event.length,
+      alerts: mem.alert.length,
+      reports: mem.report.length,
     };
   }
 }

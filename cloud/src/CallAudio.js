@@ -105,6 +105,14 @@ function registerCallAudio(app, deps) {
     const name = String(b.name || 'call.mp3').slice(0, 120);
     const demoText = typeof b.demoText === 'string' ? b.demoText.slice(0, 8000) : '';
 
+    /* 【2026-11-19 补】试跑模式，口径与 /api/report 完全一致。
+       评估集跑一通录音就会判到 warn/high，然后 addAlert + pushTo + addReport，
+       跑一轮库里多几百条 —— 11-19 同学乙的 reports 1219→1225 就是这么来的，
+       也是同学甲基线一直对不上的根因。
+       dryRun=1 时：转写、判定、模型全部照走（结论照样算出来），
+       但不写 alert、不推子女端、不入号码网。 */
+    const dryRun = b.dryRun === true || b.dryRun === 1 || b.dryRun === '1';
+
     let audio;
     try {
       audio = Buffer.from(String(b.audio || ''), 'base64');
@@ -234,8 +242,10 @@ function registerCallAudio(app, deps) {
     };
 
     // ---------- 3. 落库 + 推子女端（warn 及以上） ----------
+    // dryRun 时整段跳过：判定和花费照走，但不写库、不生成预警、不推给子女端。
+    // 评估集用它跑，生产库就不会被灌。
     let alert = null;
-    if (rank(level) >= rank('warn')) {
+    if (!dryRun && rank(level) >= rank('warn')) {
       const quotes = result.evidence.map(s => `「${s}」`).join(' ');
       // 挂断后复盘是同一场事件里的最后一格：老人端上传录音时带着本次通话的 id，
       // 不带的话这条会变成一张孤立卡片，子女端看不到"它是那通电话的结论"。
@@ -284,7 +294,7 @@ function registerCallAudio(app, deps) {
     //
     // 【为什么不存内容】号码可以共享，通话内容不能。excerpt 和 signals 一律留空 ——
     //   这一条不是可选项，是号码网敢不敢上线的前提。
-    if (rank(level) >= rank('high') && number) {
+    if (!dryRun && rank(level) >= rank('high') && number) {
       try {
         const dayStart = new Date();
         dayStart.setHours(0, 0, 0, 0);
@@ -311,7 +321,7 @@ function registerCallAudio(app, deps) {
       }
     }
 
-    console.log(`[CallAudio] ${number || '未知号码'} ${fmtDur(durSec)} → S${stage}/${level}`
+    console.log(`[CallAudio] ${dryRun ? '[试跑] ' : ''}${number || '未知号码'} ${fmtDur(durSec)} → S${stage}/${level}`
       + `（${basis}${sftOut ? `，专用模型 p=${sftOut.p.toFixed(2)} ${sftOut.ms}ms` : `，专用模型${sftState}`}`
       + `，转写 ${asrOut.source} ${asrMs}ms`
       + ((asrOut.parts || 1) > 1 ? `（切 ${asrOut.parts} 段，录音 ${Math.round(asrOut.durationSec)}s）` : '')
@@ -321,6 +331,11 @@ function registerCallAudio(app, deps) {
       ok: true,
       ...result,
       pushed: !!alert,
+      // 这两列写的是"如果真落库，会不会惊动子女 / 会不会进号码网"，不随 dryRun 变，
+      // 否则试跑就白跑了 —— 评估要的正是这个。
+      wouldAlert: rank(level) >= rank('warn'),
+      wouldRecord: rank(level) >= rank('high') && !!number,
+      ...(dryRun ? { dryRun: true } : {}),
       local: { score: local.score, stage: local.stage, why: local.why },
       asr: {
         source: asrOut.source,

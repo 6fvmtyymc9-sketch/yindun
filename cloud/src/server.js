@@ -242,9 +242,11 @@ async function withinQuota(req, res, bucket, perDay, label, tip) {
 
 // ---------- 健康检查（部署后第一个要打的接口）----------
 app.get('/api/health', async (req, res) => {
-  const [rulesVer, stats, sftSt] = await Promise.all([
+  const [rulesVer, stats, statsAll, sftSt] = await Promise.all([
     db.latestRules().catch(() => null),
     db.stats('demo').catch(() => ({ events: 0, alerts: 0 })),
+    // 全库口径。迁移 RDS 的验收靠它：清完 demo 后 stats 恒为 0，只剩它能对账。
+    db.statsAll().catch(() => null),
     sft.ping(),   // 专用模型的真实状态：没配就说没配，不要装作有
   ]);
   // 【为什么不回 SFT_URL】这个接口没有鉴权，谁都能打。而专用模型跑在校内 GPU 上，
@@ -261,7 +263,8 @@ app.get('/api/health', async (req, res) => {
     ocr: ocr.status(),   // 截图上报能不能转成文字，看这里；enabled 只表示配了 AK/SK，不发真请求
     limits: { reportPerDay: REPORT_PER_DAY, drillTurnPerDay: DRILL_TURN_PER_DAY, trustProxy: TRUST_PROXY },
     voice: { families: voice.stats() },   // 有多少位老人的家人录过提醒语音
-    stats,
+    stats,        // 演示账号（elder_id='demo'）那一份，子女端演示用
+    statsAll,     // 全库总数，迁移验收用；清掉 demo 后 stats 会变 0，这一份不会
   });
 });
 

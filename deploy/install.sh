@@ -109,8 +109,23 @@ copy_code() {
   elif [[ -d "$src_root/src"     ]]; then pick="$src_root"
   else die "$src_root 里既没有 cloud/src 也没有 src，代码路径不对？"
   fi
+  # --delete 之前必须确认源里有 server.js，否则一个空目录就能把线上删空
+  [[ -f "$pick/src/server.js" ]] || die "$pick/src/server.js 不存在，拒绝执行 rsync --delete"
   log "从 $pick 拷贝代码到 $APP_DIR（.env/.git 不会覆盖）"
-  rsync -a --exclude '.env' --exclude '.git' "$pick"/ "$APP_DIR"/
+  # 【2026-11-19 加 --delete】不带 --delete 时，新版本删掉/改名的文件会残留在服务器上：
+  #   旧 rules.json 还在 require 路径上 → 线上实际加载的规则与脚本打印的版本号不一致。
+  # 但 --delete 会删掉"源目录里没有"的一切，所以下面这些必须排除：
+  #   node_modules —— npm install 生成，不排除则每次部署都要重装
+  #   data         —— 运行期数据（data/pairs.json 配对关系、data/voice/ 语音），删了老人配对就没了
+  #   .drill-last  —— 演练上次触发时间，删了会重复提醒
+  #   tools        —— 运维脚本（check_storage.js 之类），不属于发布物
+  #   .env / .git  —— 配置与版本库，本来就不该被覆盖
+  rsync -a --delete \
+    --exclude '.env' --exclude '.git' \
+    --exclude 'node_modules' \
+    --exclude 'data' --exclude '.drill-last' \
+    --exclude 'tools' \
+    "$pick"/ "$APP_DIR"/
 }
 
 if [[ -n "$SRC_DIR" ]]; then
@@ -196,19 +211,50 @@ else
   log "本机没有 mysql/redis 服务，单元只依赖 network（直连 RDS/DCS 的正常形态）"
 fi
 
+# 【2026-11-19 改：运行用户与加固】
+#   原来建了 yindun 用户、也 chown 了目录，但单元里没有 User= —— 服务实际以 root 跑（自相矛盾）。
+#   现在补上 User/Group，并按最小权限收紧。★首次部署若起不来，先看第 9 步的排查提示。
+#
+#   注意：如果这台机器之前以 root 跑过服务，运行期生成的 data/、.drill-last 归 root 所有，
+#   yindun 用户读写不了 —— 所以写单元前再 chown 一次（幂等，代价很小）。
+chown -R "$APP_USER:$APP_USER" "$APP_DIR"
+# .env 里有数据库密码：只给运行用户读，别人一律不可读
+chown "$APP_USER:$APP_USER" "$ENV_FILE"
+chmod 640 "$ENV_FILE"
+log "已把 $APP_DIR 与 .env 交还给 $APP_USER（.env 权限 640）"
+
 cat > /etc/systemd/system/${SERVICE_NAME}.service <<EOF
 [Unit]
 Description=Yindun Anti-Fraud Cloud Service
 After=${DEP_AFTER}
 ${DEP_WANTS}
+# 启动即崩时不要无限重启：60 秒内最多 5 次，超过就进入 failed 等人工处理。
+# （不加这两行，.env 写错会变成"每 3 秒重启一次"的无限循环，1 核 2G 的机器会被拖死）
+StartLimitIntervalSec=60
+StartLimitBurst=5
 
 [Service]
 Type=simple
+User=${APP_USER}
+Group=${APP_USER}
 WorkingDirectory=${APP_DIR}
 ExecStart=${NODE_BIN} src/server.js
 Restart=always
 RestartSec=3
 LimitNOFILE=65535
+
+# 内存上限：ECS 只有 2G，服务正常 150~300MB、跑模型调用峰值约 500MB。
+# 超限时 systemd 只杀本服务（SSH 仍可登录排查），比整机 OOM 卡死好。
+MemoryMax=768M
+
+# ---- 最小权限 ----
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=${APP_DIR}
+RestrictSUIDSGID=true
+CapabilityBoundingSet=
 
 [Install]
 WantedBy=multi-user.target
@@ -231,6 +277,14 @@ done
   warn "健康检查 60 秒内未通过，排查命令："
   warn "  systemctl status $SERVICE_NAME"
   warn "  journalctl -u $SERVICE_NAME -n 50 --no-pager"
+  warn ""
+  warn "常见原因（按概率排）："
+  warn "  1) 单元状态显示 start-limit-hit —— 服务连续崩了 5 次被 systemd 拦住。"
+  warn "     先看日志再放行：systemctl reset-failed $SERVICE_NAME 之后 systemctl start $SERVICE_NAME"
+  warn "  2) 日志里 EACCES / Permission denied —— 权限收得太紧。"
+  warn "     先确认：chown -R $APP_USER:$APP_USER $APP_DIR && chmod 640 $APP_DIR/.env"
+  warn "     仍然失败再把 ProtectSystem=strict 临时改成 ProtectSystem=full，重载后重试"
+  warn "  3) 端口被占 —— ss -lntp | grep ${APP_PORT}"
   exit 1
 }
 log "健康检查通过: $resp"

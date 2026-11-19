@@ -21,6 +21,10 @@
 
     <!-- 收短信。这是整个 App 的命门：没有它，诈骗短信我们根本不知道来过 -->
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <!-- 读短信库：举报页的"从最近短信里挑"（ReportActivity.pickFromSms 读 content://sms/inbox）。
+         和 RECEIVE_SMS 用途不同——那个只管"新短信进来"，这个管"翻已收到的"。
+         曾经考虑过去掉它，实测会直接砍掉举报页一个入口，所以保留。
+         国内应用市场对短信类权限审核最严，提审时要写清这两条各自的用途。 -->
     <uses-permission android:name="android.permission.READ_SMS" />
 
     <!-- 通话状态：判断"现在正在通话中"，以及通话时长。
@@ -67,7 +71,14 @@
          少了这一条，老人只要重启一次，银盾就成了一张摆在那儿的图标。 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
-    <!-- 查询已安装应用：判断"这个 App 是不是从应用商店装的" -->
+    <!-- 查询已安装应用。两个用途：
+         ① InstallReceiver 判断"这个 App 是不是从应用商店装的"（微信从商店装=正常，
+            浏览器下的安装包=可疑，这一步把误报压掉九成）；
+         ② 拿新装 App 的显示名，提示时能说"刚装的那个「骗子理财」"，
+            而不是把 com.xxx.yyy 这种包名甩给 70 岁的老人。
+         注意：识别银行 App 走的是 PACKAGE_USAGE_STATS（查前台是哪个包），
+         不依赖这条权限——所以它没有"银行识别"那么关键，去掉只会让提示里显示包名。
+         真要换成 <queries> + LAUNCHER intent 也能覆盖大部分场景，但需要真机复验 label 是否还拿得到。 -->
     <uses-permission
         android:name="android.permission.QUERY_ALL_PACKAGES"
         tools:ignore="QueryAllPackagesPermission" />
@@ -91,6 +102,13 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <!-- ==================== 应用本体 ==================== -->
+    <!-- 允许明文 HTTP。这不是偷懒，是三个现实约束顶在一起：
+           ① 云端是 ECS 裸 IP（123.249.25.139:8080），没有域名、没有证书；
+           ② 云端地址在设置页可配（DrillNet.base 读 SharedPreferences），
+              部署的人可能填局域网 IP 做演示，写成白名单会让他静默连不上；
+           ③ 自签证书 Android 默认不信任，还得再教老人装一次证书，不现实。
+         代价：链路上能被中间人看到。当前只传短信文本与告警摘要，不传密码与身份证。
+         将来有了域名和证书，改成 networkSecurityConfig 白名单即可，改一个文件。 -->
     <application
         android:label="@string/app_name"
         android:icon="@drawable/ic_launcher"
@@ -142,7 +160,12 @@
         </receiver>
 
         <!-- 守护服务：前台服务，状态栏常驻"银盾守护中"。
-             有这个，界面关了、屏幕黑了两小时，监听还在跑。 -->
+             有这个，界面关了、屏幕黑了两小时，监听还在跑。
+             类型选 dataSync 而不是 phoneCall：phoneCall 在 Android 14+ 要求 App 是默认拨号器
+             或持有 MANAGE_OWN_CALLS，我们两者都没有，声明了反而起不来。
+             本服务实际做的是"轮询云端指令 + 上报事件"，dataSync 是当前唯一可行的归类。
+             注意：Android 15 起 dataSync 有每日累计时长限制，targetSdk 升到 35 时要重新评估
+             （届时可考虑 specialUse 类型 + 向市场说明用途）。 -->
         <service
             android:name=".GuardService"
             android:exported="false"

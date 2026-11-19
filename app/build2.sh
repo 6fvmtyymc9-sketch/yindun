@@ -58,6 +58,16 @@ shutil.copy(out + '/base.apk', out + '/app-unsigned.apk')
 with zipfile.ZipFile(out + '/app-unsigned.apk', 'a', zipfile.ZIP_DEFLATED) as z:
     z.write(out + '/dex/classes.dex', 'classes.dex')
     # 端侧模型的原生库（MindSpore Lite）。必须放在 lib/<abi>/ 下，系统才知道按 ABI 解压。
+    #
+    # 【.so 保持 DEFLATED（压缩），不要改成 ZIP_STORED —— 2026-11-19 实测过】
+    #   曾有审查意见说"AGP 在 useLegacyPackaging=true 时对 .so 用 STORED，压缩的 .so
+    #   在国产 ROM 上可能 System.loadLibrary 失败"。实测结论相反：
+    #     ① unzip -v 对照两种产物，Gradle 出来的 .so 是 DEFLATED，build2.sh 这里也是 DEFLATED，
+    #        两边本来就一致；useLegacyPackaging=true 的语义是"沿用旧的打包行为"= 压缩。
+    #     ② 改成 STORED 后 APK 从 48M 涨到 54M，两路线反而不一致了。
+    #     ③ 真机 9/9 全通过的那一版，.so 就是压缩的。
+    #   manifest 声明的是 extractNativeLibs="true"（安装时解压到 nativeLibraryDir），
+    #   这种模式下 .so 压不压缩系统都能正确提取，压缩还能省 6M 体积。
     for abi in ('arm64-v8a', 'armeabi-v7a'):
         d = os.path.join('jniLibs', abi)
         if not os.path.isdir(d):

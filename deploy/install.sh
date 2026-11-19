@@ -238,6 +238,12 @@ Type=simple
 User=${APP_USER}
 Group=${APP_USER}
 WorkingDirectory=${APP_DIR}
+# 【2026-11-19 补：TZ】
+#   老师改造方案 C5 明确要求 TZ=Asia/Shanghai。连接池（server.js createPool）没有设置
+#   timezone 选项，mysql2 按进程本地时区把 Date 转成字符串写库；RDS 服务端时区是 UTC，
+#   机上一旦不是 CST，写入时间就会整体偏 8 小时且很难发现。
+#   这里用 Environment 在进程启动前就定死，不依赖 env.js 的运行时赋值。
+Environment=TZ=Asia/Shanghai
 ExecStart=${NODE_BIN} src/server.js
 Restart=always
 RestartSec=3

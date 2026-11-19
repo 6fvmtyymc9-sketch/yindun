@@ -216,7 +216,9 @@ npx --yes huaweicloud-devkit@latest doctor
 
 #### 先说是哪套 AK/SK
 
-队长会在控制台建一个 **IAM 子用户**（名字 `yindun-codearts`），只授 `RDS FullAccess` / `DCS FullAccess` / `VPC ReadOnlyAccess` 三条系统策略，然后把它的 AK/SK 微信单独发你。
+队长会在控制台建一个 **IAM 子用户**（名字 `yindun-codearts`），挂在专用用户组 `yindun-rds-dcs` 下，组里只有三条系统策略：`RDS FullAccess` / `DCS FullAccess` / `VPC ReadOnlyAccess`。然后把它的 AK/SK 微信单独发你。
+
+> 华为云新版 IAM **不支持给用户直接授策略**，授权方式只有「继承所选用户组的策略」一种，所以必须绕一层用户组。**这个子用户不加入 `admin` 组**——`admin` 持有 `Tenant Administrator` / `Security Administrator` / `Agent Operator`，挂上去等于交出主账号全部权限，建子用户就失去意义了。
 
 **不是队长的主账号密钥** —— 主账号密钥能改 IAM、能开 ECS、能删库，不能外传。子用户归属于队长账号，开出来的实例照样落在队长的 VPC 里，效果与用主账号完全一样。
 

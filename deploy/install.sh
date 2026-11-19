@@ -193,10 +193,17 @@ APP_PORT="${APP_PORT:-8080}"
 #   同一台 ECS"阶段的写法。迁到 RDS / DCS 之后要 systemctl stop mysql redis-server，
 #   可只要这两个单元还挂在 Wants 里，重启 yindun 就会把它们一起拉起来：
 #   停掉的 mysql 又活了、又吃四百兆内存，而它的数据已经不该再被写。
-#   所以现在：本机真有这俩服务才写依赖；没有（新机器直连 RDS）就只依赖 network。
+#   所以现在：本机真有这俩服务**且仍是 enabled** 才写依赖；没有、或已被 disable
+#   （C5-4 停用后的正常形态）就只依赖 network。
+#
+# 【2026-11-19 再改：判断条件从"unit 文件存在"改成"is-enabled"】
+#   原来用 `systemctl list-unit-files` 判断，但 `systemctl disable` 之后 unit 文件
+#   仍然存在、仍会被列出 —— 于是停掉 mysql 再跑本脚本，还是会把 Wants=mysql.service
+#   写回去，重启 yindun 又把 mysql 拉起来，等于白停。
+#   `is-enabled` 在 disabled/masked 时返回非 0，正好区分"有服务但已停用"。
 LOCAL_DEPS=""
 for u in mysql.service mariadb.service redis-server.service redis.service; do
-  if [[ -n "$(systemctl list-unit-files "$u" --no-legend 2>/dev/null || true)" ]]; then
+  if systemctl is-enabled "$u" >/dev/null 2>&1; then
     LOCAL_DEPS="$LOCAL_DEPS $u"
   fi
 done

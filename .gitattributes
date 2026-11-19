@@ -13,6 +13,10 @@
 *.json text eol=lf
 *.md   text eol=lf
 
+# 无扩展名的 shell 脚本，同样不能带 \r
+gradlew   text eol=lf
+build2.sh text eol=lf
+
 # 二进制，别碰
 *.png  binary
 *.jpg  binary

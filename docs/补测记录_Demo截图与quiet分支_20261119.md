@@ -104,7 +104,7 @@ adb shell am start -n com.icbc.mobile/.MainActivity              # 打开假银�
 `当前通话疑似诈骗`、`138 0013 8000 · 不在通讯录里`、主按钮`挂断这通，就拨给女儿`、
 `已排队，挂了这通就拨`、底部`挂断这通电话` / `停止振动`。
 
-文件：`docs/img/demo/01_红屏拦截_通话中打开银行.png`
+文件：`docs/img/demo/01-bank-block-red-screen.png`
 
 ---
 
@@ -129,7 +129,7 @@ adb emu sms send 10690555667788 "【邮政银行】您的储蓄卡在异地消�
 「我们的浮条如果也在顶部，就被整条压住……改成贴屏幕下方，两边互不干扰」。
 两条同框是最直观的证据。
 
-文件：`docs/img/demo/02_短信浮条_系统通知+银盾同屏.png`
+文件：`docs/img/demo/02-sms-tipbar-with-system-notice.png`
 
 ### 顺带记录一个真实存在的节流
 
@@ -148,7 +148,7 @@ adb emu sms send 10690555667788 "【邮政银行】您的储蓄卡在异地消�
 这印证了分级行为：`none`/`watch` 只留痕不打扰，`warn` 才弹浮条给老人。
 截图 2（warn）与截图 3（watch）放一起，就是"分级"这条设计最直接的证据。
 
-文件：`docs/img/demo/03_本地watch级_不弹浮条.png`
+文件：`docs/img/demo/03-watch-level-no-popup.png`
 
 ---
 

@@ -1,0 +1,16 @@
+{
+  "_说明": "老师《SFT下一步计划》第1步要求的评估集元信息。录完一条加一项，录满 30 条后把 frozen 改成 true 并提交，commit message 写「评估集冻结」。字段说明见同目录 README.md。",
+  "_字段": {
+    "file": "音频文件名，命名 eval_正常_物业停水_01.mp3",
+    "label": "正常 或 诈骗",
+    "scenario": "场景名，与 README 第二节的清单一致",
+    "speaker": "录音人，两个人写 甲/乙",
+    "date": "录制日期 YYYY-MM-DD",
+    "duration_sec": "时长秒数，要求 20~90",
+    "transcript": "对应的人工校对转写文件名"
+  },
+  "frozen": false,
+  "frozenAt": null,
+  "frozenCommit": null,
+  "items": []
+}

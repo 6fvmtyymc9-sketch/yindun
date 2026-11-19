@@ -441,6 +441,25 @@ VPC ID    8f452f90-f5bd-4b51-ad48-4eb1d101552f
 | 5 | `CreateInstance` 之后 `BUILD` / `CREATING` | 「创建」这个动作确实发生了 | `05`、`06` |
 | 6 | 复查时 `ACTIVE` / `RUNNING`，带**实例 ID + 内网 IP** | 最终结果 | `07-done.png` |
 
+### 画面 3 为什么是六个里最关键的一个
+
+工具清单里**没有任何 RDS/DCS 服务级封装**——没有 `huaweicloud_rds_create`、
+也没有 `huaweicloud_dcs_create`。`CreateInstance` 的那一大串参数只能由 Skill 生成。
+
+所以：**拍不到 Skill 加载，评委看到的效果和手敲 CLI 一模一样**
+，「基于已经部署的 Skills 快速开通」这条就立不住。
+
+具体要拍到两件事：
+
+1. 智能体调用 `huaweicloud_retrieve_skill`（这是加载 Skill 的工具名）
+2. 返回值里出现 `huawei-vpc` / `huawei-rds` / `dds-dcs`
+
+**如果它跳过 Skill、凭记忆直接写命令，打断它**，让它先
+`huaweicloud_retrieve_skill name=huawei-rds` 再继续。
+
+> 加分项：`huaweicloud_hook_check_command` 是 devkit 的风险预检钩子。
+> 如果它被调用了，把那段也留在录屏里——这是「过程有闸门」的证据。
+
 截图存本地文件夹 `codearts截图/`，命名 `01-doctor.png` … `07-done.png`，打包发队长，
 队长入库到 `docs/img/codearts/` 并填 `docs/码道操作记录_开通与部署.md`。
 
@@ -449,7 +468,7 @@ VPC ID    8f452f90-f5bd-4b51-ad48-4eb1d101552f
 
 ---
 
-## 十、七条红线（每条都是真踩过的）
+## 十、八条红线（每条都是真踩过的）
 
 **1. AK/SK 必须是队长账号下的（子用户），绝不能用你自己的账号**
 你俩账号各有一个叫 `vpc-default` 的 VPC，ID 不同（队长 `8f452f90`、你的 `b1b68207`）。
@@ -479,6 +498,16 @@ RDS `Yd2026Skill#a7`、Redis `Yd2026Skill#b8`。改了我这边连不上，只�
 **自己 `ls` 一眼确认它不在了**；还在就手动删。任何情况下都不要把 AK/SK
 拷进仓库、贴群、或者发给第三人。
 另：`~/.hcloud/config.json` 是 KooCLI 的本机配置（SK 加密存储），同样不外传。
+
+**8. 开通命令只能走 `run_approved_command`，不许走 `sandbox_exec*`**
+工具清单里有 14 个 `huaweicloud_sandbox_*`，其中 `sandbox_exec_one_shot` /
+`sandbox_exec_with_session` 是**经 WebSocket 连到远端 workspace 终端**执行 shell
+字符串的，要先 `sandbox_connect` 拿 `workspace_id`。它和你本机 hcloud 不是一条链路：
+**凭据在你本机的 `~/.hcloud`，远端沙箱里没有**。拿它跑 `CreateInstance`，
+轻则 `认证失败`，重则命令真跑起来了但实例从哪条链路开的、落在谁名下都说不清。
+（`run_approved_command` 的 `args` 是纯 hcloud 参数、不含可执行文件名；`sandbox_exec`
+的 `command` 是整条 shell 字符串——从入参形态就能看出是两条路。）
+> 和 4.1「关沙箱」别混：那关的是码道平台的**终端命令运行模式**，这是 devkit 自带的远端执行通道，两码事。
 
 ---
 

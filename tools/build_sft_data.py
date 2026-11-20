@@ -159,6 +159,35 @@ def load_builtin_normal(root):
     return out
 
 
+def load_cgodial_split(root):
+    """
+    老师 2026-11-20 上传的 CGoDial 政务热线难负样本（`~/data/cgodial/`）。
+
+    只用 `train_neg.jsonl`：里面是 `cgodial-split.js` 从 real 对话按场景分层抽样得到的，
+    且已经优先收进规则会误报的那批（isFp=true，是最难的负样本）。
+    留出的 `heldout.jsonl` 不参与训练，专用于报「政务热线误报率」，这里绝不读。
+
+    文本用的是 ASR 版（text_asr），和线上 SIS 转写同源；人工转写太干净，训了到线上会掉点。
+    """
+    fp = os.path.join(root, "train_neg.jsonl")
+    if not os.path.isfile(fp):
+        print(f"      [跳过] 没找到 {fp}", file=sys.stderr)
+        return []
+    out = []
+    for raw in io.open(fp, encoding="utf-8"):
+        raw = raw.strip()
+        if not raw:
+            continue
+        try:
+            x = json.loads(raw)
+        except ValueError:
+            continue
+        t = clean(x.get("text") or "")
+        if len(t) >= 40:
+            out.append(t)
+    return out
+
+
 def build(rows, path):
     with io.open(path, "w", encoding="utf-8") as f:
         for text, label in rows:
@@ -177,6 +206,8 @@ def main():
     ap.add_argument("--builtin", default=r"D:\华为ict\交付_银盾_GitHub\cloud\test",
                     help="内置合成集目录（含 synthetic.json）")
     ap.add_argument("--recordings", default="", help="真人录音目录（可选，内有 labels.json）")
+    ap.add_argument("--cgodial-split", dest="cgodial_split", default="",
+                    help="老师 CGoDial 切分目录（含 train_neg.jsonl；不传则不使用）")
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--n-pos", type=int, default=300)
     ap.add_argument("--n-neg", type=int, default=300)
@@ -194,6 +225,11 @@ def main():
     print("[2/4] 读 MagicData（真人正常对话）...")
     neg_dlg = load_magicdata(args.magicdata)
     print(f"      归并后 {len(neg_dlg)} 通")
+
+    if args.cgodial_split:
+        cg = load_cgodial_split(args.cgodial_split)
+        print(f"      老师 CGoDial 政务热线难负样本 {len(cg)} 条（real/ASR，已优先含规则误报难例）")
+        neg_dlg = cg + neg_dlg
 
     print("[3/4] 读内置合成正常样本 ...")
     neg_sms = load_builtin_normal(args.builtin)
@@ -216,8 +252,8 @@ def main():
     random.shuffle(pos)
     pos = pos[: args.n_pos]
 
-    # 负样本优先用真人对话，不够再拿合成补 —— 真人样本才反映真实口音与停顿
-    n_from_dlg = min(len(neg_dlg), int(args.n_neg * 2 / 3))
+    # 负样本优先用真人对话：够了就全用真人（含 CGoDial 难例），不够再拿合成补
+    n_from_dlg = min(len(neg_dlg), args.n_neg)
     n_from_sms = min(len(neg_sms), args.n_neg - n_from_dlg)
     random.shuffle(neg_dlg)
     random.shuffle(neg_sms)

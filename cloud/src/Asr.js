@@ -104,7 +104,10 @@ class Asr {
   async transcribe({ audio, name, demoText, maxSec }) {
     if (this.sisEnabled) {
       const out = await this.viaSisChunked(audio, name, maxSec);
-      return { text: out.text, source: 'sis', parts: out.parts, durationSec: out.durationSec };
+      return {
+        text: out.text, source: 'sis', parts: out.parts,
+        durationSec: out.durationSec, silentParts: out.silentParts || 0,
+      };
     }
     if (this.openaiEnabled) return { text: await this.viaOpenai(audio, name), source: 'openai' };
     if (demoText && demoText.trim()) return { text: demoText.trim(), source: 'demo' };
@@ -154,11 +157,29 @@ class Asr {
     }
 
     const texts = [];
+    let silent = 0;
     for (let i = 0; i < cut.parts.length; i += 1) {
-      texts.push(await this.viaSis(cut.parts[i], name));
+      const t = await this.viaSis(cut.parts[i], name, { allowEmpty: true });
+      if (t) texts.push(t);
+      else silent += 1;
+    }
+    // 一段都没识别出来 —— 这是真问题（全程静音、录错通道、录音权限没给），
+    // 必须报出来，不能静默返回空串让上层判成"无风险"。
+    if (!texts.length) {
+      const e = new Error(
+        `整通录音没有识别到说话内容（${cut.parts.length} 段全部是静音或噪声）。` +
+        '请检查：手机是否开启了通话录音、录音里是否有对方说话的声音。'
+      );
+      e.status = 502;
+      throw e;
     }
     // 直接拼接：SIS 已经在每段末尾补了标点，再加分隔符反而多出顿号
-    return { text: texts.join(''), parts: cut.parts.length, durationSec: cut.durationSec };
+    return {
+      text: texts.join(''),
+      parts: cut.parts.length,
+      durationSec: cut.durationSec,
+      silentParts: silent,
+    };
   }
 
   // --------------------------------------------------------------------------
@@ -189,7 +210,8 @@ class Asr {
     return s.token;
   }
 
-  async viaSis(audio, name) {
+  async viaSis(audio, name, opts) {
+    const allowEmpty = !!(opts && opts.allowEmpty);
     const s = this.sis;
     const host = s.endpoint || `sis-ext.${s.region}.myhuaweicloud.com`;
     const url = `https://${host}/v1/${s.projectId}/asr/short-audio`;
@@ -223,7 +245,17 @@ class Asr {
     }
     const data = JSON.parse(txt);
     const text = data && data.result && data.result.text;
-    if (!text) throw new Error('SIS 没有返回识别结果：' + txt.slice(0, 200));
+    if (!text) {
+      // 【2026-11-20 实测，别再改回去】SIS 对静音/纯噪声的片段返回 200 + 空 text +
+      //   score 0，这不是接口失败，是"这一段没人说话"。诈骗电话里骗子让老人去找卡、
+      //   解锁手机、下载软件的等待段，几十秒没台词非常正常 —— 两通真实录音里
+      //   都出现了（一通 55 秒全空，一通尾段只剩 3 个字）。
+      //   原先这里一律抛错，结果是「整通录音只要有一段静音就 502」，
+      //   子女端连复盘卡都收不到，等于诈骗电话白接了。
+      //   切段调用走 allowEmpty，空段由上层跳过；整段调用仍抛错，因为那是全部内容。
+      if (allowEmpty) return '';
+      throw new Error('SIS 没有返回识别结果：' + txt.slice(0, 200));
+    }
     return String(text);
   }
 

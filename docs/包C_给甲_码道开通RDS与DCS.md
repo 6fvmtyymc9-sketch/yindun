@@ -460,6 +460,31 @@ VPC ID    8f452f90-f5bd-4b51-ad48-4eb1d101552f
 > 加分项：`huaweicloud_hook_check_command` 是 devkit 的风险预检钩子。
 > 如果它被调用了，把那段也留在录屏里——这是「过程有闸门」的证据。
 
+### 指令里不能写 API 细节（2026-11-20 实测踩到的）
+
+11-20 甲第一段录屏（建安全组）里，指令写成了这样：
+
+```
+执行要求：
+1. CreateSecurityGroup 不需要 vpc_id，不要传，传了会报「不正确的参数 vpc_id」
+2. CreateSecurityGroupRule 的参数前缀是 security_group_rule，端口用 multiport
+```
+
+这两条是 **API 层知识，本该由 Skill 提供**。写进指令等于把答案先喂给智能体，
+于是「Skill 到底有没有起作用」就再也看不出来了——照着人给的话做，一样能成功。
+
+**分界线：**
+
+| 只有你知道、必须给的（环境事实） | 必须留给 Skill 的（API 细节） |
+|---|---|
+| VPC ID、子网 ID、可用区 | `CreateSecurityGroup` 要不要传 `vpc_id` |
+| 实例规格、密码、库名 | 参数前缀（`security_group_rule` 之类） |
+| 安全组 ID | 端口用 `multiport` 还是逐条 |
+| | 任何「传了会报 XX 错」的提示 |
+
+正确写法：给业务目标 + 环境事实 + 一句「参数格式严格按 Skill 的指引来，不要凭记忆写」。
+**它查 Skill、写错、改对、重试——那段恰恰是最好的素材，不要剪。**
+
 截图存本地文件夹 `codearts截图/`，命名 `01-doctor.png` … `07-done.png`，打包发队长，
 队长入库到 `docs/img/codearts/` 并填 `docs/码道操作记录_开通与部署.md`。
 

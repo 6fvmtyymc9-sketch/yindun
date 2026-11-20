@@ -42,8 +42,12 @@ android {
         applicationId "com.yindun.guard"
         minSdk 24
         targetSdk 34
-        versionCode 1
-        versionName "1.0"
+        // 【2026-11-20 改】原来写死 versionCode 1 / versionName "1.0" 从第一版起没动过，
+        // 系统「设置-应用-银盾」里根本分不清装的是哪一次编译，只能进 App 点设置面板看
+        // buildStamp()。这里把冻结版本号写进来，系统层面也能对上。
+        // versionCode 必须递增才能覆盖安装（同签名），故 1 → 2。
+        versionCode 2
+        versionName "1.0.0-rc1"
     }
 
     // 关键：把 Gradle 的默认目录映射回现有结构

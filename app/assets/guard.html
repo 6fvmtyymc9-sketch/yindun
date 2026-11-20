@@ -394,7 +394,11 @@ function openSheet(){
   if (v) {
     var s = call('buildStamp') || '';
     var p = s.split('|');
-    v.textContent = '构建 ' + (p[0] || '未知') + ' · 安装 ' + (p[1] || '未知');
+    var ver = call('version') || '';
+    // 【2026-11-20 改】带上 versionName，并且把"构建"改成"包"：
+    // Gradle 包读不到真实编译时间时会退回 APK 文件时间，那个可能是拷进手机的
+    // 时间而不是编译时间，写"构建"会误导。
+    v.textContent = (ver ? 'v' + ver + ' · ' : '') + '包 ' + (p[0] || '未知') + ' · 装 ' + (p[1] || '未知');
   }
   document.getElementById('mask').className = 'mask on';
   document.getElementById('sheet').className = 'sheet on';

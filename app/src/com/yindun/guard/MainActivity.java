@@ -162,9 +162,23 @@ public class MainActivity extends Activity {
         try {
             java.util.zip.ZipFile z = new java.util.zip.ZipFile(getPackageCodePath());
             java.util.zip.ZipEntry e = z.getEntry("classes.dex");
-            if (e != null && e.getTime() > 0) built = fmtTime(e.getTime());
+            // 【2026-11-20 补】AGP 默认开"可复现构建"，会把 zip 内所有条目时间固定成
+            // 1980/1981-01-01，于是这里读出来是"01-01 01:01"，等于没有——而手工打包
+            // （build2.sh）反而正常。实测：Gradle 包 3 个 dex 全是 1981-01-01 01:01:02，
+            // 手工包是真实构建时间。所以早于 2020 的时间一律不认，退回读 APK 文件时间。
+            long t = (e != null) ? e.getTime() : 0;
+            if (t > 1577836800000L) built = fmtTime(t);   // 2020-01-01 之前的不可能是真构建时间
             z.close();
         } catch (Exception ignored) {
+        }
+        if (built.length() == 0) {
+            // 兜底：APK 文件本身的落盘时间。注意微信/QQ 接收会重写成接收时间，
+            // 所以这个值可能是"拷到手机的时间"，不一定是编译时间，别当编译时间对外说。
+            try {
+                long apk = new java.io.File(getPackageCodePath()).lastModified();
+                if (apk > 1577836800000L) built = fmtTime(apk);
+            } catch (Exception ignored) {
+            }
         }
         long inst = 0;
         try {
@@ -316,6 +330,16 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public String buildStamp() {
             return MainActivity.this.buildStamp();
+        }
+
+        /** 网页问：装的是哪一版（就是系统「设置-应用-银盾」里显示的那个 versionName） */
+        @JavascriptInterface
+        public String version() {
+            try {
+                return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            } catch (Exception e) {
+                return "";
+            }
         }
 
         /** 网页问：悬浮窗权限开了吗？没开就盖不住屏，这是阻断级的前提 */

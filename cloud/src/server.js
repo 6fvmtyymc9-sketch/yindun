@@ -16,6 +16,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 require('./env'); // 加载 .env（Key 等敏感配置，已排除出仓库）
 const express = require('express');
 
@@ -241,8 +242,45 @@ async function withinQuota(req, res, bucket, perDay, label, tip) {
 }
 
 // ---------- 健康检查（部署后第一个要打的接口）----------
-app.get('/api/health', async (req, res) => {
-  const [rulesVer, stats, statsAll, sftSt] = await Promise.all([
+// ---------------------------------------------------------------- 构建指纹 --
+/**
+ * 给"这次跑的是哪份代码"一个可对比的指纹。
+ *
+ * 【为什么要有】2026-11-20 定：赛题第 3 条要求「用智能体 + Skills 把作品部署到
+ *   华为云」，我们现在的部署是手工 scp + systemd。要证明"真的换了一版上去"，
+ *   光看 /api/health 返回 200 不够 —— 重启一下也是 200，什么都没变。
+ *   所以把 src/*.js 的内容 md5 和最新修改时间暴露出来：
+ *   部署前取一次、部署后取一次，两个数一变，就是"文件真被替换了"。
+ *   只暴露指纹，不暴露路径与内容，无鉴权的接口上放这个安全。
+ */
+function buildStamp() {
+  const dir = __dirname;
+  const h = crypto.createHash('md5');
+  let newest = 0;
+  let n = 0;
+  try {
+    const files = fs.readdirSync(dir).filter(f => f.endsWith('.js')).sort();
+    for (const f of files) {
+      const p = path.join(dir, f);
+      h.update(fs.readFileSync(p));
+      const m = fs.statSync(p).mtimeMs;
+      if (m > newest) newest = m;
+      n += 1;
+    }
+  } catch (e) {
+    return { error: String(e.message || e) };
+  }
+  return {
+    codeId: h.digest('hex').slice(0, 12),                                  // 代码内容指纹
+    files: n,
+    codeAt: newest ? new Date(newest).toISOString() : null,                // 最后一次改动
+    startedAt: new Date(Date.now() - process.uptime() * 1000).toISOString(), // 进程启动时刻
+    node: process.version,
+  };
+}
+const BUILD = buildStamp();   // 启动时算一次，之后不变
+
+app.get('/api/health', async (req, res) => {  const [rulesVer, stats, statsAll, sftSt] = await Promise.all([
     db.latestRules().catch(() => null),
     db.stats('demo').catch(() => ({ events: 0, alerts: 0 })),
     // 全库口径。迁移 RDS 的验收靠它：清完 demo 后 stats 恒为 0，只剩它能对账。
@@ -256,6 +294,7 @@ app.get('/api/health', async (req, res) => {
   res.json({
     ok: true,
     time: new Date().toISOString(),
+    build: BUILD,          // 部署前后各取一次，用于证明"确实换了版本"
     rules: { version: (rulesVer && rulesVer.version) || currentRules.version || 'file', keywords: currentRules.sms_keywords.length },
     storage: { rds: db.online, redis: !!redis },
     model: { enabled: pangu.enabled, model: pangu.model },

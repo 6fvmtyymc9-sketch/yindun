@@ -282,69 +282,74 @@ load_best_model_at_end = False
 
 ---
 
-## 九、TeleAntiFraud 数据本体：两条路都堵着（2026-11-20 19:25 实测）
+## 九、TeleAntiFraud 数据本体：**能下，是我之前判断错了**（2026-11-20 19:50 更正）
 
 老师在 `docs/SFT下一步计划.md` 第 3 步明确写「诈骗通话 60~100 条，
 **一半另外录，一半从 TeleAntiFraud 里抽**」。所以这份数据不是可选项，是计划的一部分。
-今晚把两个入口都实测了一遍，结论：**匿名拿不到，得找老师要。**
 
-### 入口一：HuggingFace（走 hf-mirror）
+> ### ⚠️ 重要更正
+> 19:25 我写的是「两个入口都堵着，只能找老师要」。**这个结论是错的。**
+> 错在把「命令行匿名请求 403」当成了「整份数据拿不到」。
+> 实际证据：**11-19 14:21~14:27 已经用浏览器成功下到 4 个文件**：
+>
+> ```
+> /d/下载/binary_classification.zip   60,284 B   11-19 14:21
+> /d/下载/sft.zip                  4,390,686 B   11-19 14:27
+> /d/下载/fraud_example_1.mp3      1,905,645 B   11-19 14:27
+> /d/下载/fraud_example_2.mp3        361,581 B   11-19 14:27
+> ```
+>
+> **结论：网页登录状态下能下，命令行匿名下不了。** `audio.zip`（12.7 GB）同理，
+> 只是体积大。不用再找老师要。
 
-`hf-mirror.com` 本身通（200 / 3.1s），但数据集是 **gated**：
+### 命令行为什么 403（19:50 复测）
 
-```
-GET https://hf-mirror.com/api/datasets/JimmyMa99/TeleAntiFraud
-  → gated: auto          （需登录 HF 账号并同意条款）
-  → license: apache-2.0
-  → 12 个文件：audio.zip / binary_classification.zip / sft.zip /
-     viewer/test.parquet / viewer/train.parquet / preview/*.mp3 / dataset_manifest.json
-
-GET .../resolve/main/audio.zip        → 403 GatedRepo
-GET .../resolve/main/preview/fraud_example_1.mp3 → 403 GatedRepo
-GET .../resolve/main/dataset_manifest.json       → 403 GatedRepo
-```
-
-**连预览音频和清单都 403**，不是只挡大文件。
-
-而 `huggingface.co` 直连超时（10s 无响应）。
-所以就算拿到 token，也没有可用的通路 —— **hf-mirror 一般只代理公开仓库**。
-
-### 入口二：ModelScope 镜像
-
-**有镜像**：`JimmyMa99/TeleAntiFraud-28k`（就是作者本人传的）
-
-| 字段 | 值 |
+| 请求 | 结果 |
 |---|---|
-| License | Apache License 2.0 |
-| StorageSize | **13,335,426,149 B = 12.4 GB** |
-| Downloads | 553 |
-| ProtectedMode | **1**（受限） |
-| ApprovalMode | 0 |
+| `GET /api/v1/datasets/JimmyMa99/TeleAntiFraud` | **200**（详情可读，`Visibility:1` 公开） |
+| `GET .../repo?FilePath=dataset_manifest.json` | **403**（无 cookie） |
+| `GET .../repo/tree?Revision=master` | **403** `无权访问该数据集` |
+| 带上 `~/.modelscope/credentials/session`（32 字节 UUID） | 仍 **403** —— 那不是有效 token |
 
-详情接口 200 可读，但下任何文件都：
+`~/.modelscope/credentials/session` 里只有 32 字节的 `2da31da8...`，是本地旧 session id，
+**不是可用的访问凭证**。所以命令行这条路走不通，必须借浏览器的登录态。
+
+### 还有一处也要更正：11-18 存下来的"文件"是假文件
+
+`D:/华为ict/datasets/TeleAntiFraud/` 下那 7 个文件（`probe.mp3`、`t.bin`、
+`dataset_manifest.json` 等）**全部只有 160~176 字节**，是当时下载失败存下来的 403 错误响应，
+不是真数据。别拿它们当"已下载"。
+
+### 现在该怎么下
+
+**路径：浏览器登录 ModelScope → 数据集文件页 → 点 `audio.zip`**
 
 ```
-GET /api/v1/datasets/JimmyMa99/TeleAntiFraud-28k/repo?Revision=master&FilePath=README.md
-→ HTTP 403  Code 10020101037  「无权访问该数据集」
+https://modelscope.cn/datasets/JimmyMa99/TeleAntiFraud/files
 ```
 
-`ProtectedMode=1` 意味着要先在网页上申请/授权，匿名 API 一律 403。
+- 12.7 GB，D 盘有 612 G，空间没问题
+- 命令行想接手的话，把浏览器这套 Cookie 给出来，可以用 `curl -C -` 断点续传，比浏览器稳
+- 下下来先做一件事：**验证是不是真电话信道**（8k 单声道 vs 48k 立体声）。
+  按第二、三节的核查，公开版音频是 ChatTTS 合成的 48k 立体声，
+  如果 `audio.zip` 里也是这个参数，那它**只能进训练集**（老师第 3 步允许），
+  **不能进第 1 步的冻结评估集**
 
-### 结论
+### 这份数据到底是什么（不变）
 
-| 问题 | 答案 |
-|---|---|
-| 老师发的 8 个 CSV 能补音频吗 | **不能**，一个字节声音都没有 |
-| 清单里哪一项能补音频 | **TeleAntiFraud-28k**，28,511 对 / 307 小时 |
-| 我们自己能下吗 | **不能**，HF gated + ModelScope 403 |
-| 谁能下 | **老师**。他写计划时就说"从 TeleAntiFraud 里抽"，他手上大概率有 |
+| 文件 | 大小 | 内容 |
+|---|---|---|
+| `dataset_manifest.json` | 347 B | 发布清单 |
+| `binary_classification.zip` | 60.28 KB | 二分类 4,000 + 400 条 |
+| `sft.zip` | 4.39 MB（解压 139 MB） | 多轮 SFT 27,146 + 6,807 条 |
+| `audio.zip` | **12.74 GB** | 音频本体 |
+| `preview/*.mp3` | 3 个 | 抽样，48 kHz 立体声 TTS |
 
-### 要跟老师说的三句话
+### 要跟老师说的话（改过了）
 
-1. 计划第 3 步要的 TeleAntiFraud 音频，我们两个入口都被挡（HF gated、ModelScope 403），
-   能不能请您把 `audio.zip` 传到学校服务器 `~/data/` 下；
+1. ~~要 `audio.zip`~~ → **不用了，我们能下，之前是我判断失误**
 2. 它的音频是 ChatTTS 合成的（摘要原文 `renders validated dialogues as role-matched speech`），
-   按您第 1 步「不要用 TTS」的要求，**只进训练集，不进评估集**，这条我们记着；
+   按您第 1 步「不要用 TTS」的要求，**只进训练集，不进评估集**，这条我们记着
 3. 顺带：第 1 步写的「m4a 服务端解不开」不准确 —— `cloud/src/Asr.js` 第 30 行
    `m4a: 'audio/mp4'`，m4a 单条 60 秒内可直接转写，只有超长且切不动才失败。
-   给乙的录音要求里我们已经改成「m4a 也行，单条别超 60 秒」。
+   给乙的录音要求里我们已经改成「m4a 也行，单条别超 60 秒」

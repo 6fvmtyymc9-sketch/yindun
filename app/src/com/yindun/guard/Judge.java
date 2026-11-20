@@ -138,6 +138,36 @@ public class Judge {
         return SHORT_URL_PATTERN.matcher(text).find();
     }
 
+    /**
+     * 【2026-11-20 加】冒充子女/亲属索款：直系亲属称谓。
+     *
+     * 刻意**不含**"叔叔/阿姨/大哥/小姐姐"——贷款与推销话术张口就是"阿姨您好，急需用钱吗"，
+     * 把泛称放进来会把推销短信判成冒充亲属，误报代价是老人卸载产品。
+     */
+    private static final Pattern KIN_NAME_PATTERN = Pattern.compile(
+            "妈|爸|妈妈|爸爸|母亲|父亲|儿子|女儿|闺女|儿媳|女婿"
+                    + "|爷爷|奶奶|姥姥|姥爷|外公|外婆|老公|老婆");
+
+    /**
+     * 【2026-11-20 加】索款动作：认"口语化的要钱"，不要求出现"转账"两个字。
+     *
+     * 代词/助词最多跳过 2 个字符（我/给/到/你），后面紧跟金额或"钱/款"。
+     * 实测漏的就是这一类：「先转五千给我急用」「打点钱」「借我两千周转」——
+     * 词库里一个词都不命中，只拿到陌生号的 15 分基础分。
+     */
+    private static final Pattern MONEY_ASK_PATTERN = Pattern.compile(
+            "(?:转|打|汇|借|凑)(?:我|给|到|你)?[^，。！？,!?\\s]{0,2}?[\\d零一二三四五六七八九十百千万两]"
+                    + "|转账|汇款|打款|打钱|打点钱|借款|凑钱|急用钱|急需用钱"
+                    + "|需要用钱|需要钱|要用钱|卡号|银行卡|安全账户|保释金|保证金");
+
+    /**
+     * 【2026-11-20 加】索款判据的反例：银行到账类叙述里同样有"亲属称谓 + 数字"，
+     * 但那是业务通知不是索款。没有这道闸门，「【银行】您母亲账户转入5000元」
+     * 会被判成冒充亲属要钱。
+     */
+    private static final Pattern MONEY_ASK_NEG_PATTERN = Pattern.compile(
+            "转入|转出|已转|到账|存入|汇入|余额|消费|支出|扣款|退款|工资|报销|入账");
+
     /** 关键词：每个词带权重和它属于哪个阶段 */    private final List<Word> words = new ArrayList<Word>();
     /** 反例词：命中就扣分，用来压误报 */
     private final List<Word> negatives = new ArrayList<Word>();
@@ -414,6 +444,35 @@ public class Judge {
             if (stageRankOf("S2") > topRank) {
                 topRank = 2;
                 topStage = "S2";
+            }
+        }
+
+        // ---------- 3.6 冒充亲属索款（与云端 Judge.js 逐行对齐）----------
+        // 【为什么必须单列一条，词库救不了这里】
+        // 2026-11-20 实测：10 条口语化索款话术里 7 条只拿到 15 分 —— 那就是陌生号的基础分，
+        // 词库一分没加。词库认的是「加微信」「出事」「保释金」这类书面词，
+        // 认不出「转五千」「打点钱」「借我两千」这种张口就来的说法。
+        //
+        // 【为什么后果比"分数难看"严重】
+        // 15 分连灰区（30~45）都进不去 → 根本不送云端 AI 复审 → 整条判定链对它完全沉默。
+        // 而冒充子女要钱是发案量最大的类型。
+        //
+        // 【为什么可以放心加权】
+        // 「陌生号 + 直系亲属称谓 + 索款动作」三者同时成立的正常短信极少：
+        // 真家属在通讯录里（who=contact），走不到这条分支；推销用泛称（阿姨/叔叔），不在称谓表里。
+        // 唯一的误报源是银行到账通知，用 MONEY_ASK_NEG_PATTERN 挡掉。
+        //
+        // 【只给 stranger】通讯录里的号码不做这个判断 —— 亲儿子真借钱不该盖屏。
+        if ("stranger".equals(who) && !isCode
+                && KIN_NAME_PATTERN.matcher(text).find()
+                && MONEY_ASK_PATTERN.matcher(text).find()
+                && !MONEY_ASK_NEG_PATTERN.matcher(text).find()) {
+            score += 30;
+            if (hits.length() > 0) hits.append("、");
+            hits.append("陌生号冒称亲属索款(+30)");
+            if (stageRankOf("S4") > topRank) {
+                topRank = 4;
+                topStage = "S4";
             }
         }
 

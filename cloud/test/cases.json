@@ -18,6 +18,15 @@
     {"type": "冒充亲友", "who": "stranger", "expect": "fraud", "text": "舅舅，我在学校交培训费，学校急着要，你先帮我垫付一下"},
     {"type": "冒充亲友", "who": "stranger", "expect": "fraud", "text": "你儿子出车祸了在医院抢救，赶紧转五万手术费过来"},
     {"type": "冒充亲友", "who": "stranger", "expect": "fraud", "text": "叔叔，我是你外甥，在外地被抓了，需要交保证金才能出来"},
+    {"_note": "2026-11-20 补：口语化索款。这一批是实测漏报的原始句子，词库一个词都不命中，靠『陌生号+亲属称谓+索款动作』判据兜住", "type": "冒充亲友", "who": "stranger", "expect": "fraud", "text": "妈，我手机换了，这是新号，先转五千给我急用"},
+    {"type": "冒充亲友", "who": "stranger", "expect": "fraud", "text": "妈，先给我打点钱，五千就行，回头还你"},
+    {"type": "冒充亲友", "who": "stranger", "expect": "fraud", "text": "妈，我微信限额了，你转五千到这个卡上"},
+    {"type": "冒充亲友", "who": "stranger", "expect": "fraud", "text": "妈，借我两千块周转一下，月底还你"},
+    {"type": "冒充亲友", "who": "stranger", "expect": "fraud", "text": "爸，我手机丢了这是新号，先给我转一万应急"},
+    {"type": "冒充亲友", "who": "stranger", "expect": "fraud", "text": "妈，我在外面出了点事，需要钱，你打五万到这个卡号"},
+    {"_note": "反例：银行到账叙述里也有『亲属称谓+数字』，必须放行——没有 MONEY_ASK_NEG 闸门时这三条会被判成冒充亲属要钱", "type": "银行通知", "who": "service", "expect": "normal", "text": "【工商银行】您母亲账户转入5000元，余额12,340.00元"},
+    {"type": "银行通知", "who": "service", "expect": "normal", "text": "【建设银行】您父亲尾号8842账户存入20000元"},
+
 
     {"type": "刷单兼职", "who": "stranger", "expect": "fraud", "text": "在家动动手指，日赚300元，点赞关注即可返佣，加微信详聊"},
     {"type": "刷单兼职", "who": "stranger", "expect": "fraud", "text": "做任务返利，先垫付100元，完成后返还本金加佣金"},

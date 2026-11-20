@@ -279,3 +279,72 @@ load_best_model_at_end = False
 **不是**。但这个模型的 test split 也用不了，因为它的音频是合成的。
 「没用那两份外部数据」不等于「随便哪份外部数据都能当考官」——
 考官必须和考生面对的**真实场景同分布**，而不是只要「没被判过卷」。
+
+---
+
+## 九、TeleAntiFraud 数据本体：两条路都堵着（2026-11-20 19:25 实测）
+
+老师在 `docs/SFT下一步计划.md` 第 3 步明确写「诈骗通话 60~100 条，
+**一半另外录，一半从 TeleAntiFraud 里抽**」。所以这份数据不是可选项，是计划的一部分。
+今晚把两个入口都实测了一遍，结论：**匿名拿不到，得找老师要。**
+
+### 入口一：HuggingFace（走 hf-mirror）
+
+`hf-mirror.com` 本身通（200 / 3.1s），但数据集是 **gated**：
+
+```
+GET https://hf-mirror.com/api/datasets/JimmyMa99/TeleAntiFraud
+  → gated: auto          （需登录 HF 账号并同意条款）
+  → license: apache-2.0
+  → 12 个文件：audio.zip / binary_classification.zip / sft.zip /
+     viewer/test.parquet / viewer/train.parquet / preview/*.mp3 / dataset_manifest.json
+
+GET .../resolve/main/audio.zip        → 403 GatedRepo
+GET .../resolve/main/preview/fraud_example_1.mp3 → 403 GatedRepo
+GET .../resolve/main/dataset_manifest.json       → 403 GatedRepo
+```
+
+**连预览音频和清单都 403**，不是只挡大文件。
+
+而 `huggingface.co` 直连超时（10s 无响应）。
+所以就算拿到 token，也没有可用的通路 —— **hf-mirror 一般只代理公开仓库**。
+
+### 入口二：ModelScope 镜像
+
+**有镜像**：`JimmyMa99/TeleAntiFraud-28k`（就是作者本人传的）
+
+| 字段 | 值 |
+|---|---|
+| License | Apache License 2.0 |
+| StorageSize | **13,335,426,149 B = 12.4 GB** |
+| Downloads | 553 |
+| ProtectedMode | **1**（受限） |
+| ApprovalMode | 0 |
+
+详情接口 200 可读，但下任何文件都：
+
+```
+GET /api/v1/datasets/JimmyMa99/TeleAntiFraud-28k/repo?Revision=master&FilePath=README.md
+→ HTTP 403  Code 10020101037  「无权访问该数据集」
+```
+
+`ProtectedMode=1` 意味着要先在网页上申请/授权，匿名 API 一律 403。
+
+### 结论
+
+| 问题 | 答案 |
+|---|---|
+| 老师发的 8 个 CSV 能补音频吗 | **不能**，一个字节声音都没有 |
+| 清单里哪一项能补音频 | **TeleAntiFraud-28k**，28,511 对 / 307 小时 |
+| 我们自己能下吗 | **不能**，HF gated + ModelScope 403 |
+| 谁能下 | **老师**。他写计划时就说"从 TeleAntiFraud 里抽"，他手上大概率有 |
+
+### 要跟老师说的三句话
+
+1. 计划第 3 步要的 TeleAntiFraud 音频，我们两个入口都被挡（HF gated、ModelScope 403），
+   能不能请您把 `audio.zip` 传到学校服务器 `~/data/` 下；
+2. 它的音频是 ChatTTS 合成的（摘要原文 `renders validated dialogues as role-matched speech`），
+   按您第 1 步「不要用 TTS」的要求，**只进训练集，不进评估集**，这条我们记着；
+3. 顺带：第 1 步写的「m4a 服务端解不开」不准确 —— `cloud/src/Asr.js` 第 30 行
+   `m4a: 'audio/mp4'`，m4a 单条 60 秒内可直接转写，只有超长且切不动才失败。
+   给乙的录音要求里我们已经改成「m4a 也行，单条别超 60 秒」。

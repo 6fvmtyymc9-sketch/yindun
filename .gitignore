@@ -28,3 +28,6 @@ captures/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ===== 基线运行产物（每次重跑都会变，最终表格另存留档）=====
+cloud/test/calls_eval/out-*.json

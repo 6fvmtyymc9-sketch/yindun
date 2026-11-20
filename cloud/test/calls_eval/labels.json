@@ -12,5 +12,139 @@
   "frozen": false,
   "frozenAt": null,
   "frozenCommit": null,
-  "items": []
+  "items": [
+    {
+      "file": "audio/eval_正常_同事通话_01.wav",
+      "label": "正常",
+      "scenario": "同事通话",
+      "speaker": "公开语料",
+      "date": "2026-11-20",
+      "duration_sec": 45,
+      "transcript": "audio/eval_正常_同事通话_01.txt",
+      "source": "magicdata meeting 子集（8kHz 单声道真实远程通话）",
+      "note": "非自录；内容为同事讨论工作事项，非陌生人来电"
+    },
+    {
+      "file": "audio/eval_正常_同事通话_02.wav",
+      "label": "正常",
+      "scenario": "同事通话",
+      "speaker": "公开语料",
+      "date": "2026-11-20",
+      "duration_sec": 45,
+      "transcript": "audio/eval_正常_同事通话_02.txt",
+      "source": "magicdata meeting 子集（8kHz 单声道真实远程通话）",
+      "note": "非自录；内容为同事讨论工作事项，非陌生人来电"
+    },
+    {
+      "file": "audio/eval_正常_同事通话_03.wav",
+      "label": "正常",
+      "scenario": "同事通话",
+      "speaker": "公开语料",
+      "date": "2026-11-20",
+      "duration_sec": 45,
+      "transcript": "audio/eval_正常_同事通话_03.txt",
+      "source": "magicdata meeting 子集（8kHz 单声道真实远程通话）",
+      "note": "非自录；内容为同事讨论工作事项，非陌生人来电"
+    },
+    {
+      "file": "audio/eval_正常_同事通话_04.wav",
+      "label": "正常",
+      "scenario": "同事通话",
+      "speaker": "公开语料",
+      "date": "2026-11-20",
+      "duration_sec": 45,
+      "transcript": "audio/eval_正常_同事通话_04.txt",
+      "source": "magicdata meeting 子集（8kHz 单声道真实远程通话）",
+      "note": "非自录；内容为同事讨论工作事项，非陌生人来电"
+    },
+    {
+      "file": "audio/eval_正常_同事通话_05.wav",
+      "label": "正常",
+      "scenario": "同事通话",
+      "speaker": "公开语料",
+      "date": "2026-11-20",
+      "duration_sec": 45,
+      "transcript": "audio/eval_正常_同事通话_05.txt",
+      "source": "magicdata meeting 子集（8kHz 单声道真实远程通话）",
+      "note": "非自录；内容为同事讨论工作事项，非陌生人来电"
+    },
+    {
+      "file": "audio/eval_正常_同事通话_06.wav",
+      "label": "正常",
+      "scenario": "同事通话",
+      "speaker": "公开语料",
+      "date": "2026-11-20",
+      "duration_sec": 45,
+      "transcript": "audio/eval_正常_同事通话_06.txt",
+      "source": "magicdata meeting 子集（8kHz 单声道真实远程通话）",
+      "note": "非自录；内容为同事讨论工作事项，非陌生人来电"
+    },
+    {
+      "file": "audio/eval_正常_同事通话_07.wav",
+      "label": "正常",
+      "scenario": "同事通话",
+      "speaker": "公开语料",
+      "date": "2026-11-20",
+      "duration_sec": 45,
+      "transcript": "audio/eval_正常_同事通话_07.txt",
+      "source": "magicdata meeting 子集（8kHz 单声道真实远程通话）",
+      "note": "非自录；内容为同事讨论工作事项，非陌生人来电"
+    },
+    {
+      "file": "audio/eval_正常_同事通话_08.wav",
+      "label": "正常",
+      "scenario": "同事通话",
+      "speaker": "公开语料",
+      "date": "2026-11-20",
+      "duration_sec": 45,
+      "transcript": "audio/eval_正常_同事通话_08.txt",
+      "source": "magicdata meeting 子集（8kHz 单声道真实远程通话）",
+      "note": "非自录；内容为同事讨论工作事项，非陌生人来电"
+    },
+    {
+      "file": "audio/eval_正常_同事通话_09.wav",
+      "label": "正常",
+      "scenario": "同事通话",
+      "speaker": "公开语料",
+      "date": "2026-11-20",
+      "duration_sec": 45,
+      "transcript": "audio/eval_正常_同事通话_09.txt",
+      "source": "magicdata meeting 子集（8kHz 单声道真实远程通话）",
+      "note": "非自录；内容为同事讨论工作事项，非陌生人来电"
+    },
+    {
+      "file": "audio/eval_正常_同事通话_10.wav",
+      "label": "正常",
+      "scenario": "同事通话",
+      "speaker": "公开语料",
+      "date": "2026-11-20",
+      "duration_sec": 45,
+      "transcript": "audio/eval_正常_同事通话_10.txt",
+      "source": "magicdata meeting 子集（8kHz 单声道真实远程通话）",
+      "note": "非自录；内容为同事讨论工作事项，非陌生人来电"
+    },
+    {
+      "file": "audio/eval_正常_同事通话_11.wav",
+      "label": "正常",
+      "scenario": "同事通话",
+      "speaker": "公开语料",
+      "date": "2026-11-20",
+      "duration_sec": 45,
+      "transcript": "audio/eval_正常_同事通话_11.txt",
+      "source": "magicdata meeting 子集（8kHz 单声道真实远程通话）",
+      "note": "非自录；内容为同事讨论工作事项，非陌生人来电"
+    },
+    {
+      "file": "audio/eval_正常_同事通话_12.wav",
+      "label": "正常",
+      "scenario": "同事通话",
+      "speaker": "公开语料",
+      "date": "2026-11-20",
+      "duration_sec": 45,
+      "transcript": "audio/eval_正常_同事通话_12.txt",
+      "source": "magicdata meeting 子集（8kHz 单声道真实远程通话）",
+      "note": "非自录；内容为同事讨论工作事项，非陌生人来电"
+    }
+  ],
+  "_进度": "正常 12 条 / 诈骗 0 条"
 }

@@ -54,7 +54,11 @@ const body = {
   const asr = r.asr || json.asr || {};
   console.log('--- 转写 ---');
   console.log('source =', asr.source, '| parts =', asr.parts, '| durationSec =', asr.durationSec);
-  console.log('text   =', String(asr.text || json.text || '').slice(0, 300));
+  // 【2026-11-20 改】原来读 asr.text，但云端**不返回全文**（隐私设计：只在内存里转写），
+  // 响应里只有 chars 计数 + evidence 三句摘录。读错字段会显示成"转写为空"，看起来像链路故障。
+  const ev = r.evidence || [];
+  console.log('chars  =', asr.chars == null ? '(无)' : asr.chars,
+    '| 摘录 =', ev.length ? ev.join(' / ').slice(0, 300) : '(无摘录)');
   console.log('--- 判定 ---');
   console.log('stage =', r.stage, '| level =', r.level, '| type =', r.type, '| basis =', r.basis);
   console.log('reason=', String(r.reason || r.why || '').slice(0, 300));

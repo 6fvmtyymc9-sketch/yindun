@@ -108,9 +108,27 @@ FRAUD_PROMPT = """
 """
 
 
-def pick_audio(sec, per=1):
-    """从 audio.zip 取 POS / NEG 各若干条，返回 [(tag, truth, mono, sr)]。"""
+def pick_audio(sec, per=1, pack=None):
+    """取 POS / NEG 各若干条，返回 [(tag, truth, mono, sr, 文件名)]。
+
+    pack=None 时从 audio.zip 读 mp3；给目录时从该目录读 wav（GPU 上用小包，
+    不必传 12.7 GB 的 zip）。命名约定：POS_* = 诈骗，NEG_* = 正常，
+    REAL8k_* = 真人电话（归 normal，只作信道对照），LEN_* 只在 --len 模式用。
+    """
     import soundfile as sf
+
+    if pack:
+        items = []
+        for f in sorted(glob.glob(os.path.join(pack, "*.wav"))):
+            base = os.path.basename(f)
+            if base.startswith(("POS_", "NEG_", "REAL8k_")):
+                d, sr = sf.read(f, dtype="float32", always_2d=True)
+                mono = d.mean(axis=1) if d.shape[1] > 1 else d[:, 0]
+                truth = "fraud" if base.startswith("POS_") else "normal"
+                tag = base[:-4].replace("POS_", "P-").replace("NEG_", "N-")
+                items.append((tag, truth, mono[: int(sec * sr)], sr, base))
+        return items
+
     z = zipfile.ZipFile(AUDIO_ZIP)
     names = [i.filename for i in z.infolist() if i.filename.endswith(".mp3")]
     out = []
@@ -213,9 +231,10 @@ def main():
     ap.add_argument("--out", default=r"D:/华为ict/外部数据集/prompt_probe.json")
     ap.add_argument("--per", type=int, default=1, help="每类取几条")
     ap.add_argument("--p3", action="store_true", help="额外跑完整两轮（慢一倍）")
+    ap.add_argument("--pack", default=None, help="音频目录（.wav 小包），不给则读 audio.zip")
     a = ap.parse_args()
 
-    items = pick_audio(a.sec, a.per)
+    items = pick_audio(a.sec, a.per, a.pack)
     print(f"[素材] {len(items)} 条，每条 {a.sec:.0f} 秒（全部来自 TeleAntiFraud 公开音频）")
     for t, truth, mono, sr, fn in items:
         print(f"  {t:7s} truth={truth:6s} {sr}Hz  {len(mono)/sr:.1f}s  {fn}")

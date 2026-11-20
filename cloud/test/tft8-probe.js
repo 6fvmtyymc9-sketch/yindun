@@ -15,6 +15,7 @@ const path = require('path');
 const args = process.argv.slice(2);
 const gi = (k, d) => { const i = args.indexOf('--' + k); return i >= 0 ? args[i + 1] : d; };
 const SHOW = Number(gi('show', '0'));
+const WHO = gi('who', 'stranger');
 const DIR = gi('dir', 'D:/华为ict/外部数据集/Telecom_Fraud_Texts_8/Telecom_Fraud_Texts_8-main');
 
 const ROOT = path.join(__dirname, '..');
@@ -73,7 +74,7 @@ for (const lab of [1, 2, 3, 4, 5, 6, 7]) {
     const body = r[0].replace(/\s+/g, ' ').trim();
     if (body.length < 8) continue;
     let res;
-    try { res = j.scoreSms(body, '', false); } catch (e) { continue; }
+    try { res = j.scoreSms(body, WHO, false); } catch (e) { continue; }
     const lv = res.level || 'none';
     const s = stat[lab];
     s.n += 1; total += 1;
@@ -90,7 +91,7 @@ for (const lab of [1, 2, 3, 4, 5, 6, 7]) {
 // ---------------------------------------------------------------- 汇总
 const pad = (x, n) => String(x).padEnd(n);
 console.log('');
-console.log('用「诈骗话术」当输入跑 scoreSms（who=空、isCode=false）—— 只看召回，不看误报');
+console.log('用「诈骗话术」当输入跑 scoreSms（who=stranger、isCode=false）—— 只看召回，不看误报');
 console.log('');
 console.log(pad('类别', 12) + pad('条数', 7) + pad('block', 7) + pad('high', 7) + pad('warn', 7) + pad('none/quiet', 12) + pad('均分', 6) + '任一级别命中率');
 console.log('-'.repeat(78));

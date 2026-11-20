@@ -253,7 +253,7 @@ LICENSE               开源许可证（MIT）
 
 ## 八、版本
 
-- App `1.0.0-rc1`（versionCode 2，minSdk 24 / targetSdk 34）
+- App `1.0.0-rc2`（versionCode 3，minSdk 24 / targetSdk 34）
 - 规则库 `v3.6`（220 词 + 33 反例 + 11 组合规则 + 3 条永不告警白名单）
 - 云端 `1.0.0`（Node 18+ / MySQL 8）
 

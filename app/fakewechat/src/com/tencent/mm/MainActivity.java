@@ -284,6 +284,14 @@ public class MainActivity extends Activity {
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (nm == null) return;
 
+        // 【2026-11-21 改：模拟真微信的"同一会话只占一条通知"】
+        // 真微信里一个聊天窗口永远只留一条通知，来了新消息就覆盖，并且正文会变成
+        //     [2条]-zzz～y：我临时遇到急事，不方便打电话，先转300到这个卡号：
+        // 原来这里用 NOTI_ID + idx 让每条都独立，于是演示永远看不到"连发"的形态，
+        // 也就掩盖了银盾曾把这类通知整条跳过的问题（2026-11-21 真机实测发现）。
+        // 现在连发时自动加 [N条]昵称： 前缀、并复用同一个通知 ID，与真机一致。
+        final String shown = idx >= 2 ? ("[" + idx + "条]" + PEER + "：" + text) : text;
+
         if (Build.VERSION.SDK_INT >= 26) {
             NotificationChannel ch = new NotificationChannel(
                     CHANNEL_ID, "微信消息", NotificationManager.IMPORTANCE_LOW);
@@ -305,8 +313,8 @@ public class MainActivity extends Activity {
 
         b.setSmallIcon(android.R.drawable.ic_dialog_email)
                 .setContentTitle(PEER)
-                .setContentText(text)
-                .setStyle(new Notification.BigTextStyle().bigText(text))
+                .setContentText(shown)
+                .setStyle(new Notification.BigTextStyle().bigText(shown))
                 .setAutoCancel(true)
                 .setContentIntent(pi)
                 .setDefaults(0);          // 不要声音、不要振动、不要呼吸灯
@@ -315,7 +323,8 @@ public class MainActivity extends Activity {
             b.setPriority(Notification.PRIORITY_LOW);
         }
 
-        nm.notify(NOTI_ID + idx, b.build());
+        // 同一个 ID：真微信就是这么覆盖的，连发时通知栏只留最后一条
+        nm.notify(NOTI_ID, b.build());
     }
 
     private int dp(int v) {

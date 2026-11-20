@@ -274,12 +274,20 @@ public class NotiGuard extends NotificationListenerService {
         final String body = csText == null ? "" : csText.toString().trim();
         if (body.length() < 4) return;          // 太短的（"在吗"）不值得判
 
-        // 【2026-11-16 加】同一个会话连来好几条时，微信的通知正文会变成
-        // "2 条新消息"这类汇总文案，真正的消息内容不在里面。
-        // 拿这句话去判词库，得出的结论毫无意义（还可能是高分），
-        // 所以直接跳过 —— 等它展开成具体内容时，下一条通知会带正文。
-        if (body.matches("^\\d+\\s*条新消息.*$") || body.matches("^\\[\\d+条\\].*$")) {
-            Log.i(TAG, "微信通知是多条合并（" + body + "），跳过判定");
+        // 【2026-11-21 凌晨真机实测：这段原来是错的，已重写】
+        // 原逻辑：正文以 "[N条]" 或 "N 条新消息" 开头就整条跳过，
+        // 理由是"同一会话连来好几条时正文会变成汇总文案，真内容不在里面"。
+        // 真机（Honor 7X / EMUI / Android 9 + 微信）的实际格式是——
+        //     [2条]-zzz～y：我临时遇到急事，不方便打电话，先转300到这个卡号：
+        //     [3条]-zzz～y：4.【招聘兼职】线上数据录入，日结300
+        // **前缀后面就是完整的一句真话**。整条跳过等于"连发两条起彻底静默"，
+        // 而骗子催转账恰恰是连发：第一句弹了提示，第二三句反而不弹，
+        // 老人正被催着，银盾这时候闭嘴是最坏的时机。
+        //
+        // 现在只跳过"确实没有内容"的那种（"3 条新消息"），带内容的剥掉包装照判。
+        final String judgeBody = stripMergeWrapper(body);
+        if (judgeBody.length() < 4) {
+            Log.i(TAG, "微信通知没有可判内容（" + body + "），跳过判定");
             return;
         }
 
@@ -311,7 +319,7 @@ public class NotiGuard extends NotificationListenerService {
                     // 触发条件不是"这条消息可疑"，而是"她此刻正和陌生号码通话"。
                     // 银行客服、快递、家人，都不会在电话里让老人把验证码念出来——
                     // 那一秒说这句话只可能是骗子。所以这条走 block，不吃 MIN_RANK 那道 warn 门槛。
-                    if (looksLikeCodeRequest(body) && strangerOnCall(app)) {
+                    if (looksLikeCodeRequest(judgeBody) && strangerOnCall(app)) {
                         Log.w(TAG, "★ 通话中被微信索要验证码 —— 阻断级");
                         Guard.get(app).onCodeInCall();   // 置标志位并进判定链
                         EventBus.pushAlert("block", "通话中被微信索要验证码", "S4", 100);
@@ -325,7 +333,7 @@ public class NotiGuard extends NotificationListenerService {
                         });
                         Notifier.alertChild(app, Notifier.K_CODE, "block",
                                 "妈妈正在通话中被人索要验证码",
-                                "微信来自「" + brief(from) + "」：" + brief(body));
+                                "微信来自「" + brief(from) + "」：" + brief(judgeBody));
                         // 这条是实打实的阻断级：通知留在栏里，老人一点就回
                         // 到那个让她念数字的对话
                         clearIfBlock("block", sbn);
@@ -344,8 +352,8 @@ public class NotiGuard extends NotificationListenerService {
                     // 处理：群消息只在判到 S4（要钱 / 要码）时才打扰。
                     // 真正的骗局不会在群里闲聊两句就收手，它一定要东西；
                     // 而"谁家孩子考了多少分"这类闲聊永远走不到 S4。
-                    final boolean group = looksGroupMessage(body);
-                    Judge.Result r = Judge.get(app).judgeSms(body, NumberInfo.STRANGER, false);
+                    final boolean group = looksGroupMessage(judgeBody);
+                    Judge.Result r = Judge.get(app).judgeSms(judgeBody, NumberInfo.STRANGER, false);
                     Stats.wechat(app);
 
                     Log.i(TAG, "微信消息 from=" + from + (group ? "（群聊）" : "")
@@ -383,7 +391,7 @@ public class NotiGuard extends NotificationListenerService {
                     EventBus.pushAlert(r.level, r.why, r.stage, r.score);
                     Notifier.alertChild(app, Notifier.K_WECHAT, r.level,
                             "妈妈微信收到可疑消息",
-                            "来自「" + from + "」：" + brief(body));
+                            "来自「" + from + "」：" + brief(judgeBody));
 
                     // ---------- 阻断级的，把这条通知从通知栏清掉 ----------
                     // 【2026-11-16 加，用户拍板：只清 block】
@@ -400,6 +408,44 @@ public class NotiGuard extends NotificationListenerService {
                 }
             }
         }, "yindun-wx-judge").start();
+    }
+
+    /**
+     * 剥掉"多条合并"通知的包装，取出真正该判的那句话。
+     *
+     * 微信在不同 ROM 上给的格式不一样，2026-11-21 晨真机实测（Honor 7X / EMUI / Android 9）：
+     *   "[2条]-zzz～y：我临时遇到急事，先转300到这个卡号："   ← 带内容，要判
+     *   "[3条]-zzz～y：4.【招聘兼职】线上数据录入，日结300"    ← 带内容，要判（"4." 是第几条）
+     *   "3 条新消息"                                          ← 纯汇总，没内容，只能跳过
+     *
+     * 只有真正剥过包装的才动冒号逻辑——单条通知原样返回、一个字符都不改，
+     * 免得把"注意：您的快递已到"这种正文的前半句切掉。
+     */
+    private static String stripMergeWrapper(String body) {
+        String s = body == null ? "" : body.trim();
+
+        if (s.matches("^\\d+\\s*条新消息.*$")) return "";          // 纯汇总，判不了
+
+        if (!s.matches("^\\[\\s*\\d+\\s*条\\s*\\].*$")) return s;   // 单条通知，原样返回
+
+        s = s.replaceFirst("^\\[\\s*\\d+\\s*条\\s*\\]", "").trim();
+
+        // 剥完是 "发件人：内容"。发件人在标题字段里已经有一份，这里再判没意义，
+        // 还可能被昵称里的词带跑（备注名带"财务""客服"很常见），所以只取冒号后。
+        // 冒号要在前 24 个字内，否则说明这个冒号属于正文本身（"卡号：6222…"）。
+        int c = s.indexOf('：');
+        int e = s.indexOf(':');
+        if (c < 0) {
+            c = e;
+        } else if (e >= 0 && e < c) {
+            c = e;
+        }
+        if (c > 0 && c <= 24 && c < s.length() - 1) {
+            String rest = s.substring(c + 1).trim();
+            rest = rest.replaceFirst("^\\d+\\s*[.、]\\s*", "");     // "[3条]群名：4. 内容" 的序号
+            if (rest.length() >= 4) return rest;
+        }
+        return s.replaceFirst("^\\d+\\s*[.、]\\s*", "");
     }
 
     /**

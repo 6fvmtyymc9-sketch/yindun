@@ -1,6 +1,6 @@
 {
   "name": "yindun-cloud",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "银盾 · 反诈守护 云端演示系统",
   "main": "src/server.js",
   "type": "commonjs",

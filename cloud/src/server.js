@@ -270,7 +270,10 @@ function buildStamp() {
   } catch (e) {
     return { error: String(e.message || e) };
   }
+  let pkgVer = '';
+  try { pkgVer = require('../package.json').version || ''; } catch (e) { pkgVer = ''; }
   return {
+    ver: pkgVer,                                                          // package.json 的版本号
     codeId: h.digest('hex').slice(0, 12),                                  // 代码内容指纹
     files: n,
     codeAt: newest ? new Date(newest).toISOString() : null,                // 最后一次改动

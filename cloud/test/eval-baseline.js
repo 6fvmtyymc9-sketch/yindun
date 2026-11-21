@@ -92,7 +92,8 @@ async function one(item) {
     // 传别的值直接 401「需要老人端身份」。dryRun 已经保证不写库、不推送，用 demo 不污染数据。
     elderId: 'demo',
     number: '1380000' + String(1000 + Math.floor(Math.random() * 8999)), // 陌生号，走完整判定
-    name: '',
+    name: name, // 必须带真实文件名：服务端靠后缀判断编码格式，给空串会被当成 mp3，
+    // 超过一句话识别上限的长录音就切不了段（实测 37s / 42s 两条直接 502）
     durSec: Number(item.duration_sec) || 0,
     audio: buf.toString('base64'),
     dryRun: true,

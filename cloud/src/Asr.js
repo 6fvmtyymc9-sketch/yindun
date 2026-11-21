@@ -33,6 +33,7 @@ const MIME = {
 
 const { signRequest } = require('./HwSign');
 const { split } = require('./AudioSplit');
+const { resampleTo16k } = require('./AudioResample');
 
 class Asr {
   constructor(env = process.env) {
@@ -103,7 +104,25 @@ class Asr {
    */
   async transcribe({ audio, name, demoText, maxSec }) {
     if (this.sisEnabled) {
-      const out = await this.viaSisChunked(audio, name, maxSec);
+      /* 【2026-11-21 加】wav 先统一到 16k 单声道，再送识别。
+         起因：第一条真人录音（iPhone 通话录音导 wav）是 44100 Hz，
+         而 SIS 默认用 8k 模型（chinese_8k_common）——44.1k 塞给 8k 模型
+         等于 5.5 倍速快放，转写必然是废字或报错。这条链一直"不通"，
+         根因就在采样率，不在网络。
+         amr / mp3 不动：它们本来就是 8k 窄带，送 8k 模型是对的。 */
+      let audio2 = audio;
+      let prop = '';
+      try {
+        const r = resampleTo16k(audio);
+        if (r) {
+          audio2 = r;
+          prop = 'chinese_16k_common';
+          console.log(`[Asr] ${name} 已重采样到 16k（${audio.length} → ${r.length} 字节）`);
+        }
+      } catch (e) {
+        console.warn('[Asr] 重采样失败，按原样送：', e.message);
+      }
+      const out = await this.viaSisChunked(audio2, name, maxSec, prop);
       return {
         text: out.text, source: 'sis', parts: out.parts,
         durationSec: out.durationSec, silentParts: out.silentParts || 0,
@@ -131,7 +150,7 @@ class Asr {
    *   AudioSplit 直接返回 null。这时按整段送，失败了就如实报错并提示原因，
    *   不假装"已经处理好了"。
    */
-  async viaSisChunked(audio, name, maxSec) {
+  async viaSisChunked(audio, name, maxSec, prop) {
     const cutSec = Number(maxSec || this.sisChunkSec) || 55;
     let cut = null;
     try {
@@ -142,7 +161,7 @@ class Asr {
 
     if (!cut || cut.parts.length <= 1) {
       try {
-        const text = await this.viaSis(audio, name);
+        const text = await this.viaSis(audio, name, { prop });
         return { text, parts: 1, durationSec: cut ? cut.durationSec : 0 };
       } catch (e) {
         if (/too large/i.test(e.message)) {
@@ -159,7 +178,7 @@ class Asr {
     const texts = [];
     let silent = 0;
     for (let i = 0; i < cut.parts.length; i += 1) {
-      const t = await this.viaSis(cut.parts[i], name, { allowEmpty: true });
+      const t = await this.viaSis(cut.parts[i], name, { allowEmpty: true, prop });
       if (t) texts.push(t);
       else silent += 1;
     }
@@ -218,7 +237,7 @@ class Asr {
     // 先序列化成字符串再发：AK/SK 签名必须签在"真正发出去的那串字节"上，
     // 若签名时用对象、发送时再 JSON.stringify，两次结果可能不同导致 401。
     const payload = JSON.stringify({
-      config: { audio_format: formatOf(name) || 'mp3', property: s.property, add_punc: 'yes' },
+      config: { audio_format: formatOf(name) || 'mp3', property: (opts && opts.prop) || s.property, add_punc: 'yes' },
       data: audio.toString('base64'),
     });
 

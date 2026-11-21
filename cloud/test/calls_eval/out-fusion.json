@@ -1,0 +1,848 @@
+{
+  "generatedAt": "2026-11-21T10:20:05.142Z",
+  "base": "http://127.0.0.1:8081",
+  "dryRun": true,
+  "smoke": false,
+  "summary": {
+    "fraud": 15,
+    "normal": 15,
+    "recallAny": 1,
+    "recallBlock": 1,
+    "fpr": 0
+  },
+  "sft": {
+    "withVerdict": 28,
+    "seconded": 0,
+    "hintOnly": 0,
+    "states": {
+      "已判定": 28,
+      "超时或失败": 2
+    }
+  },
+  "items": [
+    {
+      "name": "eval_正常_物业停水_01.wav",
+      "label": "正常",
+      "scenario": "物业停水",
+      "level": "none",
+      "stage": 0,
+      "type": "正常物业通知",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.75,
+        "isFraud": true,
+        "confidence": 0.75,
+        "scene": "预约服务",
+        "hint": false,
+        "seconded": false,
+        "ms": 45260
+      },
+      "chars": 161,
+      "asrMs": 2059,
+      "ms": 52123,
+      "evidence": [
+        "我是物业小张，是我啥事儿，嗯，明天上午八点开始停水修地下",
+        "明天上午八点开始停水修地下管道"
+      ],
+      "reason": "物业通知停水，无诈骗特征",
+      "_smoke": false
+    },
+    {
+      "name": "eval_正常_物业缴费_02.wav",
+      "label": "正常",
+      "scenario": "物业缴费",
+      "level": "none",
+      "stage": 0,
+      "type": "正常物业催缴",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.7,
+        "isFraud": true,
+        "confidence": 0.7,
+        "scene": "咨询客服",
+        "hint": false,
+        "seconded": false,
+        "ms": 3914
+      },
+      "chars": 186,
+      "asrMs": 5021,
+      "ms": 11858,
+      "evidence": [
+        "我是物业收费的小王",
+        "你家这季度物业费还没有交呢"
+      ],
+      "reason": "物业正常催缴费用，无诈骗特征",
+      "_smoke": false
+    },
+    {
+      "name": "eval_正常_快递_03.wav",
+      "label": "正常",
+      "scenario": "快递",
+      "level": "none",
+      "stage": 0,
+      "type": "正常快递",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.7,
+        "isFraud": true,
+        "confidence": 0.7,
+        "scene": "日常购物",
+        "hint": false,
+        "seconded": false,
+        "ms": 4586
+      },
+      "chars": 134,
+      "asrMs": 6212,
+      "ms": 11150,
+      "evidence": [
+        "你的快递到小区门口了",
+        "需要核实一下你的门牌号"
+      ],
+      "reason": "正常快递送货核实地址，无诈骗特征",
+      "_smoke": false
+    },
+    {
+      "name": "eval_正常_外卖_04.wav",
+      "label": "正常",
+      "scenario": "外卖",
+      "level": "none",
+      "stage": 0,
+      "type": "正常外卖",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.15,
+        "isFraud": false,
+        "confidence": 0.85,
+        "scene": "外卖服务",
+        "hint": false,
+        "seconded": false,
+        "ms": 4479
+      },
+      "chars": 103,
+      "asrMs": 1255,
+      "ms": 10055,
+      "evidence": [
+        "你点的餐到楼下了",
+        "你给我送上来吧，在三楼三零几啊，我这边看不太清302，走"
+      ],
+      "reason": "外卖送餐正常对话，无诈骗特征",
+      "_smoke": false
+    },
+    {
+      "name": "eval_正常_社区网格员_05.wav",
+      "label": "正常",
+      "scenario": "社区网格员",
+      "level": "none",
+      "stage": 0,
+      "type": "正常社区通知",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.7,
+        "isFraud": true,
+        "confidence": 0.7,
+        "scene": "预约服务",
+        "hint": false,
+        "seconded": false,
+        "ms": 3985
+      },
+      "chars": 165,
+      "asrMs": 3347,
+      "ms": 11233,
+      "evidence": [
+        "我是社区网格员小李，下周社区有免费的体检",
+        "带身份证和一报卡就行了"
+      ],
+      "reason": "社区免费体检通知，仅核实登记信息，无钱款要求",
+      "_smoke": false
+    },
+    {
+      "name": "eval_正常_银行客户经理_06.wav",
+      "label": "正常",
+      "scenario": "银行客户经理",
+      "level": "none",
+      "stage": 0,
+      "type": "正常客服",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.7,
+        "isFraud": true,
+        "confidence": 0.7,
+        "scene": "咨询客服",
+        "hint": false,
+        "seconded": false,
+        "ms": 10584
+      },
+      "chars": 183,
+      "asrMs": 6720,
+      "ms": 23082,
+      "evidence": [
+        "嗯，阿姨，我是建行的小刘，你那笔3年期的存单下个月到期了",
+        "你那笔3年期的存单下个月到期了"
+      ],
+      "reason": "银行提醒存单到期，无诈骗话术",
+      "_smoke": false
+    },
+    {
+      "name": "eval_正常_医院复诊_07.wav",
+      "label": "正常",
+      "scenario": "医院复诊",
+      "level": "none",
+      "stage": 0,
+      "type": "正常客服回访",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.8,
+        "isFraud": true,
+        "confidence": 0.8,
+        "scene": "预约服务",
+        "hint": false,
+        "seconded": false,
+        "ms": 44741
+      },
+      "chars": 129,
+      "asrMs": 3078,
+      "ms": 51904,
+      "evidence": [
+        "我是这边市医院内科",
+        "您下周三上午的复诊，别忘了空腹来"
+      ],
+      "reason": "医院提醒复诊，无诈骗特征",
+      "_smoke": false
+    },
+    {
+      "name": "eval_正常_保险回访_08.wav",
+      "label": "正常",
+      "scenario": "保险回访",
+      "level": "none",
+      "stage": 0,
+      "type": "正常保险回访",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.7,
+        "isFraud": true,
+        "confidence": 0.7,
+        "scene": "咨询客服",
+        "hint": false,
+        "seconded": false,
+        "ms": 4735
+      },
+      "chars": 164,
+      "asrMs": 5027,
+      "ms": 14125,
+      "evidence": [
+        "我是您去年买意外保险的，那家保险公司做个回访",
+        "1年380去年多少钱来着"
+      ],
+      "reason": "正常保险续保回访，无诈骗特征",
+      "_smoke": false
+    },
+    {
+      "name": "eval_正常_老年大学_09.wav",
+      "label": "正常",
+      "scenario": "老年大学",
+      "level": "none",
+      "stage": 0,
+      "type": "正常来电",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.15,
+        "isFraud": false,
+        "confidence": 0.85,
+        "scene": "预约服务",
+        "hint": false,
+        "seconded": false,
+        "ms": 3447
+      },
+      "chars": 116,
+      "asrMs": 3040,
+      "ms": 10563,
+      "evidence": [
+        "我是老年大学书法班的王老师",
+        "下周书法课改到周四下午两点"
+      ],
+      "reason": "老年大学老师通知调课，无钱款或个人信息要求",
+      "_smoke": false
+    },
+    {
+      "name": "eval_正常_亲戚家常_10.wav",
+      "label": "正常",
+      "scenario": "亲戚家常",
+      "level": "none",
+      "stage": 0,
+      "type": "正常亲友闲聊",
+      "basis": "ai",
+      "sftState": "超时或失败",
+      "sft": null,
+      "chars": 115,
+      "asrMs": 1391,
+      "ms": 63629,
+      "evidence": [
+        "姐，你忙不忙啊？",
+        "我问问你家小孙子，今年上几年级了"
+      ],
+      "reason": "仅聊家常问孩子学习过年安排，未提钱款或个人信息",
+      "_smoke": false
+    },
+    {
+      "name": "eval_正常_子女打电话_11.wav",
+      "label": "正常",
+      "scenario": "子女打电话",
+      "level": "none",
+      "stage": 0,
+      "type": "正常亲属通话",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.1,
+        "isFraud": false,
+        "confidence": 0.9,
+        "scene": "日常购物",
+        "hint": false,
+        "seconded": false,
+        "ms": 11623
+      },
+      "chars": 117,
+      "asrMs": 2983,
+      "ms": 18901,
+      "evidence": [
+        "姐，今天降温了，你把你那件厚羽绒服找出来穿",
+        "你那个降血压的药还有没有？"
+      ],
+      "reason": "家人关心天气和降压药，无诈骗特征",
+      "_smoke": false
+    },
+    {
+      "name": "eval_正常_维修师傅_12.wav",
+      "label": "正常",
+      "scenario": "维修师傅",
+      "level": "none",
+      "stage": 0,
+      "type": "正常客服",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.7,
+        "isFraud": true,
+        "confidence": 0.7,
+        "scene": "预约服务",
+        "hint": false,
+        "seconded": false,
+        "ms": 3835
+      },
+      "chars": 132,
+      "asrMs": 3135,
+      "ms": 11245,
+      "evidence": [
+        "我是修空调的，下午两点过去给你看看",
+        "需要核实一下您的地址"
+      ],
+      "reason": "正常空调维修预约，核实地址，无诈骗特征",
+      "_smoke": false
+    },
+    {
+      "name": "eval_正常_送水_13.wav",
+      "label": "正常",
+      "scenario": "送水",
+      "level": "none",
+      "stage": 0,
+      "type": "正常送水",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.7,
+        "isFraud": true,
+        "confidence": 0.7,
+        "scene": "外卖服务",
+        "hint": false,
+        "seconded": false,
+        "ms": 10106
+      },
+      "chars": 113,
+      "asrMs": 1471,
+      "ms": 16875,
+      "evidence": [
+        "水给您送到门口了",
+        "你扫门口那个码就行"
+      ],
+      "reason": "送水付款，无诈骗特征",
+      "_smoke": false
+    },
+    {
+      "name": "eval_正常_村委通知_14.wav",
+      "label": "正常",
+      "scenario": "村委通知",
+      "level": "none",
+      "stage": 0,
+      "type": "正常通知",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.7,
+        "isFraud": true,
+        "confidence": 0.7,
+        "scene": "预约服务",
+        "hint": false,
+        "seconded": false,
+        "ms": 6996
+      },
+      "chars": 116,
+      "asrMs": 2647,
+      "ms": 13926,
+      "evidence": [
+        "我是村委的老赵，是我啥事儿",
+        "明天上午九点，村里开会，说一下医保缴费的事儿"
+      ],
+      "reason": "村委通知开会核对医保，无诈骗特征",
+      "_smoke": false
+    },
+    {
+      "name": "eval_正常_药店回访_15.wav",
+      "label": "正常",
+      "scenario": "药店回访",
+      "level": "none",
+      "stage": 0,
+      "type": "正常客服回访",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.3,
+        "isFraud": false,
+        "confidence": 0.7,
+        "scene": "日常购物",
+        "hint": false,
+        "seconded": false,
+        "ms": 6232
+      },
+      "chars": 120,
+      "asrMs": 2967,
+      "ms": 13126,
+      "evidence": [
+        "我是仁和大药房的小周",
+        "您上次买的降压药快吃完了吧"
+      ],
+      "reason": "药房回访提醒购药，无诈骗特征",
+      "_smoke": false
+    },
+    {
+      "name": "eval_诈骗_冒充公检法_16.wav",
+      "label": "诈骗",
+      "scenario": "冒充公检法",
+      "level": "block",
+      "stage": 4,
+      "type": "冒充公检法",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.98,
+        "isFraud": true,
+        "confidence": 0.98,
+        "scene": "诈骗电话",
+        "hint": false,
+        "seconded": false,
+        "ms": 3551
+      },
+      "chars": 162,
+      "asrMs": 3381,
+      "ms": 12878,
+      "evidence": [
+        "我是这边市公安局刑侦刑侦支队的",
+        "把钱转到安全账户，自证清白"
+      ],
+      "reason": "冒充公安称身份证被冒用涉洗钱，要求转安全账户",
+      "_smoke": false
+    },
+    {
+      "name": "eval_诈骗_冒充公检法_17.wav",
+      "label": "诈骗",
+      "scenario": "冒充公检法",
+      "level": "block",
+      "stage": 4,
+      "type": "冒充公检法",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.98,
+        "isFraud": true,
+        "confidence": 0.98,
+        "scene": "诈骗电话",
+        "hint": false,
+        "seconded": false,
+        "ms": 9083
+      },
+      "chars": 140,
+      "asrMs": 3167,
+      "ms": 16964,
+      "evidence": [
+        "我是检察院的，你名下账户涉嫌一起案件",
+        "你不要挂电话，这个电话是专线"
+      ],
+      "reason": "冒充检察院称账户涉案，要求转钱到监管账户",
+      "_smoke": false
+    },
+    {
+      "name": "eval_诈骗_冒充熟人_18.wav",
+      "label": "诈骗",
+      "scenario": "冒充熟人",
+      "level": "block",
+      "stage": 4,
+      "type": "冒充熟人",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.9,
+        "isFraud": true,
+        "confidence": 0.9,
+        "scene": "诈骗/紧急求助",
+        "hint": false,
+        "seconded": false,
+        "ms": 9464
+      },
+      "chars": 134,
+      "asrMs": 1417,
+      "ms": 16005,
+      "evidence": [
+        "我的手机丢了，这是我的新号",
+        "你先转给我20000"
+      ],
+      "reason": "冒充弟弟新号，借钱并要求别告诉家人",
+      "_smoke": false
+    },
+    {
+      "name": "eval_诈骗_冒充孙子_19.wav",
+      "label": "诈骗",
+      "scenario": "冒充孙子",
+      "level": "block",
+      "stage": 4,
+      "type": "冒充熟人",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.95,
+        "isFraud": true,
+        "confidence": 0.95,
+        "scene": "诈骗",
+        "hint": false,
+        "seconded": false,
+        "ms": 39840
+      },
+      "chars": 134,
+      "asrMs": 2926,
+      "ms": 46096,
+      "evidence": [
+        "奶奶，我出事了，我跟人撞车了",
+        "奶奶，你先别告诉他们，我爸得打死我，你先给我转5000，"
+      ],
+      "reason": "冒充孙子撞车要钱，让瞒家人并手机转账",
+      "_smoke": false
+    },
+    {
+      "name": "eval_诈骗_客服退款_20.wav",
+      "label": "诈骗",
+      "scenario": "客服退款",
+      "level": "block",
+      "stage": 4,
+      "type": "冒充客服退款",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.85,
+        "isFraud": true,
+        "confidence": 0.85,
+        "scene": "咨询客服",
+        "hint": false,
+        "seconded": false,
+        "ms": 4352
+      },
+      "chars": 122,
+      "asrMs": 2956,
+      "ms": 10789,
+      "evidence": [
+        "我是电商平台的客服",
+        "需要提供你的银行卡号"
+      ],
+      "reason": "假客服以退款为由索要卡号和验证码",
+      "_smoke": false
+    },
+    {
+      "name": "eval_诈骗_客服退款_21.wav",
+      "label": "诈骗",
+      "scenario": "客服退款",
+      "level": "block",
+      "stage": 4,
+      "type": "冒充客服",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.9,
+        "isFraud": true,
+        "confidence": 0.9,
+        "scene": "咨询客服",
+        "hint": false,
+        "seconded": false,
+        "ms": 9564
+      },
+      "chars": 134,
+      "asrMs": 3111,
+      "ms": 17073,
+      "evidence": [
+        "我们这边发现我给你开通了会员，每月自动扣800",
+        "今天帮你取消掉，不然后面还要扣"
+      ],
+      "reason": "假称开通会员扣费，诱导下载软件远程控制",
+      "_smoke": false
+    },
+    {
+      "name": "eval_诈骗_刷单返利_22.wav",
+      "label": "诈骗",
+      "scenario": "刷单返利",
+      "level": "block",
+      "stage": 4,
+      "type": "刷单返利",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.85,
+        "isFraud": true,
+        "confidence": 0.85,
+        "scene": "日常购物",
+        "hint": false,
+        "seconded": false,
+        "ms": 6084
+      },
+      "chars": 140,
+      "asrMs": 6366,
+      "ms": 15405,
+      "evidence": [
+        "在家做任务给商家点好评，1天能挣300左右",
+        "先做1单试试嘛，垫200做完连本带利返"
+      ],
+      "reason": "以兼职好评返利为名，要求先垫钱做任务",
+      "_smoke": false
+    },
+    {
+      "name": "eval_诈骗_刷单返利_23.wav",
+      "label": "诈骗",
+      "scenario": "刷单返利",
+      "level": "block",
+      "stage": 4,
+      "type": "刷单返利",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.92,
+        "isFraud": true,
+        "confidence": 0.92,
+        "scene": "外卖服务",
+        "hint": false,
+        "seconded": false,
+        "ms": 12942
+      },
+      "chars": 132,
+      "asrMs": 4758,
+      "ms": 21669,
+      "evidence": [
+        "呃，您好，我是带丹老师，进群就能接任务，你这个是怎么个做法呢",
+        "完成1单返1200"
+      ],
+      "reason": "以进群接任务返利诱导充值，属刷单诈骗",
+      "_smoke": false
+    },
+    {
+      "name": "eval_诈骗_养老理财_24.wav",
+      "label": "诈骗",
+      "scenario": "养老理财",
+      "level": "block",
+      "stage": 4,
+      "type": "虚假投资理财",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.95,
+        "isFraud": true,
+        "confidence": 0.95,
+        "scene": "投资理财/金融诈骗",
+        "hint": false,
+        "seconded": false,
+        "ms": 11698
+      },
+      "chars": 152,
+      "asrMs": 3379,
+      "ms": 20413,
+      "evidence": [
+        "年化收益15%，保本的15",
+        "做抵押，所以收益高，名额就剩3个了，那需要我投多少呢"
+      ],
+      "reason": "以高收益养老公寓诱骗投资，催促交钱锁名额",
+      "_smoke": false
+    },
+    {
+      "name": "eval_诈骗_医保卡异常_25.wav",
+      "label": "诈骗",
+      "scenario": "医保卡异常",
+      "level": "block",
+      "stage": 4,
+      "type": "冒充医保局",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.92,
+        "isFraud": true,
+        "confidence": 0.92,
+        "scene": "咨询客服",
+        "hint": false,
+        "seconded": false,
+        "ms": 7793
+      },
+      "chars": 143,
+      "asrMs": 3234,
+      "ms": 14681,
+      "evidence": [
+        "这里是医保局，您尾号8823的医保卡上在上海有一笔12000",
+        "您需要马上处理，不然还要继续扣"
+      ],
+      "reason": "冒充医保局称医保卡异常，诱导转钱到安全账户",
+      "_smoke": false
+    },
+    {
+      "name": "eval_诈骗_医保卡异常_26.wav",
+      "label": "诈骗",
+      "scenario": "医保卡异常",
+      "level": "block",
+      "stage": 4,
+      "type": "冒充社保局",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.92,
+        "isFraud": true,
+        "confidence": 0.92,
+        "scene": "咨询客服",
+        "hint": false,
+        "seconded": false,
+        "ms": 7047
+      },
+      "chars": 139,
+      "asrMs": 3241,
+      "ms": 15556,
+      "evidence": [
+        "您的社保卡涉嫌违规报销，现在要被停用",
+        "您提供一下身份证号，银行卡号和短信验证码"
+      ],
+      "reason": "冒充社保称违规报销停用，索要身份证银行卡验证码",
+      "_smoke": false
+    },
+    {
+      "name": "eval_诈骗_冒充领导_27.wav",
+      "label": "诈骗",
+      "scenario": "冒充领导",
+      "level": "block",
+      "stage": 4,
+      "type": "冒充熟人",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.92,
+        "isFraud": true,
+        "confidence": 0.92,
+        "scene": "咨询客服",
+        "hint": false,
+        "seconded": false,
+        "ms": 9300
+      },
+      "chars": 115,
+      "asrMs": 2860,
+      "ms": 15876,
+      "evidence": [
+        "我是你们单位的哦",
+        "你先帮我转笔钱30000"
+      ],
+      "reason": "冒充单位李科长，要求垫钱转账并保密",
+      "_smoke": false
+    },
+    {
+      "name": "eval_诈骗_中奖_28.wav",
+      "label": "诈骗",
+      "scenario": "中奖",
+      "level": "block",
+      "stage": 4,
+      "type": "中奖诈骗",
+      "basis": "ai",
+      "sftState": "超时或失败",
+      "sft": null,
+      "chars": 134,
+      "asrMs": 1646,
+      "ms": 63796,
+      "evidence": [
+        "您在本公司周年庆抽中一等奖",
+        "领奖需要先交¥800的手续费和税费"
+      ],
+      "reason": "谎称中奖先交手续费税费，典型骗钱套路",
+      "_smoke": false
+    },
+    {
+      "name": "eval_诈骗_贷款前期费_29.wav",
+      "label": "诈骗",
+      "scenario": "贷款前期费",
+      "level": "block",
+      "stage": 4,
+      "type": "虚假贷款",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.85,
+        "isFraud": true,
+        "confidence": 0.85,
+        "scene": "咨询客服",
+        "hint": false,
+        "seconded": false,
+        "ms": 8383
+      },
+      "chars": 138,
+      "asrMs": 3231,
+      "ms": 17636,
+      "evidence": [
+        "你先交3000块包装费材料",
+        "这是银行要求的保证金"
+      ],
+      "reason": "以低息贷款为名，放款前要求交包装费保证金",
+      "_smoke": false
+    },
+    {
+      "name": "eval_诈骗_屏幕共享_30.wav",
+      "label": "诈骗",
+      "scenario": "屏幕共享",
+      "level": "block",
+      "stage": 4,
+      "type": "冒充银行客服",
+      "basis": "ai",
+      "sftState": "已判定",
+      "sft": {
+        "p": 0.9,
+        "isFraud": true,
+        "confidence": 0.9,
+        "scene": "咨询客服",
+        "hint": false,
+        "seconded": false,
+        "ms": 7881
+      },
+      "chars": 143,
+      "asrMs": 3308,
+      "ms": 16448,
+      "evidence": [
+        "您的银行账户有安全风险",
+        "你先下载一个屏幕共享软件"
+      ],
+      "reason": "冒充银行称账户风险，诱导共享屏幕看余额",
+      "_smoke": false
+    }
+  ]
+}

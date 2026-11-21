@@ -1,0 +1,561 @@
+{
+  "generatedAt": "2026-11-21T09:42:43.477Z",
+  "mode": "text",
+  "dataset": "cloud/test/calls_eval/labels.json",
+  "source": "out-sft-text.jsonl（GPU 上 tools/sft_server.py /judge，text 参数；输入为 transcripts_asr/ 的 ASR 原文）",
+  "frozen": true,
+  "counts": {
+    "total": 30,
+    "fraud": 15,
+    "normal": 15
+  },
+  "pMeaning": "p = 判为诈骗的把握（判诈骗时取 confidence，判正常时取 1-confidence），非统计概率",
+  "chosen": {
+    "threshold": 0.85,
+    "recall": "15/15",
+    "recallRate": 1,
+    "falsePositives": 2,
+    "fpr": 0.1333
+  },
+  "sweep": [
+    {
+      "threshold": 0.5,
+      "recall": "15/15",
+      "recallRate": 1,
+      "falsePositives": 10,
+      "fpr": 0.6667
+    },
+    {
+      "threshold": 0.7,
+      "recall": "15/15",
+      "recallRate": 1,
+      "falsePositives": 8,
+      "fpr": 0.5333
+    },
+    {
+      "threshold": 0.75,
+      "recall": "15/15",
+      "recallRate": 1,
+      "falsePositives": 2,
+      "fpr": 0.1333
+    },
+    {
+      "threshold": 0.8,
+      "recall": "15/15",
+      "recallRate": 1,
+      "falsePositives": 2,
+      "fpr": 0.1333
+    },
+    {
+      "threshold": 0.82,
+      "recall": "15/15",
+      "recallRate": 1,
+      "falsePositives": 2,
+      "fpr": 0.1333
+    },
+    {
+      "threshold": 0.85,
+      "recall": "15/15",
+      "recallRate": 1,
+      "falsePositives": 2,
+      "fpr": 0.1333
+    },
+    {
+      "threshold": 0.9,
+      "recall": "12/15",
+      "recallRate": 0.8,
+      "falsePositives": 0,
+      "fpr": 0
+    },
+    {
+      "threshold": 0.95,
+      "recall": "5/15",
+      "recallRate": 0.3333,
+      "falsePositives": 0,
+      "fpr": 0
+    }
+  ],
+  "timingMs": {
+    "median": 4388,
+    "p90": 23118,
+    "max": 39425,
+    "min": 3360
+  },
+  "fraudMin": 0.85,
+  "normalMax": 0.85,
+  "missedAt85": [],
+  "falsePositivesAt05": [
+    {
+      "file": "eval_正常_银行客户经理_06.wav",
+      "p": 0.85,
+      "scene": "预约服务"
+    },
+    {
+      "file": "eval_正常_送水_13.wav",
+      "p": 0.85,
+      "scene": "外卖服务"
+    },
+    {
+      "file": "eval_正常_快递_03.wav",
+      "p": 0.7,
+      "scene": "日常购物"
+    },
+    {
+      "file": "eval_正常_外卖_04.wav",
+      "p": 0.7,
+      "scene": "外卖服务"
+    },
+    {
+      "file": "eval_正常_社区网格员_05.wav",
+      "p": 0.7,
+      "scene": "预约服务"
+    },
+    {
+      "file": "eval_正常_医院复诊_07.wav",
+      "p": 0.7,
+      "scene": "预约服务"
+    },
+    {
+      "file": "eval_正常_维修师傅_12.wav",
+      "p": 0.7,
+      "scene": "预约服务"
+    },
+    {
+      "file": "eval_正常_村委通知_14.wav",
+      "p": 0.7,
+      "scene": "预约服务"
+    },
+    {
+      "file": "eval_正常_物业缴费_02.wav",
+      "p": 0.65,
+      "scene": "咨询客服"
+    },
+    {
+      "file": "eval_正常_保险回访_08.wav",
+      "p": 0.6,
+      "scene": "咨询客服"
+    }
+  ],
+  "rows": [
+    {
+      "file": "eval_正常_物业停水_01.wav",
+      "label": "正常",
+      "scenario": "物业停水",
+      "p": 0.1,
+      "isFraud": false,
+      "scene": "预约服务",
+      "ms": 3360,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容涉及物业通知停水及后续用水安排，但未提及转账或敏感个人信息索取，且双方语气自然，无典型诈骗话术特征。",
+      "error": null
+    },
+    {
+      "file": "eval_正常_物业缴费_02.wav",
+      "label": "正常",
+      "scenario": "物业缴费",
+      "p": 0.65,
+      "isFraud": true,
+      "scene": "咨询客服",
+      "ms": 3365,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容涉及物业费用催缴及缴费方式协商，但存在可疑特征（如要求扫描二维码、非正式沟通渠道等），需警惕潜在诈骗风险。",
+      "error": null
+    },
+    {
+      "file": "eval_正常_快递_03.wav",
+      "label": "正常",
+      "scenario": "快递",
+      "p": 0.7,
+      "isFraud": true,
+      "scene": "日常购物",
+      "ms": 5363,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容为快递配送流程，但存在可疑点：1. 收件人主动要求提供门牌号和具体房间号；2. 对话中出现逻辑矛盾（快递员未明确说明商品性质即催促收件人开门）；3. 可疑方语速快且带有紧张感，可能暗示非正常沟通需求。此类场景常见于冒充快递员实施诈骗的行为模式。",
+      "error": null
+    },
+    {
+      "file": "eval_正常_外卖_04.wav",
+      "label": "正常",
+      "scenario": "外卖",
+      "p": 0.7,
+      "isFraud": true,
+      "scene": "外卖服务",
+      "ms": 4096,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容涉及送餐流程但存在可疑行为（要求额外一次性筷子、未明确身份验证），结合潜在受害方紧张语气及逻辑矛盾（地址模糊/重复），符合常见外卖诈骗特征。",
+      "error": null
+    },
+    {
+      "file": "eval_正常_社区网格员_05.wav",
+      "label": "正常",
+      "scenario": "社区网格员",
+      "p": 0.7,
+      "isFraud": true,
+      "scene": "预约服务",
+      "ms": 4099,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容涉及社区网格员主动联系用户并要求携带身份证及报道卡参加体检，但未明确说明机构资质或具体流程，存在诱导用户提供个人信息的风险。此类以‘免费体检’为名的活动常被用于诈骗手段，需警惕潜在风险。",
+      "error": null
+    },
+    {
+      "file": "eval_正常_银行客户经理_06.wav",
+      "label": "正常",
+      "scenario": "银行客户经理",
+      "p": 0.85,
+      "isFraud": true,
+      "scene": "预约服务",
+      "ms": 4355,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话方以银行名义引导客户提供身份证号及敏感信息，但未明确说明具体业务需求且存在逻辑矛盾（利率下降却仍建议续存），结合脚本化话术和异常交互特征，符合典型金融诈骗行为模式。",
+      "error": null
+    },
+    {
+      "file": "eval_正常_医院复诊_07.wav",
+      "label": "正常",
+      "scenario": "医院复诊",
+      "p": 0.7,
+      "isFraud": true,
+      "scene": "预约服务",
+      "ms": 5161,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容为医疗机构工作人员与患者家属确认复诊时间及注意事项，未涉及敏感信息索取或异常资金要求。但需注意正规医疗机构通常不会通过电话要求患者提前停用药物，且存在逻辑矛盾（患者被提醒不要吃早餐却被告知可抽血）。此类行为可能伪装成正常服务以诱导后续操作，建议进一步核实。",
+      "error": null
+    },
+    {
+      "file": "eval_正常_保险回访_08.wav",
+      "label": "正常",
+      "scenario": "保险回访",
+      "p": 0.6,
+      "isFraud": true,
+      "scene": "咨询客服",
+      "ms": 3542,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容涉及保险续保提醒及费用问题，但存在逻辑矛盾（如未明确说明保费上涨原因），且可疑方使用脚本化语言引导潜在受害方进行后续操作，符合典型金融诈骗特征。",
+      "error": null
+    },
+    {
+      "file": "eval_正常_老年大学_09.wav",
+      "label": "正常",
+      "scenario": "老年大学",
+      "p": 0.15,
+      "isFraud": false,
+      "scene": "预约服务",
+      "ms": 4423,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容涉及课程时间调整通知，但未出现敏感信息索取或异常行为要求。双方语气自然且交互逻辑合理（如确认时间变更原因），无典型诈骗话术特征（如紧急威胁、账户验证等）。",
+      "error": null
+    },
+    {
+      "file": "eval_正常_亲戚家常_10.wav",
+      "label": "正常",
+      "scenario": "亲戚家常",
+      "p": 0.15,
+      "isFraud": false,
+      "scene": "日常交流",
+      "ms": 3381,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容为家人间日常交流，未提及敏感信息或异常请求，无典型诈骗特征（如诱导转账、冒充身份等）。",
+      "error": null
+    },
+    {
+      "file": "eval_正常_子女打电话_11.wav",
+      "label": "正常",
+      "scenario": "子女打电话",
+      "p": 0.2,
+      "isFraud": false,
+      "scene": "日常购物",
+      "ms": 4457,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "对话内容涉及日常物品（衣物、药品）的交流，未出现异常转账要求或敏感信息索取，符合正常亲友间的生活互助特征。可疑方虽主动提及药品需求，但潜在受害方明确表示会自行解决且拒绝额外帮助，无典型诈骗话术（如紧急汇款、身份验证等）。",
+      "error": null
+    },
+    {
+      "file": "eval_正常_维修师傅_12.wav",
+      "label": "正常",
+      "scenario": "维修师傅",
+      "p": 0.7,
+      "isFraud": true,
+      "scene": "预约服务",
+      "ms": 4823,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容涉及上门维修服务的预约流程，但存在可疑特征（如主动提及‘加福180’和‘压缩机坏了’等术语）及异常交互模式（逻辑矛盾、重复表述）。此类话术常见于虚假服务诈骗，通过虚构故障诱导支付或获取个人信息。",
+      "error": null
+    },
+    {
+      "file": "eval_正常_送水_13.wav",
+      "label": "正常",
+      "scenario": "送水",
+      "p": 0.85,
+      "isFraud": true,
+      "scene": "外卖服务",
+      "ms": 4038,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容存在异常支付要求（扫码输入密码）、逻辑矛盾（未明确商品价格/数量即要求支付）及脚本化对话模式，符合典型电信诈骗特征。",
+      "error": null
+    },
+    {
+      "file": "eval_正常_村委通知_14.wav",
+      "label": "正常",
+      "scenario": "村委通知",
+      "p": 0.7,
+      "isFraud": true,
+      "scene": "预约服务",
+      "ms": 3665,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容涉及医保缴费提醒及会议通知，但未提及具体机构或官方验证方式，且存在催促行为（如‘尽快处理’），符合常见诈骗话术特征。",
+      "error": null
+    },
+    {
+      "file": "eval_正常_药店回访_15.wav",
+      "label": "正常",
+      "scenario": "药店回访",
+      "p": 0.3,
+      "isFraud": false,
+      "scene": "日常购物",
+      "ms": 12870,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容涉及主动推销药品并引导用户携带会员卡领取优惠，但未明确提及转账、个人信息索取等诈骗常见要素，需结合后续行为进一步核实。",
+      "error": null
+    },
+    {
+      "file": "eval_诈骗_冒充公检法_16.wav",
+      "label": "诈骗",
+      "scenario": "冒充公检法",
+      "p": 0.95,
+      "isFraud": true,
+      "scene": "咨询客服",
+      "ms": 28291,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话中对方冒充公安人员，虚构洗钱案件并要求立即转账至安全账户，且语气紧张、急促，具有典型的电信诈骗特征。",
+      "error": null
+    },
+    {
+      "file": "eval_诈骗_冒充公检法_17.wav",
+      "label": "诈骗",
+      "scenario": "冒充公检法",
+      "p": 0.95,
+      "isFraud": true,
+      "scene": null,
+      "ms": 21029,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话方冒充公检法机关，以账户涉嫌犯罪为由诱导转账至指定账户，并制造时间紧迫性，符合典型电信诈骗特征。",
+      "error": null
+    },
+    {
+      "file": "eval_诈骗_冒充熟人_18.wav",
+      "label": "诈骗",
+      "scenario": "冒充熟人",
+      "p": 0.85,
+      "isFraud": true,
+      "scene": "咨询客服",
+      "ms": 4873,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容涉及紧急资金请求（声称丢失手机需立即转账）、异常账户操作（要求添加微信发送验证码）及敏感信息泄露（催促汇款以避免财务损失），且存在逻辑矛盾（未明确说明具体事件原因）。结合可疑通话方语速急促、重复强调资金需求的行为模式，符合典型电信诈骗特征。",
+      "error": null
+    },
+    {
+      "file": "eval_诈骗_冒充孙子_19.wav",
+      "label": "诈骗",
+      "scenario": "冒充孙子",
+      "p": 0.95,
+      "isFraud": true,
+      "scene": null,
+      "ms": 23118,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容涉及紧急资金请求、威胁禁止告知父母、催促转账且存在逻辑矛盾（未受伤却需赔偿），符合典型诈骗特征。",
+      "error": null
+    },
+    {
+      "file": "eval_诈骗_客服退款_20.wav",
+      "label": "诈骗",
+      "scenario": "客服退款",
+      "p": 0.9,
+      "isFraud": true,
+      "scene": "咨询客服",
+      "ms": 4388,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话方以电商客服名义要求用户提供银行卡号及验证码，并虚构商品质量问题诱导退款，符合典型诈骗话术特征（如敏感信息索取、异常退款流程）。受害方虽保持警惕但已泄露部分个人信息，交互模式与涉诈场景高度吻合。",
+      "error": null
+    },
+    {
+      "file": "eval_诈骗_客服退款_21.wav",
+      "label": "诈骗",
+      "scenario": "客服退款",
+      "p": 0.9,
+      "isFraud": true,
+      "scene": "咨询客服",
+      "ms": 4344,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话方以账户异常为由诱导用户下载非官方会议软件，并通过制造时间紧迫感（‘尽快取消’）施压，符合冒充客服类诈骗中伪造安全事件、引导敏感操作的典型话术特征。",
+      "error": null
+    },
+    {
+      "file": "eval_诈骗_刷单返利_22.wav",
+      "label": "诈骗",
+      "scenario": "刷单返利",
+      "p": 0.85,
+      "isFraud": true,
+      "scene": "日常购物",
+      "ms": 4837,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容涉及以高额回报为诱饵的虚假兼职任务，要求垫付资金且存在逻辑矛盾（如‘先垫200’与‘连本带利返’），符合典型网络诈骗特征。可疑方使用诱导性话术引导潜在受害方参与非法活动，具有较高欺诈风险。",
+      "error": null
+    },
+    {
+      "file": "eval_诈骗_刷单返利_23.wav",
+      "label": "诈骗",
+      "scenario": "刷单返利",
+      "p": 0.85,
+      "isFraud": true,
+      "scene": "日常购物",
+      "ms": 3840,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容涉及诱导用户充值后完成任务以获取高额回报，并强调‘充钱可提现’及‘新用户福利期’等话术，符合典型诈骗特征。",
+      "error": null
+    },
+    {
+      "file": "eval_诈骗_养老理财_24.wav",
+      "label": "诈骗",
+      "scenario": "养老理财",
+      "p": 0.9,
+      "isFraud": true,
+      "scene": "投资理财",
+      "ms": 4183,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容涉及高收益保本投资项目（年化15%）、催促立即决策（名额有限）、要求预付资金（五万元）及可疑抵押物（养老院），符合虚假投资理财诈骗的典型特征。",
+      "error": null
+    },
+    {
+      "file": "eval_诈骗_医保卡异常_25.wav",
+      "label": "诈骗",
+      "scenario": "医保卡异常",
+      "p": 0.9,
+      "isFraud": true,
+      "scene": "咨询客服",
+      "ms": 3640,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话方以医保局名义要求用户提供个人信息及转账至所谓‘安全账户’，存在冒充公检法/机构诱导转账的典型诈骗特征，且用户对异常消费地点提出质疑但未获有效解释。",
+      "error": null
+    },
+    {
+      "file": "eval_诈骗_医保卡异常_26.wav",
+      "label": "诈骗",
+      "scenario": "医保卡异常",
+      "p": 0.92,
+      "isFraud": true,
+      "scene": "咨询客服",
+      "ms": 3916,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话方以社保卡违规报销为由要求提供身份证号、银行卡号及短信验证码，并引导用户配合验证流程，此类索要敏感信息的行为与常见诈骗手法高度吻合（如冒充公检法/医保机构骗取个人信息）。",
+      "error": null
+    },
+    {
+      "file": "eval_诈骗_冒充领导_27.wav",
+      "label": "诈骗",
+      "scenario": "冒充领导",
+      "p": 0.95,
+      "isFraud": true,
+      "scene": "咨询客服",
+      "ms": 39425,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话涉及转账请求、身份冒充及可疑语气特征，符合典型诈骗模式。",
+      "error": null
+    },
+    {
+      "file": "eval_诈骗_中奖_28.wav",
+      "label": "诈骗",
+      "scenario": "中奖",
+      "p": 0.97,
+      "isFraud": true,
+      "scene": "诈骗/推销",
+      "ms": 7747,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容涉及虚假中奖通知（声称用户中奖但未参与抽奖），要求支付手续费及税费以领取奖品，并利用‘老用户回馈’等话术诱导转账。此类手法符合典型电信诈骗特征，且正规企业不会通过电话索要手续费或税费。",
+      "error": null
+    },
+    {
+      "file": "eval_诈骗_贷款前期费_29.wav",
+      "label": "诈骗",
+      "scenario": "贷款前期费",
+      "p": 0.9,
+      "isFraud": true,
+      "scene": "诈骗",
+      "ms": 4599,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话内容涉及以低息贷款为诱饵，要求预付保证金及手续费，并拒绝提供具体利率信息，符合虚假贷款类诈骗特征。可疑方使用标准化话术引导支付流程，受害方虽保持警惕但仍被诱导付款。",
+      "error": null
+    },
+    {
+      "file": "eval_诈骗_屏幕共享_30.wav",
+      "label": "诈骗",
+      "scenario": "屏幕共享",
+      "p": 0.9,
+      "isFraud": true,
+      "scene": "咨询客服",
+      "ms": 3855,
+      "durSec": null,
+      "voicedSec": null,
+      "skipped": false,
+      "reason": "通话方以银行工作人员身份诱导用户下载不明屏幕共享软件，并要求立即处理账户安全风险，存在冒充金融机构实施钓鱼诈骗的典型特征（如虚假紧急事件、敏感信息索取）。",
+      "error": null
+    }
+  ]
+}

@@ -13,16 +13,22 @@
  * 注意 p 的含义：p = 模型自报 confidence（判诈骗时）或 1-confidence（判正常时），
  * 即「判为诈骗的把握」，不是统计概率。
  *
- * 用法：node cloud/test/sft-eval-report.js
+ * 用法：
+ *   node cloud/test/sft-eval-report.js          # 音频模式（out-sft-judge.jsonl）
+ *   node cloud/test/sft-eval-report.js text     # 文本模式（out-sft-text.jsonl）
  */
 'use strict';
 const fs = require('fs');
 const path = require('path');
 
+const MODE = (process.argv[2] || 'audio').toLowerCase();
+const IN = MODE === 'text' ? 'out-sft-text.jsonl' : 'out-sft-judge.jsonl';
+const OUT = MODE === 'text' ? 'out-sft-text.json' : 'out-sft-judge.json';
+
 const DIR = path.join(__dirname, 'calls_eval');
 const labels = JSON.parse(fs.readFileSync(path.join(DIR, 'labels.json'), 'utf8')).items;
 const raw = fs
-  .readFileSync(path.join(DIR, 'out-sft-judge.jsonl'), 'utf8')
+  .readFileSync(path.join(DIR, IN), 'utf8')
   .trim()
   .split('\n')
   .map((l) => JSON.parse(l));
@@ -77,9 +83,13 @@ const overP = neg.filter((x) => pOf(x) >= 0.5).sort((a, b) => pOf(b) - pOf(a));
 
 const report = {
   generatedAt: new Date().toISOString(),
+  mode: MODE,
   dataset: 'cloud/test/calls_eval/labels.json',
-  source: 'out-sft-judge.jsonl（GPU 上 tools/sft_server.py /judge，原生两轮问法）',
-  frozen: false,
+  source:
+    MODE === 'text'
+      ? 'out-sft-text.jsonl（GPU 上 tools/sft_server.py /judge，text 参数；输入为 transcripts_asr/ 的 ASR 原文）'
+      : 'out-sft-judge.jsonl（GPU 上 tools/sft_server.py /judge，audio 参数，原生两轮问法）',
+  frozen: true,
   counts: { total: rows.length, fraud: pos.length, normal: neg.length },
   pMeaning: 'p = 判为诈骗的把握（判诈骗时取 confidence，判正常时取 1-confidence），非统计概率',
   chosen: { threshold: 0.85, ...at85 },
@@ -92,7 +102,7 @@ const report = {
   rows,
 };
 
-fs.writeFileSync(path.join(DIR, 'out-sft-judge.json'), JSON.stringify(report, null, 2) + '\n', 'utf8');
+fs.writeFileSync(path.join(DIR, OUT), JSON.stringify(report, null, 2) + '\n', 'utf8');
 
 console.log('样本 ' + rows.length + '（诈骗 ' + pos.length + ' / 正常 ' + neg.length + '）');
 console.log('\n阈值   召回      误报      误报数');
@@ -105,4 +115,4 @@ for (const s of sweep) {
 console.log('\np 分界：诈骗最低 ' + report.fraudMin + ' / 正常最高 ' + report.normalMax);
 console.log('耗时 中位 ' + report.timingMs.median + 'ms / P90 ' + report.timingMs.p90 + 'ms / 最大 ' + report.timingMs.max + 'ms');
 console.log('0.85 阈值下漏报：' + (missed.length ? missed.join(', ') : '无'));
-console.log('→ 已写 ' + path.join(DIR, 'out-sft-judge.json'));
+console.log('→ 已写 ' + path.join(DIR, OUT));

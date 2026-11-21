@@ -1,8 +1,9 @@
 {
-  "generatedAt": "2026-11-21T09:32:42.927Z",
+  "generatedAt": "2026-11-21T09:42:43.741Z",
+  "mode": "audio",
   "dataset": "cloud/test/calls_eval/labels.json",
-  "source": "out-sft-judge.jsonl（GPU 上 tools/sft_server.py /judge，原生两轮问法）",
-  "frozen": false,
+  "source": "out-sft-judge.jsonl（GPU 上 tools/sft_server.py /judge，audio 参数，原生两轮问法）",
+  "frozen": true,
   "counts": {
     "total": 30,
     "fraud": 15,

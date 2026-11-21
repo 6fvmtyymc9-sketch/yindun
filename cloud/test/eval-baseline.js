@@ -14,6 +14,8 @@
  *   node test/eval-baseline.js --limit 5           # 只跑前 5 条（省成本、先冒烟）
  *   node test/eval-baseline.js --base http://123.249.25.139:8080
  *   node test/eval-baseline.js --dir D:/some/audio # 冒烟模式：拿任意目录试跑，不当评估集
+ *   node test/eval-baseline.js --out out-fusion.json
+ *                                                # 换输出名，别覆盖两票基线的 out-baseline.json
  *
  * 口径（写进报告前先看清，别混）：
  *   宽松召回 = 诈骗样本判到 warn 及以上（会提醒老人 + 推子女）
@@ -36,11 +38,13 @@ const getArg = (k, d) => {
 const BASE = getArg('base', 'http://123.249.25.139:8080').replace(/\/+$/, '');
 const LIMIT = Number(getArg('limit', '0')) || 0;
 const DIR_OVERRIDE = getArg('dir', '');
+/** 输出文件名。跑三票融合时用 --out out-fusion.json，别覆盖掉两票的基线 */
+const OUT_NAME = getArg('out', 'out-baseline.json');
 
 const EVAL_DIR = path.join(__dirname, 'calls_eval');
 const WORK_DIR = DIR_OVERRIDE ? path.resolve(DIR_OVERRIDE) : EVAL_DIR;
 const LABELS = path.join(WORK_DIR, 'labels.json');
-const OUT = path.join(WORK_DIR, 'out-baseline.json');
+const OUT = path.join(WORK_DIR, OUT_NAME);
 
 const RANK = { none: 0, watch: 1, warn: 2, high: 3, block: 4 };
 const AUDIO_EXT = ['.mp3', '.wav', '.amr', '.m4a', '.aac'];
@@ -120,6 +124,8 @@ async function one(item) {
 
   const r = json.result || json;
   const asr = r.asr || json.asr || {};
+  // 第三票（SFT）的原始结论与状态：融合到底有没有生效，只能从这里看
+  const st = r.sft || null;
   return {
     name,
     label: item.label,
@@ -128,6 +134,16 @@ async function one(item) {
     stage: r.stage,
     type: r.type,
     basis: r.basis,
+    sftState: r.sftState || null,
+    sft: st ? {
+      p: st.p,
+      isFraud: st.isFraud === undefined ? null : st.isFraud,
+      confidence: st.confidence === undefined ? null : st.confidence,
+      scene: st.scene || '',
+      hint: !!st.hint,
+      seconded: !!st.seconded,
+      ms: st.ms || 0,
+    } : null,
     chars: asr.chars == null ? null : asr.chars,
     asrMs: asr.ms,
     ms,
@@ -167,21 +183,30 @@ const pct = (x) => (x == null ? '—' : (x * 100).toFixed(1) + '%');
   const g = grade(rows);
 
   console.log('\n================ 明细 ================');
-  console.log('标签   等级   阶段  转写  耗时   场景           文件');
+  console.log('标签   等级   阶段  转写   耗时   SFT(p)  判据              文件');
   for (const r of rows) {
     if (r.error) { console.log(`ERROR  ${r.name}  ${r.error}`); continue; }
+    const sp = r.sft && typeof r.sft.p === 'number' ? r.sft.p.toFixed(2) : (r.sftState || '-');
     console.log(
       String(r.label).padEnd(5),
       String(r.level).padEnd(6),
       String(r.stage || '-').padEnd(5),
       String(r.chars == null ? '-' : r.chars).padEnd(5),
       ((r.ms / 1000).toFixed(1) + 's').padEnd(6),
-      String(r.scenario || '').padEnd(15),
+      String(sp).padEnd(7),
+      String(r.basis || '').padEnd(18),
       r.name
     );
   }
 
-  console.log('\n================ 汇总（规则 + 云端 DeepSeek 两票）================');
+  // 第三票到底有没有参与：判据里出现 +sft 才算真的抬过档
+  const withSft = ok.filter((r) => r.sft && typeof r.sft.p === 'number');
+  const hinted = ok.filter((r) => r.sft && r.sft.hint);
+  const seconded = ok.filter((r) => r.sft && r.sft.seconded);
+  const states = {};
+  for (const r of ok) states[r.sftState || '未知'] = (states[r.sftState || '未知'] || 0) + 1;
+
+  console.log(`\n================ 汇总（${withSft.length ? '规则 + DeepSeek + SFT 三票' : '规则 + 云端 DeepSeek 两票'}）================`);
   console.log(`样本：诈骗 ${g.fraud} 条 / 正常 ${g.normal} 条（失败 ${rows.length - ok.length} 条已剔除）`);
   console.log(`宽松召回（warn 及以上）：${pct(g.recallAny)}`);
   console.log(`严格召回（block 盖屏）  ：${pct(g.recallBlock)}`);
@@ -195,7 +220,15 @@ const pct = (x) => (x == null ? '—' : (x * 100).toFixed(1) + '%');
     const zero = chars.filter((x) => x < 20).length;
     console.log(`转写质量：中位 ${chars.slice().sort((a, b) => a - b)[Math.floor(chars.length / 2)]} 字，${zero} 条低于 20 字（SIS 没转出内容，判定等于空跑）`);
   }
-  console.log('\n⚠️ 本表只有「规则 + 云端」两票。SFT 音频票未接入（SFT_URL 留空），端侧 TinyBERT 仅 ARM 真机启用。');
+  if (withSft.length) {
+    const ps = withSft.map((r) => r.sft.p).sort((a, b) => a - b);
+    console.log(`SFT 票：${withSft.length}/${ok.length} 条有结论，p 中位 ${ps[Math.floor(ps.length / 2)].toFixed(2)}`
+      + `（区间 ${ps[0].toFixed(2)}~${ps[ps.length - 1].toFixed(2)}）；`
+      + `两票附和抬档 ${seconded.length} 条，仅 SFT 高分留痕 ${hinted.length} 条`);
+    console.log(`SFT 状态分布：${Object.entries(states).map(([k, v]) => k + ' ' + v).join(' / ')}`);
+  } else {
+    console.log('\n⚠️ 本表只有「规则 + 云端」两票。SFT 音频票未接入或全部超时（SFT_URL 留空）。');
+  }
   if (ok.some((r) => r._smoke)) console.log('⚠️ 本次含冒烟数据（--dir 模式），不得写进材料。');
 
   fs.writeFileSync(OUT, JSON.stringify({
@@ -204,6 +237,12 @@ const pct = (x) => (x == null ? '—' : (x * 100).toFixed(1) + '%');
     dryRun: true,
     smoke: ok.some((r) => r._smoke),
     summary: g,
+    sft: {
+      withVerdict: withSft.length,
+      seconded: seconded.length,
+      hintOnly: hinted.length,
+      states,
+    },
     items: rows,
   }, null, 2), 'utf8');
   console.log(`\n结果已存：${OUT}`);

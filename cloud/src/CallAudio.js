@@ -46,22 +46,26 @@ function registerCallAudio(app, deps) {
   /**
    * 第三票最多等多久。手机端读超时是 90 秒（CallRecord.java 第 271 行），这里留余量。
    *
-   * 【2026-11-18 实测：60 秒这个默认值不能用在 GPU 上】
-   *   GPU 正常时单次 114~148 ms，60 秒是 400 倍余量，等于没设。
-   *   但模型"接得上却不回话"（正在加载权重、显存被别的进程占了、卡在队列里）时，
-   *   实测一通 28.8 秒的录音要等 **63.7 秒**才出结论 —— 老人挂断后一分钟没有任何反应，
-   *   子女端也一直空着；长录音还要叠加切段转写的耗时，很容易撞手机端 90 秒超时，
-   *   而 App 那边超时只写日志、不提示，等于静默失败。
-   *   第三票缺席的代价（少一票）远小于拖 60 秒（整条复盘的结果迟到或丢失），
-   *   所以 GPU 部署把 SFT_WAIT_MS 设成 8000 即可：实测 P99 148 ms，50 倍余量足够。
-   *   CPU 部署另当别论 —— 一次前向 40~80 秒，那边必须设 60000 以上。
+   * 【2026-11-21 更正：默认值回到 60000，旧的 8000 已作废】
+   *   2026-11-18 曾把 GPU 上的值定成 8000，前提是走 /risk —— 那个接口只比较第一个
+   *   token 的概率，实测 114~148 ms。**但 /risk 的 p 与内容几乎无关**（静音都能得 0.62），
+   *   2026-11-20 起改用 /judge 原生两轮问法，它要生成几百字分析：
+   *     冻结评估集 30 通实测，中位 8.0 秒、P90 45.1 秒、最长 70.6 秒。
+   *   沿用 8000 等于每通都在超时前放弃，白接三票，所以必须 ≥ 45000，默认 60000。
+   *
+   *   超时仍然按"第三票缺席"处理，不报错、不拖垮复盘：
+   *   总耗时 ≈ max(转写, 第三票) + 大模型，最坏约 60 + 5 = 65 秒，仍在 90 秒读超时以内。
    */
   const sftWaitMs = Math.max(0, Number(process.env.SFT_WAIT_MS || 60000));
+  /** judge = 原生两轮（默认）；risk = 旧的单 token 概率，仅用于对照实验 */
+  const sftMode = String(process.env.SFT_MODE || 'judge').toLowerCase() === 'risk' ? 'risk' : 'judge';
   const token = process.env.YD_TOKEN || '';
   if (!token) console.warn('[CallAudio] 未配置 YD_TOKEN，/api/callaudio 不校验身份（仅限演示）');
   console.log('[CallAudio] 转写方式：', asr.mode,
     '｜大模型：', pangu.enabled ? pangu.model : '未配置（只用规则）',
-    '｜专用模型：', (sft && sft.enabled) ? `${sft.model}（最多等 ${Math.round(sftWaitMs / 1000)} 秒）` : '未接入');
+    '｜专用模型：', (sft && sft.enabled)
+      ? `${sft.model} /${sftMode}（最多等 ${Math.round(sftWaitMs / 1000)} 秒）`
+      : '未接入');
 
   const checkToken = (req, res, next) => {
     if (!token || req.get('X-Yd-Token') === token) return next();
@@ -126,7 +130,7 @@ function registerCallAudio(app, deps) {
 
     // ---------- 0. 第三票先发出去（它最慢，和转写并行跑） ----------
     //
-    // 【为什么要并行】专用模型在本机 CPU 上一次前向要 40~80 秒，而手机端读超时
+    // 【为什么要并行】/judge 在 GPU 上中位 8 秒、P90 45 秒、最长 70 秒，而手机端读超时
     //   只有 90 秒。串行等它会把一次正常的复盘拖成超时，所以一拿到录音就发起，
     //   转写和两路判定同时进行，总耗时取决于最慢的那一个。
     //
@@ -134,7 +138,9 @@ function registerCallAudio(app, deps) {
     //   到点就按"缺席"处理 —— 第三票是加分项，不能因为它把整条复盘搞失败。
     let sftTask = null;
     if (sft && sft.enabled && sftWaitMs > 0) {
-      sftTask = sft.riskAudio({ audio, name }).catch(() => null);
+      const input = { audio, name, mime: b.mime || '' };
+      const call = sftMode === 'risk' ? sft.riskAudio(input) : sft.judgeAudio(input);
+      sftTask = call.catch(() => null);
     }
 
     // ---------- 1. 转文字 ----------
@@ -231,12 +237,21 @@ function registerCallAudio(app, deps) {
       },
       // 第三票的原始结论，如实给出去；没接入 / 超时就写 null，不编造
       // hint=true 表示"只有专用模型一家说可疑"，没够成告警，供子女端在复盘里人工判断
+      // /judge 走原生两轮，除了 p 还有它自己判的场景、是否判诈骗、理由 —— 一起给出去，
+      // 子女端复盘能看到"专用模型认为这是外卖服务，但把握 0.15"，比只有一个数字有用
       sft: sftOut ? {
         p: Number(sftOut.p.toFixed(3)),
         verdict: sftOut.verdict || '',
         ms: sftOut.ms || 0,
         hint: sftHint,
         seconded: sftSeconded,
+        // 只有 /judge 才有的字段；走 /risk 时这些是 undefined，序列化后自动消失
+        ...(sftOut.isFraud === undefined ? {} : {
+          isFraud: sftOut.isFraud,
+          confidence: sftOut.confidence,
+          scene: sftOut.scene || '',
+          say: clean(sftOut.reason || '').slice(0, 120),
+        }),
       } : null,
       sftState,
     };

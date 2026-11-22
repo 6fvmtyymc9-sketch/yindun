@@ -265,6 +265,8 @@ cd ~/yindun && SFT_DEVICE=cuda ANTIFRAUD_DIR=$HOME/models/JimmyMa99/AntiFraud-SF
 会把你自己的 SSH 会话一起杀掉，后面启动服务的命令就不会执行（11-20 踩过）。
 
 - `SFT_DEVICE=cuda` 必须设置，不设就跑在 CPU 上（默认值，为兼容本机运行）
+- `SFT_LORA=<checkpoint 目录>`：加载微调后的 LoRA（启动时合并进权重，推理速度不变），`/health` 的 `lora` 字段会显示路径。
+  需要 peft，容器里要用 `~/venv-swift/bin/python3` 启动。具体步骤见 [SFT 下一步计划](SFT下一步计划.md) 第七节
 - 容器环境：Python 3.10、torch 2.3.1+cu121、transformers 4.4x（安装时限定 `>=4.45,<4.50`）。
   ModelScope 要用 `<1.30` 的版本，新版有 `HubConfig._logged_out` 的 bug，下载会直接报错
 - **不用时在平台上关闭容器**，把 GPU 让给其他人。

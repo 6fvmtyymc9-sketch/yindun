@@ -49,6 +49,9 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 DEV = os.environ.get("SFT_DEVICE", "cpu")
 MODEL_DIR = os.environ.get("ANTIFRAUD_DIR", r"D:\models\AntiFraud-SFT")
+# 微调后的 LoRA 目录（ms-swift 输出的 checkpoint-xxx）。留空 = 只用原始权重。
+# 需要 peft：容器里用 ~/venv-swift/bin/python3 启动本服务即可
+LORA_DIR = os.environ.get("SFT_LORA", "")
 
 AUDIO_PROMPT = (
     "这是一段电话通话录音。请判断打电话的人是不是在实施诈骗，"
@@ -103,6 +106,11 @@ def _load():
             low_cpu_mem_usage=True,
             device_map={"": DEV},
         )
+        if LORA_DIR:
+            from peft import PeftModel
+            _model = PeftModel.from_pretrained(_model, LORA_DIR)
+            _model = _model.merge_and_unload()     # 合并进权重，推理速度和原来一样
+            print(f"[SFT] 已加载 LoRA：{LORA_DIR}", flush=True)
         _model.eval()
 
         tok = _processor.tokenizer
@@ -358,6 +366,7 @@ class Handler(BaseHTTPRequestHandler):
                 "ok": bool(_state["loaded"]),
                 "model": "AntiFraud-SFT",
                 "dir": MODEL_DIR,
+                "lora": LORA_DIR or None,
                 "loading": _state["loading"],
                 "error": _state["error"],
                 "loadMs": _state["loadMs"],

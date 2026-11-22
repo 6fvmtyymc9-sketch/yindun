@@ -52,7 +52,13 @@ class Guard {
 
     // ---------- ② 判级 ----------
     let r;
-    if (type === 'sms') {
+    /* 2026-11-22：微信此前完全不判。
+       真机 NotiGuard 读到微信通知正文后，上报的就是 type=wechat；但这里只写了
+       type === 'sms'，于是微信落到 judgeScene(st) —— 而状态里没有"正在聊天"
+       这种字段，场景永远 0 分。实测一条「我临时遇到急事不方便打电话，你先转300
+       到这个卡号」的微信，返回 level=none，连推送都不发。
+       修法与短信一致：正文进文本规则，再叠场景取重。诈骗话术与通道无关。 */
+    if (type === 'sms' || type === 'wechat') {
       r = this.judge.judge('sms', data, st);
       // 短信本身的分级可能低于当前场景级（比如正在通话中开银行时来了一条验证码），
       // 所以再叠一次场景判级，取重的那个
@@ -134,7 +140,16 @@ class Guard {
          于是**一条短信预警被当成通话**：老人端弹的仍是通话那套红屏，文案写着
          "你正在边打电话边转钱"；子女端也永远落在「通话」栏里。
          type 来自 handle() 的入参，通话/短信/app 事件在这里是明确的。 */
-      src: type === 'sms' ? 'sms' : 'call',
+      /* 2026-11-22：src 区分三种来源，前端据此决定弹哪个界面。
+         只给 sms / call 两值时，微信会被归成通话 —— 一条微信消息去弹通话红屏，
+         文案还会写「你正在边打电话边转钱」。 */
+      src: (type === 'sms' || type === 'wechat') ? type : 'call',
+      /* 2026-11-22：消息类事件把「谁发的、原文是什么」一起推下去。
+         前端要还原一个可信的会话界面，就必须拿到真实原文 ——
+         让它自己在页面里写一条演示文案，那就成了"界面上的字不是判出来的"，
+         与"不写死假数据"这条规矩冲突。通话类事件这两个字段留空。 */
+      from: (type === 'sms' || type === 'wechat') ? (data.from || '') : '',
+      msg: (type === 'sms' || type === 'wechat') ? (data.body || '') : '',
       ui,
       time: hhmm(),
     };
@@ -216,6 +231,9 @@ function applyEvent(st, type, d) {
       break;
 
     case 'sms':
+    case 'wechat':
+      /* 微信也落到 st.sms：判定层 judge('sms', …) 读的就是这几个字段。
+         分两个键存，会让「正文进规则」和「组合判据读得分」各看各的。 */
       st.sms = { lastBody: d.body || '', lastAt: Date.now(), isCode: !!d.isCode };
       break;
 
@@ -250,10 +268,11 @@ function makeTitle(type, d, r) {
      结果一条"医保卡停用"的钓鱼短信，子女端收到的标题是
      「妈妈和一个陌生号码通话很久了」—— 和事实不符，评委一眼就看穿。 */
   if (type === 'sms' || type === 'wechat') {
-    if (r.level === 'block' || r.level === 'high') return `${N}收到一条诈骗短信`;
-    if (r.level === 'warn') return `${N}收到一条可疑短信`;
-    if (r.level === 'watch') return `${N}收到一条陌生号码的短信`;
-    return `${N}收到一条短信`;
+    const ch = type === 'wechat' ? '微信消息' : '短信';
+    if (r.level === 'block' || r.level === 'high') return `${N}收到一条诈骗${ch}`;
+    if (r.level === 'warn') return `${N}收到一条可疑${ch}`;
+    if (r.level === 'watch') return `${N}收到一条陌生号码的${ch}`;
+    return `${N}收到一条${ch}`;
   }
   if (r.level === 'block') {
     if (d.isCode) return `${N}收到银行验证码，但看不到内容`;
@@ -269,6 +288,14 @@ function makeTitle(type, d, r) {
 function makeBody(type, d, r) {
   // 性别中立：老人可能是父亲也可能是母亲，别写"她"
   if (type === 'sms' || type === 'wechat') {
+    /* 微信和短信的话术不一样，不能共用一句：
+       微信多是「冒充熟人 + 急事 + 让转钱」，短信多是「冒充机构 + 停用恐吓 + 链接」。
+       给子女看的这几句话，必须能让他一秒钟判断"这像不像我爸会遇到的事"。 */
+    if (type === 'wechat') {
+      if (r.level === 'block' || r.level === 'high') return '冒充熟人 + 说急事 + 让转钱。正文没删，他真要转的时候会被拦下来。';
+      if (r.level === 'warn') return '发消息的人自称熟人，开口就是急事要钱。建议现在打个电话确认一下。';
+      return '不是通讯录里的熟人发的，我们开始留意。';
+    }
     if (r.level === 'block' || r.level === 'high') return '冒充机构 + 催他今天就办 + 陌生链接。正文没删，他点链接就会被拦。';
     if (r.level === 'warn') return '号码不在通讯录，正文催他今天就办，还带一个陌生链接。';
     return '号码不在通讯录，我们开始留意。';

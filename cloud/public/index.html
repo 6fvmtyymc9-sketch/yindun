@@ -424,6 +424,68 @@ body{
 .smswarn .wbtn.pri{background:#fff; color:#991b1b; border:none; font-weight:800}
 .smswarn .wbtn:hover{filter:brightness(1.1)}
 
+/* ===== 微信场景：聊天界面照常可见 + 底部同一张悬浮提示 =====
+   2026-11-22 新增。此前网页只演示通话和短信两条通道，微信是空的——
+   但材料里写了「真机实拍：微信可疑消息提示」，而冒充熟人借钱恰恰是微信里最高频的类型。
+   配色照微信来：标题栏 #1f2c34、对方气泡 #95ec69（微信绿）、会话底色 #0b141a。
+   与短信场景同一条规矩：正文一个字都不删，提示卡浮在下面，不遮正文。
+   真机对应照片 rd01 / rd09（通知浮条形态），这里换成聊天界面形态 —— 网页里没有通知栏可弹。 */
+.wxview{
+  position:absolute; inset:0; z-index:38; display:none; flex-direction:column;
+  padding-top:30px;                      /* 让开手机状态栏 */
+  background:#0b141a;
+}
+.wxview.show{display:flex; animation:evIn .32s}
+.wxview .wxhd{
+  height:48px; flex-shrink:0; display:flex; align-items:center; gap:9px;
+  padding:0 12px; background:#1f2c34; border-bottom:1px solid #2a3942;
+}
+.wxview .wxhd .bk{font-size:20px; color:#e9edef; line-height:1}
+.wxview .wxhd .ava{
+  width:27px; height:27px; border-radius:5px; flex-shrink:0;
+  background:#4a5c66; color:#e9edef; font-size:12px; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+}
+.wxview .wxhd .who{display:flex; flex-direction:column; gap:1px; min-width:0}
+.wxview .wxhd .who b{font-size:13px; color:#e9edef; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.wxview .wxhd .who i{font-size:9.5px; color:#8696a0; font-style:normal}
+.wxview .wxhd .tag{
+  margin-left:auto; flex-shrink:0; font-size:9.5px; color:#8696a0;
+  border:1px solid #2a3942; border-radius:3px; padding:1px 5px;
+}
+.wxview .wxthread{
+  flex:1; overflow:auto; padding:14px 12px 142px;
+  display:flex; flex-direction:column; gap:8px;
+}
+.wxview .wxday{text-align:center; font-size:10px; color:#8696a0; margin-bottom:4px}
+.wxview .wxbub{
+  max-width:86%; align-self:flex-start; position:relative;
+  padding:9px 12px; border-radius:6px;
+  background:#95ec69; color:#0d0d0d;
+  font-size:12.5px; line-height:1.7; word-break:break-all;
+}
+/* 微信气泡左侧那个小三角，加了才像微信，不加就是普通方块 */
+.wxview .wxbub::before{
+  content:''; position:absolute; left:-5px; top:11px;
+  width:0; height:0;
+  border-top:5px solid transparent; border-bottom:5px solid transparent;
+  border-right:6px solid #95ec69;
+}
+.wxview .wxbub .wmeta{margin-top:6px; font-size:9.5px; color:rgba(0,0,0,.42)}
+/* 微信里的"转账"小卡片：骗子最爱发这个，比纯文字更像真的 */
+.wxview .wxpay{
+  max-width:86%; align-self:flex-start; margin-top:2px;
+  background:#f5f6f7; border-radius:6px; padding:9px 12px;
+  display:flex; align-items:center; gap:9px;
+}
+.wxview .wxpay .pi{
+  width:26px; height:26px; border-radius:50%; flex-shrink:0;
+  background:#f5b942; color:#fff; font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+}
+.wxview .wxpay .pt{font-size:11.5px; color:#111; line-height:1.4}
+.wxview .wxpay .pt b{font-size:12.5px}
+
 /* ===== 子女端：等级标签 + 卡片动作 ===== */
 .noti .lv-tag{display:inline-block;vertical-align:1px;margin-right:6px;font-size:9px;font-weight:800;padding:1px 7px;border-radius:9px;flex-shrink:0;letter-spacing:1px}
 .noti.l1 .lv-tag,.noti.l2 .lv-tag{background:rgba(96,165,250,.15);color:#93c5fd}
@@ -491,20 +553,23 @@ body.role-child .child-big{
 /* ===== 双视图：通话 / 短信 =====
    同一个网页，两个视图。收到哪一路就自动切到哪一路 —— 演示时观众看到的
    是"短信来了，子女这块屏自己翻到短信页"，不用人去点。 */
-.big-tabs{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:12px 4px 4px}
+/* 【2026-11-22】加了「微信」第三栏后，原来的尺寸塞不进手机屏（内容区约 260px）:
+   9px/18px 内边距 + 15.5px 字号，两个 tab 刚好占满，三个会被裁掉且看不出来。
+   缩到能一行放下三个，同时允许换行兜底 —— 宁可小一点，也不能让某一栏看不见。 */
+.big-tabs{flex-shrink:0;display:flex;align-items:center;gap:6px;padding:12px 4px 4px;flex-wrap:wrap;row-gap:6px}
 .big-tab{
-  position:relative;display:flex;align-items:center;gap:8px;
-  padding:9px 18px;border-radius:11px;cursor:pointer;font-family:inherit;
+  position:relative;display:flex;align-items:center;gap:4px;
+  padding:7px 9px;border-radius:9px;cursor:pointer;font-family:inherit;
   background:rgba(148,163,184,.09);border:1px solid transparent;
-  color:var(--txt2);font-size:15.5px;font-weight:700;letter-spacing:.5px;
+  color:var(--txt2);font-size:12px;font-weight:700;letter-spacing:0;
   transition:background .18s,color .18s,border-color .18s;
 }
 .big-tab:hover{background:rgba(148,163,184,.16);color:var(--txt)}
 .big-tab.on{background:rgba(34,211,238,.14);border-color:rgba(34,211,238,.5);color:#a5f3fc}
 .big-tab .bnum{
-  min-width:22px;height:20px;padding:0 7px;border-radius:10px;
+  min-width:17px;height:16px;padding:0 4px;border-radius:8px;
   background:rgba(148,163,184,.2);color:var(--txt2);
-  font-size:12px;font-weight:800;line-height:20px;text-align:center;
+  font-size:10px;font-weight:800;line-height:16px;text-align:center;
   font-variant-numeric:tabular-nums;
 }
 .big-tab.on .bnum{background:rgba(34,211,238,.28);color:#cffafe}
@@ -521,9 +586,17 @@ body.role-child .child-big{
 .bt-live.off i{background:#ef4444;box-shadow:0 0 6px #ef4444}
 .bt-live.off{color:#fca5a5}
 
-/* 视图过滤只靠 CSS 隐藏，不销毁 DOM —— 切回来历史还在，不会出现"切一次少一批" */
-.child-big[data-view="call"] .bcard[data-src="sms"]{display:none}
-.child-big[data-view="sms"]  .bcard[data-src="call"]{display:none}
+/* 视图过滤只靠 CSS 隐藏，不销毁 DOM —— 切回来历史还在，不会出现"切一次少一批"
+   【2026-11-22 改】原来是「call 藏 sms / sms 藏 call」两条对写。
+   加微信这一栏后这种写法必然漏：view=call 时藏了 sms 却藏不住 wechat，
+   三个栏的卡片会串在一起。对写要写 n*(n-1) 条，漏一条就是串栏。
+   改成「只显示当前栏」—— 以后加多少栏都不用再动这里。
+   老数据没有 data-src 的一律按通话算，与 srcOf() 的兜底保持一致。 */
+.child-big .bcard{display:none}
+.child-big[data-view="call"]   .bcard[data-src="call"],
+.child-big[data-view="call"]   .bcard:not([data-src]){display:block}
+.child-big[data-view="sms"]    .bcard[data-src="sms"]{display:block}
+.child-big[data-view="wechat"] .bcard[data-src="wechat"]{display:block}
 .big-line.switching{animation:viewIn .26s ease-out}
 @keyframes viewIn{from{opacity:.3;transform:translateY(7px)}to{opacity:1;transform:none}}
 
@@ -659,6 +732,7 @@ body.role-child .child-big{
     <button class="btn" data-step="setup" title="装机引导：5 个权限开关" data-page-node-id="iDWJNsRMIb0MPheokltwxB"><span class="n" data-page-node-id="ukvWEQbQctRz2Ck5U4HJqI">⚙</span>装机引导</button>
     <button class="btn" data-step="lock" title="锁屏状态下的振动提醒：证明息屏也照振" data-page-node-id="lockBtn"><span class="n" data-page-node-id="lockNum">🔒</span>息屏也振</button>
     <button class="btn" data-step="sms" title="短信通道：冒充机构 + 停用恐吓 + 陌生短链" data-page-node-id="smsBtn"><span class="n" data-page-node-id="smsNum">✉️</span>可疑短信</button>
+    <button class="btn" data-step="wechat" title="微信通道：冒充熟人 + 说急事 + 让转钱（发案量最大的一类）" data-page-node-id="wxBtn"><span class="n" data-page-node-id="wxNum">💬</span>微信消息</button>
     <button class="btn reset" data-step="0" data-page-node-id="78bez8QtkWNA2Fj3hY5sdY"><span class="n" data-page-node-id="LqTYgIJNLDKqraA1eGdiYx">↻</span>重置</button>
   </div>
 </div>
@@ -737,11 +811,27 @@ body.role-child .child-big{
           </div>
         </div>
         <div class="smswarn" id="smsWarn">
-          <div class="wt">⚠️ 这条短信可能是诈骗</div>
+          <div class="wt" id="smsWarnTitle">⚠️ 这条短信可能是诈骗</div>
           <div class="wb" id="smsWarnBody">短信正文照常看得见 —— 真机上也不会替老人删掉它，只在他要点链接时拦。正在判定…</div>
           <div class="wr">
             <button class="wbtn" id="smsIgnore">我知道了</button>
             <button class="wbtn pri" id="smsTell">告诉女儿</button>
+          </div>
+        </div>
+        <!-- 微信场景：聊天界面照常可见 + 底部同一张提示卡（对应真机 rd01「微信识别」，不弹通话红屏） -->
+        <div class="wxview" id="wxView">
+          <div class="wxhd">
+            <span class="bk">‹</span>
+            <div class="ava" id="wxAva">军</div>
+            <div class="who">
+              <b id="wxWho">小军</b>
+              <i>不是通讯录好友</i>
+            </div>
+            <span class="tag">微信</span>
+          </div>
+          <div class="wxthread">
+            <div class="wxday">今天 20:41</div>
+            <div class="wxbub"><span id="wxBubText">妈，我出事了，现在急用钱，你先转五千给我，别告诉别人</span><div class="wmeta">未读 · 点击展开</div></div>
           </div>
         </div>
         <div class="acquaint" id="acquaint" data-page-node-id="awZSI4nSh9XEL3dPHJm4oF">
@@ -807,6 +897,9 @@ body.role-child .child-big{
         </button>
         <button class="big-tab" data-view="sms" id="tabSms">
           ✉️ 短信<span class="bnum" id="numSms">0</span><span class="udot" id="udotSms"></span>
+        </button>
+        <button class="big-tab" data-view="wechat" id="tabWx">
+          💬 微信<span class="bnum" id="numWx">0</span><span class="udot" id="udotWx"></span>
         </button>
         <div class="bt-live" id="btLive"><i></i><span id="btLiveTx">实时连接中</span></div>
       </div>
@@ -889,6 +982,7 @@ const numCallEl=document.getElementById('numCall');
 const numSmsEl=document.getElementById('numSms');
 const udotCallEl=document.getElementById('udotCall');
 const udotSmsEl=document.getElementById('udotSms');
+const udotWxEl=document.getElementById('udotWx');
 const btLiveEl=document.getElementById('btLive');
 const btLiveTxEl=document.getElementById('btLiveTx');
 const liveBarEl=document.getElementById('liveBar');
@@ -900,6 +994,15 @@ const acquaintEl=document.getElementById('acquaint');
 const smsViewEl=document.getElementById('smsView');
 const smsWarnEl=document.getElementById('smsWarn');
 const smsWarnBodyEl=document.getElementById('smsWarnBody');
+const smsWarnTitleEl=document.getElementById('smsWarnTitle');
+/* 微信场景（2026-11-22 新增）：会话界面 + 复用同一张底部提示卡 smsWarn。
+   复用是有意的 —— 同一时刻只会有一个消息场景，另做一张卡等于两套状态要同步，
+   迟早出现"短信卡还挂着、微信卡又叠上来"。 */
+const wxViewEl=document.getElementById('wxView');
+const wxWhoEl=document.getElementById('wxWho');
+const wxAvaEl=document.getElementById('wxAva');
+const wxBubTextEl=document.getElementById('wxBubText');
+const wxTabNumEl=document.getElementById('numWx');
 const knownRecordEl=document.getElementById('knownRecord');
 const ghostHintEl=document.getElementById('ghostHint');
 const releaseBtn=document.getElementById('releaseBtn');
@@ -1233,6 +1336,7 @@ function renderAlert(a, opt){
       startVibrate('正在振动提醒');
     }
     if(src==='sms' && !opt.noScene) showSmsScene(a);
+    else if(src==='wechat' && !opt.noScene) showWxScene(a);
     setBadge(a.level);
   }
   return cls;
@@ -1578,7 +1682,7 @@ function srcOf(a){
      老数据没有 src，才退回按 channel 猜 —— 而那时短信会被猜成通话，
      结果是老人端弹通话红屏、子女端也落错栏。 */
   const s=String((a&&a.src)||'');
-  if(s==='sms'||s==='call') return s;
+  if(s==='sms'||s==='call'||s==='wechat') return s;
   const ch=String((a&&a.channel)||'');
   if(ch==='upload'||ch==='screenshot') return 'sms';
   return 'call';
@@ -1588,6 +1692,7 @@ function srcOf(a){
    不写"屏幕已盖住"这类通话文案，也不替老人删消息 —— 真机就是这么做的。 */
 function showSmsScene(a){
   if(!smsViewEl) return;
+  if(wxViewEl) wxViewEl.classList.remove('show');   // 两个消息场景互斥，不能同屏
   smsViewEl.classList.add('show');
   const lv=(a&&a.level)||'watch';
   const plain=(lv==='block'||lv==='high')
@@ -1595,12 +1700,45 @@ function showSmsScene(a){
     : '号码不在通讯录，正文里带一个陌生链接 —— 先别点。';
   let why=String((a&&a.why)||'').trim();
   /* 判据只给"行为判据看板"用，不往老人手机里放 —— 老人看到的是人话，不是 S3/S4 打分 */
+  if(smsWarnTitleEl) smsWarnTitleEl.textContent='⚠️ 这条短信可能是诈骗';
   if(smsWarnBodyEl) smsWarnBodyEl.textContent = plain;
   if(smsWarnEl) smsWarnEl.classList.add('show');
   if(callNumEl) callNumEl.textContent='短信 · 未通话';
 }
 function hideSmsScene(){
   if(smsViewEl) smsViewEl.classList.remove('show');
+  if(smsWarnEl) smsWarnEl.classList.remove('show');
+}
+
+/* ===== 微信场景（2026-11-22）=====
+   老人端呈现：微信聊天界面 + 底部同一张提示卡。
+   与短信那条的差别只有两处：界面换成微信（绿气泡、昵称、不是好友），
+   以及提示语要针对「冒充熟人」这套话术 —— 微信里的骗局不说"点链接"，
+   说的是"我出事了，先转钱，别告诉别人"。 */
+function showWxScene(a){
+  if(!wxViewEl) return;
+  if(smsViewEl) smsViewEl.classList.remove('show');
+  wxViewEl.classList.add('show');
+
+  /* 昵称和原文都用服务端推下来的真实值；拿不到才退回占位。
+     头像文字取昵称最后一个字 —— 不做假头像图，也不去仿微信的默认头像。 */
+  const who=String((a&&a.from)||'').trim() || '陌生人';
+  if(wxWhoEl) wxWhoEl.textContent=who;
+  if(wxAvaEl) wxAvaEl.textContent=who.slice(-1);
+  const msg=String((a&&a.msg)||'').trim();
+  if(wxBubTextEl && msg) wxBubTextEl.textContent=msg;
+
+  const lv=(a&&a.level)||'watch';
+  const plain=(lv==='block'||lv==='high')
+    ? '发消息的人不是你的好友，一开口就说自己出事了、要你转钱，还让你别告诉别人。真家人不会不让你说 —— 先打个电话给他本人。'
+    : '发消息的人不是你的好友，开口就要钱。先打个电话确认一下，别急着转。';
+  if(smsWarnTitleEl) smsWarnTitleEl.textContent='⚠️ 这条微信可能是诈骗';
+  if(smsWarnBodyEl) smsWarnBodyEl.textContent = plain;
+  if(smsWarnEl) smsWarnEl.classList.add('show');
+  if(callNumEl) callNumEl.textContent='微信 · 未通话';
+}
+function hideWxScene(){
+  if(wxViewEl) wxViewEl.classList.remove('show');
   if(smsWarnEl) smsWarnEl.classList.remove('show');
 }
 
@@ -1645,11 +1783,13 @@ function refreshBigStat(){
   const all=Array.prototype.slice.call(bigLineEl.querySelectorAll('.bcard'));
   const calls=all.filter(c=>(c.dataset.src||'call')==='call');
   const sms=all.filter(c=>c.dataset.src==='sms');
+  const wx=all.filter(c=>c.dataset.src==='wechat');
   bigCntEl.textContent=all.length;
   if(numCallEl) numCallEl.textContent=calls.length;
   if(numSmsEl)  numSmsEl.textContent=sms.length;
+  if(wxTabNumEl) wxTabNumEl.textContent=wx.length;
   const v=(childBigEl&&childBigEl.dataset.view)||'call';
-  const mine=(v==='sms')?sms:calls;
+  const mine=(v==='sms')?sms:(v==='wechat'?wx:calls);
   let top='';
   ['l5','l4','l3','l2','l1'].forEach(k=>{
     if(!top && mine.some(c=>c.classList.contains(k))) top=k;
@@ -1678,7 +1818,9 @@ function syncBigEmpty(){
     }
     emp.innerHTML = (v==='sms')
       ? '<span class="e">✉️</span>这一栏还没有短信<br>老人转发可疑短信后会出现在这里'
-      : '<span class="e">📞</span>这一栏还没有通话<br>接到陌生号码来电会出现在这里';
+      : (v==='wechat'
+        ? '<span class="e">💬</span>这一栏还没有微信消息<br>微信里收到可疑消息会出现在这里'
+        : '<span class="e">📞</span>这一栏还没有通话<br>接到陌生号码来电会出现在这里');
   }else if(emp){
     emp.remove();
   }
@@ -1691,21 +1833,28 @@ const AUTO_JUMP_MS = 0;
 let manualUntil = 0;
 const unread = {call:0, sms:0};
 
+/* 三个栏位各自的未读红点。以前是三元表达式只认 sms / 其他，
+   加微信后如果还那么写，微信的未读会默默记到通话头上。 */
+function udotOf(v){
+  if(v==='sms') return udotSmsEl;
+  if(v==='wechat') return udotWxEl;
+  return udotCallEl;
+}
 function bumpUnread(v){
   unread[v]=(unread[v]||0)+1;
-  const dot=(v==='sms')?udotSmsEl:udotCallEl;
+  const dot=udotOf(v);
   if(dot){ dot.textContent=unread[v]; dot.classList.add('show'); }
 }
 function clearUnread(v){
   unread[v]=0;
-  const dot=(v==='sms')?udotSmsEl:udotCallEl;
+  const dot=udotOf(v);
   if(dot){ dot.textContent=''; dot.classList.remove('show'); }
 }
 
 /* 切视图。手动点、自动跳都走这里，只有一处真相 */
 function setView(v, opt){
   opt=opt||{};
-  if(v!=='call' && v!=='sms') v='call';
+  if(v!=='call' && v!=='sms' && v!=='wechat') v='call';
   if(childBigEl) childBigEl.dataset.view=v;
   Array.prototype.forEach.call(document.querySelectorAll('.big-tab'),
     t=>t.classList.toggle('on', t.dataset.view===v));
@@ -1868,6 +2017,7 @@ function clearAll(){
   clearBigLine();                      // 大屏时间线跟着一起清，重置后两边状态必须一致
   hintEl.classList.remove('show'); blockEl.classList.remove('show'); codeMaskEl.classList.remove('show');
   if(typeof hideSmsScene==='function') hideSmsScene();
+  if(typeof hideWxScene==='function') hideWxScene();
   acquaintEl.classList.remove('show'); knownRecordEl.classList.remove('show'); ghostHintEl.classList.remove('show');
   releaseBar.style.width='0%'; if(holdTimer){clearInterval(holdTimer); holdTimer=null;}
   knownMark=0;
@@ -1962,6 +2112,36 @@ async function go(n){
       showSmsScene({level:'warn', why:'冒充机构 · 停用恐吓 · 陌生短链'});
     }
     ghostHint('短信通道：冒充机构 + 停用恐吓 + 短链，三条同时命中才判高危。单有「停用」二字不算。');
+    return;
+  }
+  if(n==='wechat'){
+    clearAll();
+    await api('/api/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    callNumEl.textContent='微信 · 未通话';
+    /* 这条话术不是我编的，它是这类骗局最标准的开场：
+       冒充子女本人 → 说"出事了" → 要钱 → 特意叮嘱"别告诉别人"。
+       最后那半句才是要害 —— 它一箭双雕：既解释了为什么要钱，又把老人
+       向家人核实的那条路亲手堵死。所以演示里必须带上它。 */
+    const wxBody='妈，我出事了，现在急用钱，你先转五千给我，别告诉别人';
+    /* 先切到微信界面再上报：判定要 1~2 秒，评委看到的应该是一条已经
+       躺在会话里的消息，而不是空白界面转圈。 */
+    showWxScene({level:'watch', from:'小军', msg:wxBody});
+    if(smsWarnBodyEl) smsWarnBodyEl.textContent='这条微信可能是诈骗 —— 正在判定…';
+    addEv('l1','💬','收到一条微信消息','发消息的人不是通讯录好友，开口就说自己出事了、要钱。');
+    /* who:'stranger' 必须显式传 —— 真机 NotiGuard 判微信时是
+       Judge.judgeSms(body, NumberInfo.STRANGER, false)，永远按陌生号起手（+15）。
+       网页这边不传，规则就少这 15 分，同一条话术在两端判出不同结果。 */
+    const rw=await send({type:'wechat', body:wxBody, isCode:false, from:'小军', who:'stranger'});
+    if(rw&&rw.alert){
+      renderAlert(rw.alert);      // renderAlert 内部按 src==='wechat' 分流到微信界面
+    }else{
+      addEv('l4','⚠️','疑似冒充熟人诈骗','冒充熟人 + 说急事 + 让转钱 + 叮嘱别告诉别人。');
+      addNoti('l4','父亲收到一条可疑微信消息',
+        '发消息的人不是好友，自称出事了要五千，还特意让他别告诉别人。',
+        '小军 · 未通话', null, 'wechat');
+      showWxScene({level:'block', from:'小军', msg:wxBody});
+    }
+    ghostHint('微信通道：冒充熟人 + 说急事 + 让转钱 + 叮嘱「别告诉别人」。微信里的骗局通常不给链接，靠的是「你信我」。');
     return;
   }
   if(n==='setup'){ openSetup(); return; }

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>银盾 · 系统技术架构</title>
+<style>
+  html,body{margin:0;padding:0;background:#ffffff;}
+  svg{display:block;}
+  text{font-family:"Microsoft YaHei","PingFang SC","Noto Sans CJK SC",sans-serif;}
+  .mono{font-family:Consolas,"Courier New",monospace;}
+</style>
+</head>
+<body>
+<svg width="1500" height="800" viewBox="0 0 1500 800" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#37474F"/>
+    </marker>
+    <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#78909C"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1500" height="800" fill="#ffffff"/>
+
+  <!-- 标题 -->
+  <text x="40" y="56" font-size="34" font-weight="bold" fill="#0F1B2D">银盾 · 反诈守护 ｜ 系统技术架构</text>
+  <text x="40" y="90" font-size="18" fill="#607D8B">双端一云 · 高风险判定 100% 在手机本地完成 · 云端只承担推送、复审与持久化</text>
+
+  <!-- ============ 老人端 ============ -->
+  <rect x="40" y="118" width="400" height="545" rx="14" fill="#FEF6F5" stroke="#E57373" stroke-width="1.5"/>
+  <rect x="40" y="118" width="7" height="545" rx="3.5" fill="#D32F2F"/>
+  <text x="68" y="154" font-size="24" font-weight="bold" fill="#B71C1C">老人端 App</text>
+  <text x="68" y="180" font-size="15" class="mono" fill="#A1887F">com.yindun.guard</text>
+  <line x1="68" y1="198" x2="412" y2="198" stroke="#FFCDD2" stroke-width="1"/>
+
+  <text x="68" y="240" font-size="20" font-weight="bold" fill="#212121">① 事件监听</text>
+  <text x="68" y="270" font-size="17" fill="#37474F">短信 SMS_RECEIVED · 微信通知</text>
+  <text x="68" y="297" font-size="17" fill="#37474F">通话状态时长 · 银行 App 启动</text>
+
+  <rect x="60" y="318" width="360" height="168" rx="10" fill="#FFFFFF" stroke="#FFCDD2" stroke-width="1.5"/>
+  <text x="80" y="348" font-size="20" font-weight="bold" fill="#C62828">② 本地判定引擎</text>
+  <rect x="296" y="331" width="66" height="23" rx="11.5" fill="#FFEBEE" stroke="#FFCDD2" stroke-width="1"/>
+  <text x="329" y="347" font-size="13" fill="#C62828" text-anchor="middle">断网可用</text>
+  <text x="80" y="378" font-size="17" fill="#37474F">220 特征词 + 33 反例 + 11 组合规则</text>
+  <text x="80" y="404" font-size="17" fill="#37474F">号码身份分 · 链接形式识别 · S0→S4</text>
+  <text x="80" y="430" font-size="17" fill="#37474F">四级：watch / warn / high / block</text>
+  <text x="80" y="456" font-size="17" fill="#37474F">阈值 25 / 45 / 70 / 90</text>
+
+  <text x="68" y="530" font-size="20" font-weight="bold" fill="#212121">③ 分级反馈</text>
+  <text x="68" y="560" font-size="17" fill="#37474F">浮条提示 → 卡片 → 全屏红屏盖屏</text>
+  <text x="68" y="587" font-size="17" fill="#37474F">阻断级自动挂断 + 补拨子女</text>
+
+  <text x="60" y="634" font-size="15" fill="#A1887F">纯 Java 手写 View，不依赖 WebView</text>
+
+  <!-- ============ 箭头 1：老人端 → 云 ============ -->
+  <line x1="444" y1="400" x2="548" y2="400" stroke="#37474F" stroke-width="2.5" marker-end="url(#ar)"/>
+  <text x="496" y="356" font-size="15" font-weight="bold" fill="#37474F" text-anchor="middle">异步上报</text>
+  <text x="496" y="377" font-size="14" fill="#78909C" text-anchor="middle">命中即盖屏</text>
+
+  <!-- ============ 云端 ============ -->
+  <rect x="560" y="118" width="500" height="545" rx="14" fill="#F5F9FF" stroke="#64B5F6" stroke-width="1.5"/>
+  <rect x="560" y="118" width="7" height="545" rx="3.5" fill="#1565C0"/>
+  <text x="588" y="154" font-size="24" font-weight="bold" fill="#0D47A1">华为云 ECS</text>
+  <text x="588" y="180" font-size="15" class="mono" fill="#78909C">Ubuntu 22.04 · Node 18 + Express · systemd</text>
+  <line x1="588" y1="198" x2="1032" y2="198" stroke="#BBDEFB" stroke-width="1"/>
+
+  <rect x="580" y="212" width="460" height="148" rx="10" fill="#FFFFFF" stroke="#BBDEFB" stroke-width="1.5"/>
+  <text x="600" y="242" font-size="20" font-weight="bold" fill="#1565C0">接口层</text>
+  <text x="600" y="272" font-size="17" class="mono" fill="#37474F">POST /api/event</text>
+  <text x="790" y="272" font-size="17" fill="#607D8B">事件上报</text>
+  <text x="600" y="298" font-size="17" class="mono" fill="#37474F">GET  /api/stream</text>
+  <text x="790" y="298" font-size="17" fill="#607D8B">SSE 实时推送</text>
+  <text x="600" y="324" font-size="17" class="mono" fill="#37474F">GET  /api/alerts</text>
+  <text x="790" y="324" font-size="17" fill="#607D8B">断线回填</text>
+  <text x="600" y="350" font-size="17" class="mono" fill="#37474F">GET  /api/health</text>
+  <text x="790" y="350" font-size="17" fill="#607D8B">依赖自检</text>
+
+  <rect x="580" y="378" width="220" height="108" rx="10" fill="#FFFFFF" stroke="#BBDEFB" stroke-width="1.5"/>
+  <text x="600" y="408" font-size="19" font-weight="bold" fill="#1565C0">RDS for MySQL 8</text>
+  <text x="600" y="436" font-size="16" fill="#37474F">7 表持久化</text>
+  <text x="600" y="462" font-size="16" fill="#37474F">事件 / 告警 / 设备</text>
+
+  <rect x="820" y="378" width="220" height="108" rx="10" fill="#FFFFFF" stroke="#BBDEFB" stroke-width="1.5"/>
+  <text x="840" y="408" font-size="19" font-weight="bold" fill="#1565C0">DCS for Redis 6</text>
+  <text x="840" y="436" font-size="16" fill="#37474F">接口限流计数</text>
+  <text x="840" y="462" font-size="16" fill="#37474F">会话状态缓存</text>
+
+  <rect x="580" y="504" width="460" height="106" rx="10" fill="#FFFFFF" stroke="#90CAF9" stroke-width="1.5" stroke-dasharray="7 5"/>
+  <text x="600" y="534" font-size="19" font-weight="bold" fill="#1976D2">华为云 MaaS · DeepSeek-V4.1-Flash</text>
+  <text x="600" y="562" font-size="16" fill="#37474F">灰区 30~45 分复审 · 通话复盘 · 演练对练</text>
+  <text x="600" y="588" font-size="15" fill="#78909C">中位 42ms ｜ P90 1.17s ｜ ¥0.00091/条</text>
+
+  <text x="580" y="638" font-size="15" fill="#78909C">判定不发生在云端：大模型只做灰区复审</text>
+
+  <!-- ============ 箭头 2：云 → 子女端 ============ -->
+  <line x1="1064" y1="400" x2="1168" y2="400" stroke="#37474F" stroke-width="2.5" marker-end="url(#ar)"/>
+  <text x="1116" y="356" font-size="15" font-weight="bold" fill="#37474F" text-anchor="middle">SSE 推送</text>
+  <text x="1116" y="377" font-size="14" fill="#78909C" text-anchor="middle">中位 67ms</text>
+
+  <!-- 虚线：子女端 → 云（回填） -->
+  <line x1="1168" y1="470" x2="1068" y2="470" stroke="#78909C" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ar2)"/>
+  <text x="1116" y="452" font-size="14" fill="#78909C" text-anchor="middle">3 秒重连回填</text>
+
+  <!-- ============ 子女端 ============ -->
+  <rect x="1180" y="118" width="280" height="545" rx="14" fill="#F5FBF6" stroke="#81C784" stroke-width="1.5"/>
+  <rect x="1180" y="118" width="7" height="545" rx="3.5" fill="#2E7D32"/>
+  <text x="1206" y="154" font-size="22" font-weight="bold" fill="#1B5E20">子女端 App</text>
+  <text x="1206" y="180" font-size="14" class="mono" fill="#81A884">com.yindun.child</text>
+  <line x1="1206" y1="198" x2="1436" y2="198" stroke="#C8E6C9" stroke-width="1"/>
+
+  <text x="1206" y="234" font-size="19" font-weight="bold" fill="#212121">收到什么</text>
+  <text x="1206" y="262" font-size="16" fill="#37474F">原文 + 等级 + 时间</text>
+  <text x="1206" y="288" font-size="16" fill="#37474F">含判定依据拆解</text>
+  <text x="1206" y="314" font-size="16" fill="#37474F">可一键回拨妈妈</text>
+
+  <text x="1206" y="368" font-size="19" font-weight="bold" fill="#212121">怎么收到</text>
+  <text x="1206" y="396" font-size="16" fill="#37474F">前台服务常驻保活</text>
+  <text x="1206" y="422" font-size="16" fill="#37474F">高优先级通知 + 振动</text>
+
+  <text x="1206" y="476" font-size="19" font-weight="bold" fill="#212121">断线怎么办</text>
+  <text x="1206" y="504" font-size="16" fill="#37474F">3 秒重连</text>
+  <text x="1206" y="530" font-size="16" fill="#37474F">回填断线期间告警</text>
+  <text x="1206" y="556" font-size="16" fill="#37474F">一条不漏</text>
+
+  <text x="1206" y="634" font-size="15" fill="#81A884">真实推送，不是演示动画</text>
+
+  <!-- ============ 底部两条强调 ============ -->
+  <rect x="40" y="694" width="700" height="70" rx="35" fill="#FEF6F5" stroke="#EF9A9A" stroke-width="1.5"/>
+  <circle cx="82" cy="729" r="7" fill="#D32F2F"/>
+  <text x="106" y="736" font-size="20" font-weight="bold" fill="#B71C1C">判定 100% 在手机本地：断网、飞行模式也拦得住</text>
+
+  <rect x="760" y="694" width="700" height="70" rx="35" fill="#F5F9FF" stroke="#90CAF9" stroke-width="1.5"/>
+  <circle cx="802" cy="729" r="7" fill="#1565C0"/>
+  <text x="826" y="736" font-size="20" font-weight="bold" fill="#0D47A1">云端只做三件事：推给子女 · 灰区复审 · 持久化</text>
+</svg>
+</body>
+</html>

@@ -29,9 +29,13 @@ body{
 
 /* ===== 顶部控制条 ===== */
 .topbar{
-  height:56px; flex-shrink:0;
-  display:flex; align-items:center; justify-content:space-between; gap:16px;
-  padding:0 20px;
+  /* 2026-11-22：演示步骤从 9 个增加到 11 个，1366 宽下最后 3 个会被挤出可视区，
+     而 .steps 的滚动条是隐藏的（scrollbar-width:none），等于点不到。
+     改成允许换行：一行放得下仍是一行（min-height 兜住原高度），放不下就折到第二行。 */
+  height:auto; min-height:56px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:space-between; gap:16px; row-gap:4px;
+  flex-wrap:wrap;
+  padding:8px 20px;
   background:linear-gradient(180deg, rgba(15,21,36,.92), rgba(15,21,36,.6));
   border-bottom:1px solid var(--line); backdrop-filter:blur(6px);
 }
@@ -45,8 +49,9 @@ body{
 .brand .name{font-size:18px; font-weight:700; letter-spacing:1px}
 .brand .name b{color:var(--accent)}
 .brand .sub{font-size:11px; color:var(--txt3); margin-left:10px; letter-spacing:.5px; white-space:nowrap}
-.steps{display:flex; gap:8px; white-space:nowrap; flex-shrink:1; overflow-x:auto; scrollbar-width:none}
-.steps::-webkit-scrollbar{display:none}
+.steps{display:flex; gap:8px; row-gap:6px; flex:1 1 auto; min-width:0;
+  flex-wrap:wrap; justify-content:flex-end; white-space:normal; overflow:visible}
+@media (max-width:1420px){ .steps .btn{padding:0 10px} }
 .btn{
   height:34px; padding:0 13px; border-radius:8px; white-space:nowrap;
   border:1px solid var(--line); background:var(--panel2); color:var(--txt);
@@ -79,13 +84,20 @@ body{
 .btn.voice{border-color:rgba(34,211,238,.55); background:rgba(34,211,238,.12)}
 .btn.voice:hover{background:rgba(34,211,238,.22); border-color:var(--accent)}
 .btn.voice.busy{opacity:.55; pointer-events:none}
-.cmd-note{font-size:12px; color:var(--txt3); white-space:nowrap}
+.cmd-note{font-size:12px; color:var(--txt3); white-space:nowrap;
+  /* 2026-11-22：窄屏下这条提示会和左边的按钮挤在一起互相叠字，改成按钮不缩、提示自己截断 */
+  flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis}
+.cmdbar .btn{flex:0 0 auto}
+.steps .btn{flex:0 0 auto}
 
 /* ===== 中间舞台 ===== */
 .stage{
   flex:1; min-height:0;
-  display:flex; align-items:center; justify-content:center; gap:56px;
+  display:flex; align-items:safe center; justify-content:center; gap:56px;
   padding:8px 20px;
+  /* 2026-11-22：视口极矮时（<600px）等比缩放也装不下，退化成舞台内部滚动，
+     避免手机框顶到命令条、压住判据看板。safe center 保证滚到顶时不被垂直居中裁掉。 */
+  overflow-y:auto;
 }
 .side{display:flex; flex-direction:column; align-items:center; gap:8px}
 .side .tag{font-size:12px; color:var(--txt3); letter-spacing:2px}
@@ -366,6 +378,52 @@ body{
 .block .release-btn .release-bar{position:absolute; left:0; top:0; bottom:0; width:0%; background:rgba(252,165,165,.25); z-index:1}
 .block .release-btn:hover{background:rgba(252,165,165,.06)}
 
+/* ===== 短信场景（2026-11-22 新增） =====
+   真机上收到可疑短信/微信时，弹的是「悬浮提示」，短信正文仍然看得见
+   （见真机照片 docs/img/realdevice/rd01）。原来这条演示走的是通话红屏，
+   上面写着"你正在边打电话边转钱"—— 对一条短信说这句话是错的，评委一眼就看出穿。
+   所以单独一层：底下是短信会话（正文可见），上面浮一张提示卡，两个按钮。 */
+.smsview{
+  position:absolute; inset:0; z-index:38; display:none; flex-direction:column;
+  padding-top:30px;                      /* 让开手机状态栏 */
+  background:linear-gradient(180deg,#0a0f1e,#070b16);
+}
+.smsview.show{display:flex; animation:evIn .32s}
+.smsview .shd{
+  height:46px; flex-shrink:0; display:flex; align-items:center; gap:10px;
+  padding:0 14px; border-bottom:1px solid var(--line);
+}
+.smsview .shd .bk{font-size:20px; color:var(--accent); line-height:1}
+.smsview .shd .who{display:flex; flex-direction:column; gap:1px}
+.smsview .shd .who b{font-size:13px; color:var(--txt)}
+.smsview .shd .who i{font-size:10px; color:#f87171; font-style:normal}
+.smsview .thread{flex:1; overflow:auto; padding:14px 12px 132px; display:flex; flex-direction:column; gap:8px}
+.smsview .day{text-align:center; font-size:10px; color:var(--txt3); margin-bottom:4px}
+.smsview .bub{
+  max-width:88%; align-self:flex-start; padding:10px 12px; border-radius:12px 12px 12px 4px;
+  background:#182135; border:1px solid var(--line); color:var(--txt);
+  font-size:12.5px; line-height:1.7; word-break:break-all;
+}
+.smsview .bub .ln{color:#7dd3fc; text-decoration:underline}
+.smsview .bub .meta{margin-top:7px; font-size:10px; color:var(--txt3)}
+.smswarn{
+  /* 放底部而不是顶部：提示卡是「浮在上面」，底下那条短信必须照常看得见（真机 rd01 就是这样） */
+  position:absolute; left:9px; right:9px; bottom:10px; z-index:46; display:none;
+  background:rgba(12,17,30,.97); border:1px solid rgba(248,113,113,.5);
+  border-left:3px solid #f87171; border-radius:12px; padding:12px 12px 10px;
+  box-shadow:0 16px 38px rgba(0,0,0,.62);
+}
+.smswarn.show{display:block; animation:evIn .3s}
+.smswarn .wt{display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:800; color:#fca5a5}
+.smswarn .wb{margin-top:6px; font-size:11.5px; line-height:1.65; color:var(--txt)}
+.smswarn .wr{display:flex; gap:8px; margin-top:10px}
+.smswarn .wbtn{
+  flex:1; height:32px; border-radius:9px; cursor:pointer; font-family:inherit; font-size:12px;
+  border:1px solid var(--line); background:var(--panel2); color:var(--txt2);
+}
+.smswarn .wbtn.pri{background:#fff; color:#991b1b; border:none; font-weight:800}
+.smswarn .wbtn:hover{filter:brightness(1.1)}
+
 /* ===== 子女端：等级标签 + 卡片动作 ===== */
 .noti .lv-tag{display:inline-block;vertical-align:1px;margin-right:6px;font-size:9px;font-weight:800;padding:1px 7px;border-radius:9px;flex-shrink:0;letter-spacing:1px}
 .noti.l1 .lv-tag,.noti.l2 .lv-tag{background:rgba(96,165,250,.15);color:#93c5fd}
@@ -600,6 +658,7 @@ body.role-child .child-big{
     <button class="btn" data-step="g2" title="反例：和通讯录联系人通话时转账，不应误报" data-page-node-id="ircG4RbOmr3udhGACka6qn"><span class="n" data-page-node-id="DW9wkF0NrTzVRAFyJaTH6X">B</span>亲人转账</button>
     <button class="btn" data-step="setup" title="装机引导：5 个权限开关" data-page-node-id="iDWJNsRMIb0MPheokltwxB"><span class="n" data-page-node-id="ukvWEQbQctRz2Ck5U4HJqI">⚙</span>装机引导</button>
     <button class="btn" data-step="lock" title="锁屏状态下的振动提醒：证明息屏也照振" data-page-node-id="lockBtn"><span class="n" data-page-node-id="lockNum">🔒</span>息屏也振</button>
+    <button class="btn" data-step="sms" title="短信通道：冒充机构 + 停用恐吓 + 陌生短链" data-page-node-id="smsBtn"><span class="n" data-page-node-id="smsNum">✉️</span>可疑短信</button>
     <button class="btn reset" data-step="0" data-page-node-id="78bez8QtkWNA2Fj3hY5sdY"><span class="n" data-page-node-id="LqTYgIJNLDKqraA1eGdiYx">↻</span>重置</button>
   </div>
 </div>
@@ -650,7 +709,7 @@ body.role-child .child-big{
         <div class="block" id="block" data-page-node-id="5F6VKdwZhciCY2cLeFOjve">
           <div class="big" data-page-node-id="oFNehMjpHVXDDlbNvyXmeY">先别操作</div>
           <div class="sub" data-page-node-id="NjT6W4RpADKzxBxDAGhelx">你正在边打电话边转钱</div>
-          <button class="callbtn" data-page-node-id="t39EazKUZdDvM9gxyZ4JSm">📞 打给女儿</button>
+          <button class="callbtn" id="callDaughterBtn" data-page-node-id="t39EazKUZdDvM9gxyZ4JSm">📞 打给女儿</button>
           <div class="release-wrap" data-page-node-id="k7dfTMiNI0mKPeH0MCMZrV">
             <div class="release-tip" data-page-node-id="iI66ftVqW331GXNfZJzWVW">如果你确定没问题</div>
             <button class="release-btn" id="releaseBtn" data-page-node-id="H6eKMBGsHQ8Dk939H7pV74"><span class="release-label" data-page-node-id="5FxddHSsHwniX6chu939wq">我知道自己在做什么（按住 3 秒）</span><span class="release-bar" id="releaseBar" data-page-node-id="2XqZPRPEv7ZkV6UFVFCyw1"></span></button>
@@ -664,6 +723,25 @@ body.role-child .child-big{
           <div class="code-mask" id="codeMask" data-page-node-id="lnpCQ1ZY9dBY6HVGFnB7UB">
             <div class="lbl" data-page-node-id="4tfCF73H3q1cizgAablPx4">银行验证码已临时遮蔽</div>
             <div class="v" data-page-node-id="J4jDg2Ht4GXHX0UmI101eJ">••••••</div>
+          </div>
+        </div>
+        <!-- 短信场景：正文可见 + 悬浮提示（对应真机「可疑消息提示」，不是通话红屏） -->
+        <div class="smsview" id="smsView">
+          <div class="shd">
+            <span class="bk">‹</span>
+            <div class="who"><b>106****8899</b><i>不在通讯录</i></div>
+          </div>
+          <div class="thread">
+            <div class="day">今天 9:23</div>
+            <div class="bub">【国家医保局】您的医保电子凭证已停用，请于今日24点前登录 <span class="ln">yb.kf-verify.top</span> 完成认证，逾期影响报销。<div class="meta">短信 · 中国移动</div></div>
+          </div>
+        </div>
+        <div class="smswarn" id="smsWarn">
+          <div class="wt">⚠️ 这条短信可能是诈骗</div>
+          <div class="wb" id="smsWarnBody">短信正文照常看得见 —— 真机上也不会替老人删掉它，只在他要点链接时拦。正在判定…</div>
+          <div class="wr">
+            <button class="wbtn" id="smsIgnore">我知道了</button>
+            <button class="wbtn pri" id="smsTell">告诉女儿</button>
           </div>
         </div>
         <div class="acquaint" id="acquaint" data-page-node-id="awZSI4nSh9XEL3dPHJm4oF">
@@ -819,6 +897,9 @@ const hintEl=document.getElementById('hint');
 const blockEl=document.getElementById('block');
 const codeMaskEl=document.getElementById('codeMask');
 const acquaintEl=document.getElementById('acquaint');
+const smsViewEl=document.getElementById('smsView');
+const smsWarnEl=document.getElementById('smsWarn');
+const smsWarnBodyEl=document.getElementById('smsWarnBody');
 const knownRecordEl=document.getElementById('knownRecord');
 const ghostHintEl=document.getElementById('ghostHint');
 const releaseBtn=document.getElementById('releaseBtn');
@@ -1016,6 +1097,47 @@ document.getElementById('childCall').addEventListener('click',function(){
   setTimeout(()=>{ b.dataset.done=''; b.innerHTML='📞 一键回拨爸爸'; },3000);
 });
 
+/* ===== 老人端红屏「打给女儿」：补上点击事件 =====
+   2026-11-22 修：这个按钮原来只有 CSS 和 HTML，JS 里一次都没绑定过，
+   按下去毫无反应 —— 而它恰恰是红屏上字最大、评委最会去点的那个。
+   与子女端「一键回拨」对称：真机上走系统拨号，浏览器里给演示反馈，
+   并把这次主动求助推给子女端，形成「老人求助 → 子女立刻知道」的闭环。 */
+const callDaughterBtn=document.getElementById('callDaughterBtn');
+if(callDaughterBtn){
+  callDaughterBtn.addEventListener('click',function(){
+    if(this.dataset.done) return;
+    this.dataset.done='1'; this.classList.add('done');
+    const old=this.innerHTML;
+    this.innerHTML='✓ 正在呼叫女儿…';
+    if(window.SilverBridge && typeof SilverBridge.callChild==='function'){
+      SilverBridge.callChild();
+    }else{
+      ghostHint('演示：正在拨打女儿电话。真机上会直接走系统拨号，不用老人翻通讯录。');
+    }
+    addNoti('l5','父亲按下了「打给女儿」',
+      '他在红屏上主动求助了 —— 这比任何自动预警都更该立刻回拨。',
+      '138****6621 · 通话中');
+    setTimeout(()=>{ this.dataset.done=''; this.innerHTML=old; },3000);
+  });
+}
+
+/* ===== 短信悬浮提示卡的两个按钮 =====
+   「我知道了」= 收起提示但短信留着（真机也是这个语义：不替你删消息，链接照样拦）。
+   「告诉女儿」= 把整条短信转发给子女（真机走系统转发，这里是演示替身）。 */
+const smsIgnoreBtn=document.getElementById('smsIgnore');
+if(smsIgnoreBtn) smsIgnoreBtn.addEventListener('click',function(){
+  if(smsWarnEl) smsWarnEl.classList.remove('show');
+  ghostHint('演示：提示收起了。真机上这条短信仍被标为可疑，他之后再点里面的链接照样拦。');
+});
+const smsTellBtn=document.getElementById('smsTell');
+if(smsTellBtn) smsTellBtn.addEventListener('click',function(){
+  if(smsWarnEl) smsWarnEl.classList.remove('show');
+  addNoti('l5','父亲把这条短信转给你了',
+    '整条短信原样转发 —— 你一眼就能看出是假的，这比任何自动判定都管用。',
+    '138****6621 · 短信', null, 'sms');
+  ghostHint('演示：老人点了「告诉女儿」。真机上是真的调起短信转发，不是模拟。');
+});
+
 function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');}
 function startTimer(from){stopTimer(); baseSec=from; callTimeEl.textContent=fmt(baseSec);
   timer=setInterval(()=>{baseSec++; callTimeEl.textContent=fmt(baseSec);},1000);}
@@ -1092,7 +1214,7 @@ function renderAlert(a, opt){
   if(!opt.silent) routeView(src);
   if(!opt.silent) addEv(cls, ic, a.title, a.body);
   const card = addNoti(cls, a.title, a.body,
-      a.channel==='push+call'?'已自动回拨，接通中':'', alertId, src, a.why);
+      (src==='call' && a.channel==='push+call')?'已自动回拨，接通中':'', alertId, src, a.why);
   if(a.summary) attachSummary(card, a.summary);   // 历史卡片自带摘要，直接贴上
   /* ⑤ 事件回放：这条属于某次通话时，给一个入口把整场串起来看。
      实时推来的用 callId（驼峰），历史接口给的是 call_id（下划线），两个都认。 */
@@ -1100,13 +1222,17 @@ function renderAlert(a, opt){
   if(callId) attachEventLink(card, callId);
   if(!opt.silent){
     if(a.why) hitJ(hitByWhy(a.why));
-    if(a.level==='block'){
+    /* 红屏只属于通话场景：它的文案是"你正在边打电话边转钱"，
+       对一条短信说这句话是错的，而且红屏会把短信正文整个盖掉 ——
+       真机上恰恰相反，正文照常看得见，只在要点链接时拦（真机照片 rd01）。 */
+    if(a.level==='block' && src==='call'){
       // 已经拦下来了，就别再问"这个号码你认识吗" —— 两件事同时出现会互相削弱
       if(typeof hideAcquaint==='function') hideAcquaint();
       blockEl.classList.add('show');
       // 弹窗和振动同时开始：老人可能正低着头、或手机扣在桌上，只有振动能把他叫住
       startVibrate('正在振动提醒');
     }
+    if(src==='sms' && !opt.noScene) showSmsScene(a);
     setBadge(a.level);
   }
   return cls;
@@ -1387,6 +1513,58 @@ function fitChildPhone(){
   phoneFitEl.style.height=(PHONE_H*s)+'px';
 }
 window.addEventListener('resize', fitChildPhone);
+
+/* ===== 双端并排模式：视口太矮时等比缩放两列手机 =====
+   2026-11-22 加。两列手机是固定 300×544，而舞台高度 = 视口 − 顶栏 − 命令条 − 判据看板。
+   演示步骤从 9 个增加到 11 个后，1366 宽下顶栏会折成两行（换个说法：不再把按钮挤出可视区），
+   多出来的高度会让手机框顶到命令条、压住判据看板。这里按舞台实际可用高度等比缩放。
+   缩放沿用单端模式已有的 transform 手法，不引入新机制；
+   ghostHint / 装机引导 / 复盘浮层都挂在 body 下、不在 .phone 内，不受 transform 影响。 */
+function fitDualPhones(){
+  const bodyEl=document.body;
+  if(!bodyEl || bodyEl.classList.contains('role')) return;
+  const stage=document.querySelector('.stage');
+  if(!stage) return;
+  const items=[];
+  stage.querySelectorAll(':scope > .side').forEach(side=>{
+    const phone=side.querySelector('.phone');
+    if(!phone) return;
+    const tag=side.querySelector('.tag');
+    items.push({phone, wrap:phone.parentElement, tagH: tag? tag.getBoundingClientRect().height+8 : 0});
+  });
+  if(!items.length) return;
+  // 先复位，再量自然尺寸
+  items.forEach(it=>{
+    it.phone.style.transform=''; it.phone.style.position='';
+    it.phone.style.top=''; it.phone.style.left=''; it.phone.style.transformOrigin='';
+    it.wrap.style.display=''; it.wrap.style.width=''; it.wrap.style.height=''; it.wrap.style.position='';
+  });
+  const natW=Math.max(...items.map(it=>it.phone.getBoundingClientRect().width));
+  const natH=Math.max(...items.map(it=>it.phone.getBoundingClientRect().height));
+  const tagH=Math.max(...items.map(it=>it.tagH));
+  if(!natW || !natH) return;
+  const availH=Math.max(220, stage.clientHeight-12);
+  const availW=Math.max(220, stage.clientWidth-40);
+  const needW=natW*items.length+56;          // 并排两列 + 中间 56px 间距
+  let s=Math.min(1, availH/(natH+tagH), availW/needW);
+  // 下限 0.52：再小字就看不清了，那种尺寸交给舞台内部滚动
+  s=Math.max(0.52, Math.min(s, 1));
+  if(!isFinite(s) || s<=0 || s>=0.995) return;
+  items.forEach(it=>{
+    it.wrap.style.display='block';
+    it.wrap.style.position='relative';
+    it.wrap.style.width=(natW*s)+'px';
+    it.wrap.style.height=(natH*s)+'px';
+    it.phone.style.position='absolute';
+    it.phone.style.top='0'; it.phone.style.left='0';
+    it.phone.style.transformOrigin='0 0';
+    it.phone.style.transform='scale('+s.toFixed(4)+')';
+  });
+}
+window.addEventListener('resize', fitDualPhones);
+window.addEventListener('load', ()=>{ fitDualPhones(); requestAnimationFrame(fitDualPhones); });
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitDualPhones);
+setTimeout(fitDualPhones,0);
 window.addEventListener('orientationchange', fitChildPhone);
 
 const LV_NAME={l1:'关注',l2:'留意',l3:'偏高',l4:'高危',l5:'紧急'};
@@ -1396,9 +1574,34 @@ const LV_NAME={l1:'关注',l2:'留意',l3:'偏高',l4:'高危',l5:'紧急'};
      push / push+call（来电、超时、复问、拦截） → 通话
    历史数据里 channel 可能缺失，一律归到通话，不会凭空造出短信卡 */
 function srcOf(a){
+  /* 2026-11-22：服务端现在把 src（sms/call）跟着预警一起推下来，优先用它。
+     老数据没有 src，才退回按 channel 猜 —— 而那时短信会被猜成通话，
+     结果是老人端弹通话红屏、子女端也落错栏。 */
+  const s=String((a&&a.src)||'');
+  if(s==='sms'||s==='call') return s;
   const ch=String((a&&a.channel)||'');
   if(ch==='upload'||ch==='screenshot') return 'sms';
   return 'call';
+}
+
+/* 短信预警在老人端的呈现：正文保留 + 顶部悬浮提示。
+   不写"屏幕已盖住"这类通话文案，也不替老人删消息 —— 真机就是这么做的。 */
+function showSmsScene(a){
+  if(!smsViewEl) return;
+  smsViewEl.classList.add('show');
+  const lv=(a&&a.level)||'watch';
+  const plain=(lv==='block'||lv==='high')
+    ? '冒充机构 + 催你今天就办 + 陌生链接，三条同时命中。真正的医保网址是 gov.cn 结尾，这个不是。'
+    : '号码不在通讯录，正文里带一个陌生链接 —— 先别点。';
+  let why=String((a&&a.why)||'').trim();
+  /* 判据只给"行为判据看板"用，不往老人手机里放 —— 老人看到的是人话，不是 S3/S4 打分 */
+  if(smsWarnBodyEl) smsWarnBodyEl.textContent = plain;
+  if(smsWarnEl) smsWarnEl.classList.add('show');
+  if(callNumEl) callNumEl.textContent='短信 · 未通话';
+}
+function hideSmsScene(){
+  if(smsViewEl) smsViewEl.classList.remove('show');
+  if(smsWarnEl) smsWarnEl.classList.remove('show');
 }
 
 /* 把一条推送镜像到大屏时间线。手机里那张是"真机模拟"，右边这张是给投影看的 */
@@ -1664,6 +1867,7 @@ function clearAll(){
   notisEl.innerHTML='<div class="empty">暂无异常动态<br>父亲手机处于安全状态</div>';
   clearBigLine();                      // 大屏时间线跟着一起清，重置后两边状态必须一致
   hintEl.classList.remove('show'); blockEl.classList.remove('show'); codeMaskEl.classList.remove('show');
+  if(typeof hideSmsScene==='function') hideSmsScene();
   acquaintEl.classList.remove('show'); knownRecordEl.classList.remove('show'); ghostHintEl.classList.remove('show');
   releaseBar.style.width='0%'; if(holdTimer){clearInterval(holdTimer); holdTimer=null;}
   knownMark=0;
@@ -1732,6 +1936,33 @@ async function go(n){
       addNoti('l5','父亲收到银行验证码，但看不到内容','验证码念不出来，对方也拿不到。现在打过去最有用。','已自动回拨，接通中');
     }
     hitJ([5]);
+  }
+  if(n==='sms'){
+    clearAll();
+    /* 必须先把云端状态也清掉：老人的"通话中 / 已打开银行"是存在服务端状态里的，
+       上一次演示的红屏状态若留着，一条短信进来会命中"通话中打开银行"，
+       判出来的就是我们刚才看到的那种通话文案 —— 短信场景从头就该是干净的。 */
+    await api('/api/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+    callNumEl.textContent='短信 · 未通话';
+    const smsBody='【国家医保局】您的医保电子凭证已停用，请于今日24点前登录 yb.kf-verify.top 完成认证，逾期影响报销。';
+    /* 先把老人端切到"短信会话"，再上报。这样即使判定要等 1~2 秒，
+       评委看到的也是一条已经躺在收件箱里的短信，而不是一片空白等他。 */
+    showSmsScene(null);
+    if(smsWarnBodyEl) smsWarnBodyEl.textContent='这条短信可能是诈骗 —— 正在判定…';
+    addEv('l1','💬','收到一条短信','号码 106****8899 不在通讯录，正文含一个陌生链接。');
+    const r=await send({type:'sms', body:smsBody, isCode:false, from:'106900008899'});
+    if(r&&r.alert){
+      // 真实判定结果照用，但老人端走短信场景（renderAlert 内部按 src 分流）
+      renderAlert(r.alert);
+    }else{
+      addEv('l4','⚠️','疑似钓鱼短信','冒充机构 + 停用恐吓 + 陌生短链，三条同时命中。');
+      addNoti('l4','父亲收到一条可疑短信',
+        '冒充医保局称「医保卡停用」，带一个陌生短链让他点开认证。',
+        '106****8899 · 未通话', null, 'sms');
+      showSmsScene({level:'warn', why:'冒充机构 · 停用恐吓 · 陌生短链'});
+    }
+    ghostHint('短信通道：冒充机构 + 停用恐吓 + 短链，三条同时命中才判高危。单有「停用」二字不算。');
+    return;
   }
   if(n==='setup'){ openSetup(); return; }
   if(n==='g1'){

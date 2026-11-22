@@ -129,6 +129,12 @@ class Guard {
       /* channel 以前只写进库、没有跟着推出去，前端只能靠"猜不到就当通话"兜底。
          补上之后，子女端分「通话 / 短信」两栏才是按数据走的，不是按默认值猜的。 */
       channel: r.level === 'block' || r.level === 'high' ? 'push+call' : 'push',
+      /* 2026-11-22 加：把「这条事件是通话还是短信」一起推出去。
+         之前前端只能靠 channel 猜，而 channel 只表达"有没有同时外呼"（push / push+call），
+         于是**一条短信预警被当成通话**：老人端弹的仍是通话那套红屏，文案写着
+         "你正在边打电话边转钱"；子女端也永远落在「通话」栏里。
+         type 来自 handle() 的入参，通话/短信/app 事件在这里是明确的。 */
+      src: type === 'sms' ? 'sms' : 'call',
       ui,
       time: hhmm(),
     };
@@ -240,6 +246,15 @@ function applyEvent(st, type, d) {
 
 function makeTitle(type, d, r) {
   const N = d.elderName || '妈妈';   // 称谓由上报方给（父亲/母亲/奶奶…），不写死
+  /* 2026-11-22：短信事件不能套通话文案。type 一直是入参、却从没被用过，
+     结果一条"医保卡停用"的钓鱼短信，子女端收到的标题是
+     「妈妈和一个陌生号码通话很久了」—— 和事实不符，评委一眼就看穿。 */
+  if (type === 'sms' || type === 'wechat') {
+    if (r.level === 'block' || r.level === 'high') return `${N}收到一条诈骗短信`;
+    if (r.level === 'warn') return `${N}收到一条可疑短信`;
+    if (r.level === 'watch') return `${N}收到一条陌生号码的短信`;
+    return `${N}收到一条短信`;
+  }
   if (r.level === 'block') {
     if (d.isCode) return `${N}收到银行验证码，但看不到内容`;
     if (d.isBank || (r.why || '').includes('银行')) return `${N}正在操作手机银行`;
@@ -253,6 +268,11 @@ function makeTitle(type, d, r) {
 
 function makeBody(type, d, r) {
   // 性别中立：老人可能是父亲也可能是母亲，别写"她"
+  if (type === 'sms' || type === 'wechat') {
+    if (r.level === 'block' || r.level === 'high') return '冒充机构 + 催他今天就办 + 陌生链接。正文没删，他点链接就会被拦。';
+    if (r.level === 'warn') return '号码不在通讯录，正文催他今天就办，还带一个陌生链接。';
+    return '号码不在通讯录，我们开始留意。';
+  }
   if (r.level === 'block') {
     if (d.isCode) return '验证码念不出来，对方也拿不到。这通电话现在打过去最有用。';
     return '屏幕已经盖住。这通电话现在打过去，一定能接。';

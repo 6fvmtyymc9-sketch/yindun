@@ -1,0 +1,23 @@
+{
+ "train": 1900,
+ "val": 100,
+ "fraud": 1000,
+ "normal": 1000,
+ "heldout_cgodial": 300,
+ "heldout_by_scene": {
+  "gov": 200,
+  "etc": 40,
+  "jiaoguan": 40,
+  "zhubao": 20
+ },
+ "leak_check": 0,
+ "sources": {
+  "fraud_available:fraud_texts.jsonl": 8756,
+  "normal:cgodial_real": 1000
+ },
+ "chars": [
+  60,
+  800
+ ],
+ "seed": 7
+}

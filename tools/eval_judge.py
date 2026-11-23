@@ -25,6 +25,12 @@ import time
 import urllib.error
 import urllib.request
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
+
+# 并发度说明：训练服务的 /judge 是 ThreadingHTTPServer + 一把全局锁（一次只跑一个前向），
+# 所以并发不会让单条更快，但能把「排队 + HTTP 往返」的重叠掉。
+# 实测 3 并发：3 条 31 s（串行要 81 s），等效 ~10 s/条。别开太大，显存和日志都会抖。
+DEFAULT_WORKERS = 3
 
 
 def post(url, body):
@@ -43,6 +49,7 @@ def main():
     ap.add_argument("--holdout", help="cloud/test/holdout.json")
     ap.add_argument("--out", required=True)
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--workers", type=int, default=DEFAULT_WORKERS, help="并发数，默认 3；串行请给 1")
     a = ap.parse_args()
 
     rows = []
@@ -60,20 +67,32 @@ def main():
 
     os.makedirs(os.path.dirname(os.path.abspath(os.path.expanduser(a.out))), exist_ok=True)
     c_v, c_p = Counter(), Counter()
-    with open(os.path.expanduser(a.out), "w", encoding="utf-8") as fo:
-        for i, r in enumerate(rows, 1):
-            t0 = time.time()
-            res = post(a.url, {"text": r["text"]})
+    t_start = time.time()
+
+    def run(r):
+        t0 = time.time()
+        try:
+            return post(a.url, {"text": r["text"]}), time.time() - t0
+        except Exception as e:                      # 单条失败不能中断整批
+            return {"verdict": "error", "err": str(e)}, time.time() - t0
+
+    with open(os.path.expanduser(a.out), "w", encoding="utf-8") as fo, \
+            ThreadPoolExecutor(max_workers=max(1, a.workers)) as ex:
+        # map 保序，写出去的行和输入一一对应，方便微调前后逐条对比
+        for i, (r, (res, dt)) in enumerate(zip(rows, ex.map(run, rows)), 1):
             lab = "fraud" if str(r["label"]).lower() in ("fraud", "诈骗") else "normal"
             p = res.get("p")
             pv = "unknown" if p is None else ("fraud" if p >= 0.85 else "normal")
             c_v[(lab, res.get("verdict", "error"))] += 1
             c_p[(lab, pv)] += 1
             fo.write(json.dumps({"id": r.get("id"), "label": lab, **{k: res.get(k) for k in
-                     ("verdict", "p", "confidence", "reason", "scene", "parsedFrom", "ms", "skipped")}},
+                     ("verdict", "p", "confidence", "reason", "scene", "parsedFrom", "ms", "skipped", "err")}},
                                 ensure_ascii=False) + "\n")
             fo.flush()
-            print(f"[{i}/{len(rows)}] {lab:6s} -> {res.get('verdict')} p={p} {time.time() - t0:.1f}s", flush=True)
+            done = (time.time() - t_start) / i
+            eta = done * (len(rows) - i) / 60
+            print(f"[{i}/{len(rows)}] {lab:6s} -> {res.get('verdict')} p={p} {dt:.1f}s "
+                  f"| 平均 {done:.1f}s/条 剩余 ~{eta:.0f}min", flush=True)
 
     def table(c, name):
         f_tot = sum(v for (l, _), v in c.items() if l == "fraud")

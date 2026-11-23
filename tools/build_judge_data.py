@@ -85,12 +85,18 @@ def main():
 
     # ---- CGoDial：只用 real，先切留出集
     real = []
+    seen_text = set()
     for line in open(os.path.expanduser(a.cgodial), encoding="utf-8"):
         d = json.loads(line)
         if d.get("kind") != "real":
             continue
         t = clean(d.get("text_asr") or d.get("text"))
         if len(t) >= MIN_CHARS:
+            # 文本级去重：CGoDial 里同一段对话常有多个 id（纯 IVR 开场白重复 27 次的都有），
+            # 只按 id 去重会让「内容完全相同的两条」一条进训练、一条进留出集，评测就虚高了。
+            if t in seen_text:
+                continue
+            seen_text.add(t)
             real.append({"id": d["id"], "scene": d["scene"], "text": t})
     rnd.shuffle(real)
     held, rest, need = [], [], dict(HELDOUT)
@@ -146,9 +152,19 @@ def main():
             fh.write(json.dumps({"id": d["id"], "scene": d["scene"], "text": d["text"], "label": "normal"},
                                 ensure_ascii=False) + "\n")
 
+    # ---- 自检：留出集文本不得出现在训练/验证集里（按整段文本比，不按 id）
+    # 这一条必须打印出来，因为「留出集误报率」是靠它成立的：漏一条，指标就虚高一点。
+    train_blob = "".join(x["messages"][0]["content"] for x in data)
+    leak = sum(1 for d in held if d["text"] in train_blob)
+    if leak:
+        print(f"[!] 留出集有 {leak} 条文本泄漏进训练集，指标会虚高，先修数据再训", file=sys.stderr)
+    else:
+        print("[ok] 留出集 0 条泄漏进训练集", file=sys.stderr)
+
     summary = {
         "train": len(data) - nv, "val": nv, "fraud": len(pos), "normal": len(neg),
         "heldout_cgodial": len(held), "heldout_by_scene": Counter(d["scene"] for d in held),
+        "leak_check": leak,
         "sources": src, "chars": [MIN_CHARS, MAX_CHARS], "seed": a.seed,
     }
     json.dump(summary, open(os.path.join(a.out, "summary.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)

@@ -56,8 +56,9 @@ try:
     d=json.load(sys.stdin)
 except Exception:
     print('wait'); raise SystemExit
-if d.get('loaded'): print('ok')
-elif d.get('error'): print('err')
+if d.get('error'): print('err')
+elif d.get('loading'): print('wait')
+elif d.get('loadMs'): print('ok')
 else: print('wait')" 2>/dev/null)
   if [ "$ST" = "ok" ]; then echo "[4] 加载完成"; echo "$H"; break; fi
   if [ "$ST" = "err" ]; then

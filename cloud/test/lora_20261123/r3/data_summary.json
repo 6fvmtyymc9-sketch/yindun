@@ -1,0 +1,51 @@
+{
+ "train": 4750,
+ "val": 250,
+ "fraud": 2500,
+ "normal": 2500,
+ "heldout_cgodial": 300,
+ "heldout_by_scene": {
+  "gov": 200,
+  "etc": 40,
+  "jiaoguan": 40,
+  "zhubao": 20
+ },
+ "leak_check": 0,
+ "sources": {
+  "normal_avail:teleantifraud": 1370,
+  "normal_avail:sms": 11674,
+  "fraud_avail:taf_fraud.jsonl": 1393,
+  "fraud_avail:fraud_texts.jsonl": 8756,
+  "normal:used": {
+   "teleantifraud": 834,
+   "sms": 833,
+   "cgodial": 833
+  },
+  "fraud:used": 2500
+ },
+ "answers": {
+  "reason_unique": 2423,
+  "reason_total": 5000,
+  "fraud_p_min": 0.85,
+  "fraud_p_max": 0.98,
+  "fraud_p_p10_p90": [
+   0.872,
+   0.945
+  ],
+  "normal_p_min": 0.03,
+  "normal_p_max": 0.196,
+  "normal_p_p10_p90": [
+   0.03,
+   0.064
+  ],
+  "fraud_conf_min": 0.85,
+  "normal_conf_min": 0.804,
+  "normal_conf_max": 0.97,
+  "conf_unique": 34
+ },
+ "chars": [
+  60,
+  800
+ ],
+ "seed": 7
+}

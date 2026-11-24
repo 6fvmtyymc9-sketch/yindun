@@ -33,10 +33,32 @@ class Db {
       conn.release();
       this.online = true;
       console.log('[Db] RDS 连接成功');
+      if (this._retryTimer) { clearInterval(this._retryTimer); this._retryTimer = null; }
     } catch (e) {
       this.online = false;
       console.warn('[Db] RDS 连接失败，降级内存：', e.message);
+      this._scheduleRetry();
     }
+  }
+
+  /**
+   * 失败后每 30 秒重连一次，连上就停表。
+   *
+   * 【为什么必须有】
+   * systemd 单元原来只写了 After=network.target，机器重启时 Node 会比 mysqld
+   * 早起来几秒，连接被拒（ECONNREFUSED）之后原来就永远停在内存降级：
+   * 网页和接口全绿、/api/health 也回 ok，但事件和告警一条都不落库 ——
+   * 这是最难发现的一类故障，因为所有"看起来正常"的信号都是正常的。
+   * 2026-11-23 10:03 与 2026-11-24 18:34 各踩过一次，每次重启必现。
+   *
+   * 只负责"启动时没连上"这一种情况。运行中单条写失败仍按原有逻辑降级该条、
+   * 不再重试，避免一次写超时把整条请求链路拖慢。
+   */
+  _scheduleRetry() {
+    if (this._retryTimer || !this.pool) return;
+    this._retryTimer = setInterval(() => { this.init(); }, 30000);
+    // unref：这个定时器不该拦着进程退出，否则 PM2/systemd 的优雅停止会卡住
+    if (this._retryTimer.unref) this._retryTimer.unref();
   }
 
   // ---------- 事件流水 ----------

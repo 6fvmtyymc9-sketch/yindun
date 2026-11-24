@@ -32,5 +32,11 @@ desktop.ini
 # ===== 基线运行产物（每次重跑都会变，最终表格另存留档）=====
 cloud/test/calls_eval/out-*.json
 
+# ===== LoRA 训练数据（数据集原文，公开仓库不放）=====
+# 见 docs/SFT接入计划.md §一：只保留 summary.json，jsonl 由 tools/ 下脚本重新生成
+cloud/test/lora_20261123/data_v1/*.jsonl
+cloud/test/lora_20261123/data_v2/*.jsonl
+cloud/test/lora_20261123/r3/data/*.jsonl
+
 # ===== 本地工具快照（文件哈希，不进版本库）=====
 .merkle-snapshot.json

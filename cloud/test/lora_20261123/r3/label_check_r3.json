@@ -1,0 +1,12 @@
+{
+ "transcripts_pos.jsonl": {
+  "total": 1365,
+  "agree": 1365,
+  "rate": 100.0
+ },
+ "transcripts_neg.jsonl": {
+  "total": 1329,
+  "agree": 1329,
+  "rate": 100.0
+ }
+}

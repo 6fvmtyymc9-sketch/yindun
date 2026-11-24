@@ -31,3 +31,6 @@ desktop.ini
 
 # ===== 基线运行产物（每次重跑都会变，最终表格另存留档）=====
 cloud/test/calls_eval/out-*.json
+
+# ===== 本地工具快照（文件哈希，不进版本库）=====
+.merkle-snapshot.json

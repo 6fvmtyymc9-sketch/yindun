@@ -85,7 +85,9 @@ def main():
             pv = "unknown" if p is None else ("fraud" if p >= 0.85 else "normal")
             c_v[(lab, res.get("verdict", "error"))] += 1
             c_p[(lab, pv)] += 1
-            fo.write(json.dumps({"id": r.get("id"), "label": lab, **{k: res.get(k) for k in
+            # id 回退到 file：TAF-200 这类清单只有文件名没有 id，
+            # 少了它事后就无法把结果对回原文（实测踩过，只能靠行号猜）
+            fo.write(json.dumps({"id": r.get("id") or r.get("file"), "label": lab, **{k: res.get(k) for k in
                      ("verdict", "p", "confidence", "reason", "scene", "parsedFrom", "ms", "skipped", "err")}},
                                 ensure_ascii=False) + "\n")
             fo.flush()

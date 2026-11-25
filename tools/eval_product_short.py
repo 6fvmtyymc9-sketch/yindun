@@ -10,8 +10,8 @@ import urllib.error
 import urllib.request
 
 URL = "http://123.249.25.139:8080/api/report"
-SRC = "B组_成品_20261125.csv"
-OUT = "product_b50_result.jsonl"
+SRC = "A组_原始_20261125.csv"
+OUT = "product_a50_result.jsonl"
 
 
 def call(row, tries=3):

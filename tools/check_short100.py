@@ -97,7 +97,13 @@ def main():
     if other:
         errs.append(f"分组只能填「诈骗」或「正常」，有 {len(other)} 行不是："
                     + ", ".join(r["编号"] for r in other[:5]))
-    if not a.allow_partial:
+    # 只填了一组（两人分工时常见）：自动按"单组模式"处理，不必每次都加 --allow-partial
+    single = (not fraud) or (not normal)
+    partial = a.allow_partial or single
+    if single:
+        have = "诈骗" if fraud else "正常"
+        print(f"单组模式：只填了{have}组，跳过 50/50 的条数检查（合并后再跑一次完整检查）")
+    if not partial:
         if len(fraud) != 50:
             errs.append(f"A 组应为 50 条，实际 {len(fraud)} 条")
         if len(normal) != 50:

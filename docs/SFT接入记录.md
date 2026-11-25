@@ -3,7 +3,11 @@
 > ✅ **当前状态（2026-11-24 晚）：SFT 已接入线上，跑的是原始模型。**
 > ECS 的 `SFT_URL=http://127.0.0.1:8099`，走学校容器发起的 SSH 反向隧道（容器 8000 → ECS 回环 8099）。
 > `/api/health` 里 `sft.enabled=true`、`ok=true`、`lora=null`。
-> **线上是三票：规则引擎 + DeepSeek + AntiFraud-SFT**（`mergeSft` 要求两票才告警，SFT 单独一票只留痕不推送）。
+> **线上三票只在「通话音频复核」这条链路上生效：规则引擎 + DeepSeek + AntiFraud-SFT**
+> （`mergeSft` 要求两票才告警，SFT 单独一票只留痕不推送）。
+> ⚠️ **短信/截图复核（`/api/report`）是两票**：规则 + DeepSeek，**不调用 SFT**。
+> `mergeSft` 只出现在 `CallAudio.js`，`server.js` 只调 `sft.ping()` 做健康检查——
+> 2026-11-25 实测确认，写"线上全部三票"是错的。
 > 没接 LoRA 的原因不是接口不可用，而是三轮微调都没达到"诈骗不漏"的判据——接入流程与实测见
 > [`SFT接入计划.md`](SFT接入计划.md) §2.3~§2.6；三轮结论见 [`LoRA微调实验_20261123.md`](LoRA微调实验_20261123.md) §7.5。
 > 换 LoRA 只改容器环境变量 `SFT_LORA` 再重启服务，**不用改代码、不用动 ECS**。

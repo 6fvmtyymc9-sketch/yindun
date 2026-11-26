@@ -25,6 +25,18 @@ SFT_PORT="${SFT_PORT:-8000}"
 ECS_HOST="${ECS_HOST:-123.249.25.139}"
 TUNNEL_LOG="${TUNNEL_LOG:-$HOME/tunnel.log}"
 SFT_LOG="${SFT_LOG:-$HOME/sft.log}"
+# LoRA 适配器目录（留空 = 用原始模型）。第四轮换了 LoRA 只需设这一个变量再 --restart。
+SFT_LORA="${SFT_LORA:-}"
+# 每轮最多生成多少 token（留空走 sft_server.py 的默认 1536）
+SFT_MAX_NEW="${SFT_MAX_NEW:-}"
+
+# 关键：系统 python3 里**没有 peft**，设了 SFT_LORA 也用不了。
+# 所以有 LoRA 时强制切到 ~/venv-swift，没有时保持系统 python3（与原行为一致）。
+if [ -n "$SFT_LORA" ]; then
+    PY="$VENV/bin/python3"
+else
+    PY="python3"
+fi
 
 MODE="${1:-up}"
 say()  { printf '\n\033[1;36m==> %s\033[0m\n' "$*"; }
@@ -32,8 +44,11 @@ ok()   { printf '\033[1;32m[ok] %s\033[0m\n' "$*"; }
 warn() { printf '\033[1;33m[注意] %s\033[0m\n' "$*"; }
 die()  { printf '\033[1;31m[失败] %s\033[0m\n' "$*" >&2; exit 1; }
 
-# 判服务是否在跑：用 -N 看连通，不要用宽泛的 pgrep -f sft_server
-sft_pid() { pgrep -f "^python3 tools/sft_server.py" 2>/dev/null | head -1; }
+# 判服务是否在跑：不要用宽泛的 pgrep -f sft_server（会匹配到调用它的 shell）。
+# 用 [t]ools 的方括号技巧避免自匹配；也不能写死 ^python3——
+# 带 LoRA 时进程是 /home/xx/venv-swift/bin/python3，^python3 匹配不上。
+# **必须带 --port**：同时开着 8000（线上）和 8001（评测）时，只按进程名匹配会杀错。
+sft_pid() { pgrep -f "[t]ools/sft_server\.py.*--port $SFT_PORT( |$)" 2>/dev/null | head -1; }
 
 # 隧道有两层进程：守护脚本（循环重连）+ ssh -N（真正建隧道）。
 # 两个坑，都实际踩过：
@@ -67,9 +82,22 @@ check_only() {
         || warn "nvidia-smi 不可用"
     echo "模型权重      $(du -sh "$MODEL" 2>/dev/null | cut -f1 || echo '缺失')  $MODEL"
     echo "仓库          $([ -d "$WORK" ] && echo "$WORK" || echo '缺失')"
-    echo "SFT 服务      pid=$(sft_pid || echo 无)  $(health_json | head -c 120)"
+
+    local h lora
+    h=$(health_json)
+    # 一眼看出线上跑的到底是原始模型还是 LoRA（演示前必看这一行）
+    lora=$(printf '%s' "$h" | "${VENV}/bin/python3" -c \
+        "import json,sys;d=json.load(sys.stdin);print(d.get('lora') or '无（原始模型）')" 2>/dev/null \
+        || printf '%s' "$h" | python3 -c \
+        "import json,sys;d=json.load(sys.stdin);print(d.get('lora') or '无（原始模型）')" 2>/dev/null \
+        || echo '取不到')
+    echo "SFT 服务      pid=$(sft_pid || echo 无)"
+    echo "线上模型      $lora"
+    echo "health        $(printf '%s' "$h" | head -c 140)"
     echo "隧道          $(tun_alive && echo "ssh 在 / 守护 $(tun_guard_count) 份" || echo 不在)"
     echo "隧道日志      $(tail -2 "$TUNNEL_LOG" 2>/dev/null | tr '\n' ' ')"
+    [ -n "$SFT_LORA" ]    && echo "本次 SFT_LORA=$SFT_LORA"
+    [ -n "$SFT_MAX_NEW" ] && echo "本次 SFT_MAX_NEW=$SFT_MAX_NEW"
 }
 
 if [ "$MODE" = "--check" ]; then
@@ -97,9 +125,22 @@ if [ -n "$(sft_pid)" ]; then
     ok "已在运行 pid=$(sft_pid)，不重启"
 else
     cd "$WORK" || die "进不去 $WORK"
-    SFT_DEVICE=cuda ANTIFRAUD_DIR="$MODEL" \
-        setsid nohup python3 tools/sft_server.py --host 127.0.0.1 --port "$SFT_PORT" \
-        > "$SFT_LOG" 2>&1 < /dev/null &
+    if [ -n "$SFT_LORA" ]; then
+        [ -x "$PY" ] || die "要加载 LoRA 但没有 $PY（先跑 school_gpu_setup.sh 装 venv-swift）"
+        [ -d "$SFT_LORA" ] || die "SFT_LORA 指向的目录不存在：$SFT_LORA"
+        ok "有 LoRA：$SFT_LORA"
+        ok "解释器：$PY（系统 python3 没有 peft，必须用 venv）"
+    else
+        ok "无 LoRA，用原始模型（$PY）"
+    fi
+    [ -n "$SFT_MAX_NEW" ] && ok "SFT_MAX_NEW=$SFT_MAX_NEW"
+
+    envs=(SFT_DEVICE=cuda ANTIFRAUD_DIR="$MODEL")
+    [ -n "$SFT_LORA" ]    && envs+=(SFT_LORA="$SFT_LORA")
+    [ -n "$SFT_MAX_NEW" ] && envs+=(SFT_MAX_NEW="$SFT_MAX_NEW")
+
+    setsid nohup env "${envs[@]}" "$PY" tools/sft_server.py \
+        --host 127.0.0.1 --port "$SFT_PORT" > "$SFT_LOG" 2>&1 < /dev/null &
     echo "  已启动，等模型加载（约 9 秒）…"
 fi
 

@@ -19,6 +19,8 @@ set -uo pipefail
 PORT="${PORT:-8001}"
 OUT="${OUT:-$HOME/work/lora_r4/eval}"
 LORA="${LORA:-$(cat "$HOME/work/lora_r4/log/lora_dir.txt" 2>/dev/null || true)}"
+# 版本标签：不同轮次的输出必须分开，否则第二轮会覆盖第一轮的结果
+TAG="${TAG:-r4v1}"
 SFT_MAX_NEW="${SFT_MAX_NEW:-768}"
 IDX30="$HOME/work/lora_r4/eval30_idx.jsonl"
 TXT30="$HOME/work/lora_r4/eval30_txt.jsonl"
@@ -52,6 +54,7 @@ fi
 say "1/5 起 $PORT（绑 127.0.0.1，不重建隧道）"
 cd "$HOME/yindun" || die "进不去 ~/yindun"
 SFT_PORT="$PORT" SFT_LORA="$LORA" SFT_MAX_NEW="$SFT_MAX_NEW" \
+    SFT_LOG="$HOME/sft_${PORT}_${TAG}.log" \
     bash tools/school_gpu_bringup.sh || die "起 $PORT 失败"
 H=$(curl -s -m 10 "http://127.0.0.1:$PORT/health")
 echo "$H" | grep -q '"ok": true' || die "$PORT 健康检查不过：$H"
@@ -64,27 +67,27 @@ echo "$H" | grep -q "$(basename "$LORA")" \
 say "2/5 TAF-200 音频（200 条，约 15~20 分钟）"
 "$HOME/venv-swift/bin/python" tools/eval_audio_index.py \
     --url "http://127.0.0.1:$PORT" --dir "$HOME/taf/taf_audio" \
-    --index "$HOME/taf200/index.jsonl" --out "$OUT/taf200_audio_lora.jsonl" --workers 3 \
+    --index "$HOME/taf200/index.jsonl" --out "$OUT/${TAG}_taf200_audio.jsonl" --workers 3 \
     || warn "TAF-200 评测有失败条数"
 
 say "3/5 真人 30 通音频"
 "$HOME/venv-swift/bin/python" tools/eval_audio_index.py \
     --url "http://127.0.0.1:$PORT" --dir "$HOME/yindun/eval30" \
-    --index "$IDX30" --out "$OUT/real30_audio_lora.jsonl" --workers 3 \
+    --index "$IDX30" --out "$OUT/${TAG}_real30_audio.jsonl" --workers 3 \
     || warn "真人音频评测有失败条数"
 
 say "4/5 真人 30 通文字"
 "$HOME/venv-swift/bin/python" tools/eval_judge.py \
     --url "http://127.0.0.1:$PORT" --input "$TXT30" \
-    --out "$OUT/real30_text_lora.jsonl" --workers 3 \
+    --out "$OUT/${TAG}_real30_text.jsonl" --workers 3 \
     || warn "真人文字评测有失败条数"
 
 say "5/5 统计与 §3.9 判据"
-python3 tools/stat_lora_r4.py taf200 --lora "$OUT/taf200_audio_lora.jsonl"
+python3 tools/stat_lora_r4.py taf200 --lora "$OUT/${TAG}_taf200_audio.jsonl"
 RC1=$?
-python3 tools/stat_lora_r4.py real30 --lora "$OUT/real30_audio_lora.jsonl" --mode audio
+python3 tools/stat_lora_r4.py real30 --lora "$OUT/${TAG}_real30_audio.jsonl" --mode audio
 RC2=$?
-python3 tools/stat_lora_r4.py real30 --lora "$OUT/real30_text_lora.jsonl" --mode text
+python3 tools/stat_lora_r4.py real30 --lora "$OUT/${TAG}_real30_text.jsonl" --mode text
 
 # 关掉 8001（纪律①）
 say "收尾：关闭 $PORT"

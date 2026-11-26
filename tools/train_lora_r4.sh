@@ -32,6 +32,8 @@ SWIFT="$HOME/venv-swift/bin/swift"
 PY="$HOME/venv-swift/bin/python3"
 YINDUN="$HOME/yindun"
 SFT_PORT="${SFT_PORT:-8000}"
+# 第二轮（老师方案：第二次训练只改一处，优先把学习率降到 5e-5）
+LR="${LR:-1e-4}"
 # 恢复线上时必须保持 768（见文件头 ⚠️ ①）
 export SFT_MAX_NEW="${SFT_MAX_NEW:-768}"
 LOG="$WORK/log/train_r4.log"
@@ -107,7 +109,7 @@ T0=$(date +%s)
   --per_device_train_batch_size 2 \
   --per_device_eval_batch_size 2 \
   --gradient_accumulation_steps 8 \
-  --learning_rate 1e-4 \
+  --learning_rate "$LR" \
   --lora_rank 32 \
   --lora_alpha 32 \
   --lora_dropout 0.0 \

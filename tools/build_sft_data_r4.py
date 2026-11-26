@@ -336,16 +336,32 @@ def build_first_reason(rng, text, topic, words, is_fraud):
     return rng.choice(FIRST_REASON_TPL).format(topic=topic, snip=snip)
 
 
+# 一条线索都没命中时的兜底措辞。必须给，不能让 {clue} 空着：
+# 空槽位会生成「整通电话的落点是，前面对…」这种残句，而残句因为结构固定反而成了
+# 训练集里最高频的句式（每种 18~27 次，比正常侧任何句式都集中），
+# 模型于是塌缩成复读这一句 —— 第一轮训练 35% 误报的直接来源。
+FALLBACK_CLUE = [
+    "涉及资金或账户信息的处理，需要进一步核实",
+    "围绕钱款事项提出具体操作要求",
+    "把话题引向账户或款项操作",
+    "要求配合处理与账户相关的具体事项",
+    "以办理业务为由推进资金方面的操作",
+]
+
+
 def build_fraud_reason(rng, text, clues):
-    clue_txt = "、".join(c[0] for c in clues[:3])
+    clue_txt = "、".join(c[0] for c in clues[:3]) if clues else rng.choice(FALLBACK_CLUE)
     snip = snippet(text, prefer_words=[c[1] for c in clues], rng=rng)
-    return rng.choice(FRAUD_TPL).format(snip=snip, clue=clue_txt, kind="此类诈骗")
+    kind = rng.choice(["此类诈骗", "这类诈骗", "该类型诈骗"])
+    return rng.choice(FRAUD_TPL).format(snip=snip, clue=clue_txt, kind=kind)
 
 
 # ------------------------------------------------------------------ confidence 分档（计划 3.4）
 def fraud_conf(rng, n_clues):
-    """诈骗 0.88 + 0.02×线索数，上限 0.98，±0.01。p = conf。"""
-    v = 0.88 + 0.02 * min(max(n_clues, 1), 5) + rng.uniform(-0.01, 0.01)
+    """诈骗 0.88 + 0.02×线索数，上限 0.98，±0.01。p = conf。
+    无线索时用 0.88 而不是 max(...,1) 的 0.90 —— 原来所有无线索样本都挤在 0.90，
+    成了训练集里最高频的 confidence 取值（530 条），把置信度教成了常数。"""
+    v = 0.88 + 0.02 * min(max(n_clues, 0), 5) + rng.uniform(-0.01, 0.01)
     return round(min(max(v, 0.88), 0.98), 4)
 
 

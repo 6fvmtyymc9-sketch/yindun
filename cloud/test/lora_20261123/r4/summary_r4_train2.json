@@ -1,0 +1,58 @@
+{
+  "total": 4989,
+  "train": 4739,
+  "val": 250,
+  "sources": {
+    "normal_audio": 1000,
+    "fraud_audio": 1400,
+    "normal_text": 1491,
+    "fraud_text": 1098
+  },
+  "checks": {
+    "总数_正负": {
+      "pass": true,
+      "value": "4989 条，诈骗 2498 / 正常 2491",
+      "require": "≈5,000，各 2,500"
+    },
+    "音频样本": {
+      "pass": true,
+      "value": "2400 条，缺文件 0",
+      "require": "≥2,400 且文件全部存在"
+    },
+    "正常侧客服类音频": {
+      "pass": true,
+      "value": 620,
+      "require": "≥500"
+    },
+    "leak_check": {
+      "pass": true,
+      "value": "文件名命中 0，文本命中 0",
+      "require": "0"
+    },
+    "同一录音音频与文字重复": {
+      "pass": true,
+      "value": 0,
+      "require": "0"
+    },
+    "理由多样性": {
+      "pass": true,
+      "value": "唯一值 9765，最多重复 7 次",
+      "require": "≥2,000 且单句 ≤20"
+    },
+    "正常理由含诈骗类型名": {
+      "pass": true,
+      "value": 0,
+      "require": "0"
+    },
+    "诈骗_p区间": {
+      "pass": true,
+      "value": "0.880 ~ 0.980",
+      "require": "0.88 ~ 0.98"
+    },
+    "正常_p区间": {
+      "pass": true,
+      "value": "0.030 ~ 0.180",
+      "require": "0.03 ~ 0.18"
+    }
+  }
+}

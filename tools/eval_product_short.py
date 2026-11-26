@@ -5,13 +5,14 @@
 """
 import csv
 import json
+import sys
 import time
 import urllib.error
 import urllib.request
 
 URL = "http://123.249.25.139:8080/api/report"
-SRC = "A组_原始_20261125.csv"
-OUT = "product_a50_result.jsonl"
+SRC = sys.argv[1] if len(sys.argv) > 1 else "A组_原始_20261125.csv"
+OUT = sys.argv[2] if len(sys.argv) > 2 else "product_a50_result.jsonl"
 
 
 def call(row, tries=3):

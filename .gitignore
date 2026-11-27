@@ -40,3 +40,7 @@ cloud/test/lora_20261123/r3/data/*.jsonl
 
 # ===== 本地工具快照（文件哈希，不进版本库）=====
 .merkle-snapshot.json
+
+# Python
+__pycache__/
+*.pyc

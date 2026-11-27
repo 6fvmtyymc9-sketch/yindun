@@ -42,6 +42,10 @@ def load(path):
 
 
 def verdict(r):
+    """模型自己的结论。v2 的 /judge 输出用 verdict 字段，v1 及音频侧用 is_fraud。"""
+    v = r.get("verdict")
+    if v in ("fraud", "normal"):
+        return v
     if r.get("is_fraud") is None:
         return None
     return "fraud" if r["is_fraud"] else "normal"
@@ -52,14 +56,27 @@ def pval(r):
     return float(p) if p is not None else None
 
 
+def conf(r):
+    """confidence 字段名在 v1 是 conf、v2 是 confidence，两个都认。"""
+    v = r.get("confidence")
+    return v if v is not None else r.get("conf")
+
+
+def is_fallback(r):
+    """服务解析失败时 p 兜底 1.0 —— 这是假分数，不能当真实判定计入比率。
+    证据：v2 纯文字 30 条里 12 条 confidence=None 且 p=1.0，若照算会虚高召回。"""
+    return conf(r) is None and (pval(r) or 0) == 1.0
+
+
 def rates(rows, label):
-    """返回 (模型结论召回/误报, p≥0.85 召回/误报)"""
-    tgt = [r for r in rows if r.get("label") == label]
+    """返回 (模型结论判是/分母, p≥0.85 判是/分母, 兜底条数)。兜底样本不进分母。"""
+    tgt = [r for r in rows if r.get("label") == label and not is_fallback(r)]
+    fallback = sum(1 for r in rows if r.get("label") == label and is_fallback(r))
     if not tgt:
         return None
     vc = sum(1 for r in tgt if verdict(r) == "fraud")
     pc = sum(1 for r in tgt if (pval(r) or 0) >= 0.85)
-    return vc, pc, len(tgt)
+    return vc, pc, len(tgt), fallback
 
 
 def fmt(n, d):
@@ -91,6 +108,8 @@ def cmd_taf200(a):
         print(f"=== {tag} ===")
         print(f"  模型结论  诈骗召回 {fmt(f[0], f[2])}   正常误报 {fmt(n[0], n[2])}")
         print(f"  p≥0.85    诈骗召回 {fmt(f[1], f[2])}   正常误报 {fmt(n[1], n[2])}")
+        if f[3] or n[3]:
+            print(f"  ⚠️ 解析失败兜底 {f[3] + n[3]} 条（p=1.0 假分，已剔出分母）")
         if lat:
             print(f"  耗时      中位 {lat['median']:.1f}s  P90 {lat['p90']:.1f}s  "
                   f"最长 {lat['max']:.1f}s  超60s {lat['over60']}/{lat['n']}")
@@ -159,6 +178,17 @@ def cmd_real30(a):
         return 1
     print(f"=== 模型结论 ===\n  诈骗召回 {fmt(f[0], f[2])}   正常误报 {fmt(n[0], n[2])}")
     print(f"=== p≥0.85 ===\n  诈骗召回 {fmt(f[1], f[2])}   正常误报 {fmt(n[1], n[2])}")
+    if f[3] or n[3]:
+        print(f"=== ⚠️ 解析失败兜底 ===\n  {f[3] + n[3]} 条 confidence 为空、p 兜底 1.0，已剔出分母")
+    if getattr(a, "base", ""):
+        b = list(load(a.base).values())
+        bf, bn = rates(b, "fraud"), rates(b, "normal")
+        if bf and bn:
+            print(f"\n=== 基线（{a.base}）===")
+            print(f"  模型结论  诈骗召回 {fmt(bf[0], bf[2])}   正常误报 {fmt(bn[0], bn[2])}")
+            print(f"  p≥0.85    诈骗召回 {fmt(bf[1], bf[2])}   正常误报 {fmt(bn[1], bn[2])}")
+            if bf[3] or bn[3]:
+                print(f"  ⚠️ 解析失败兜底 {bf[3] + bn[3]} 条")
     lat = latency(rows)
     if lat:
         print(f"=== 耗时 ===\n  中位 {lat['median']:.1f}s  P90 {lat['p90']:.1f}s  超60s {lat['over60']}/{lat['n']}")
@@ -187,6 +217,7 @@ def main():
 
     p2 = sub.add_parser("real30")
     p2.add_argument("--lora", required=True)
+    p2.add_argument("--base", default="", help="可选：同一天的原始模型基线文件，并排比较")
     p2.add_argument("--mode", default="audio", choices=["audio", "text"])
     p2.set_defaults(func=cmd_real30)
 
